@@ -112,318 +112,1807 @@ const I = {
     trash: (c="currentColor") => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>,
     edit: (c="currentColor") => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
     arrowRight: (c="currentColor") => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
-    wallet: (c="currentColor") => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><rect x="1" y="5" width="22" height="16" rx="2"/><path d="M1 11h20"/><circle cx="17" cy="15" r="2"/></svg>,
-    github: (c="currentColor") => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>,
+    wallet: (c="currentColor") => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><rect x="1" y="5" width="22" height="16" rx="2"/><path d="M1 10h22"/><circle cx="18" cy="15" r="1"/></svg>,
+    receipt: (c="currentColor") => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>,
+    clipboard: (c="currentColor") => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>,
+    command: (c="currentColor") => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>,
+    newspaper: (c="currentColor") => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><line x1="10" y1="6" x2="18" y2="6"/><line x1="10" y1="10" x2="18" y2="10"/><line x1="10" y1="14" x2="14" y2="14"/></svg>,
+    clock: (c="currentColor") => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+    history: (c="currentColor") => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>,
+    user: (c="currentColor") => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
 };
 
-/* ====== COMPONENTS ====== */
-const InputField = ({ label, value, onChange, placeholder = "", type = "text", width = "100%" }) => (
-    <div style={{ marginBottom: "12px" }}>
-        <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>{label}</label>
-        <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} style={{ width, padding: "8px 10px", border: "1px solid #e5e7eb", borderRadius: "6px", fontSize: "14px", fontFamily: "inherit" }} />
+/* ====== DEFAULT DATA ====== */
+const defaultIncome = [];
+const defaultProjects = [];
+const defaultTasks = [];
+const defaultTimeBlocks = [];
+const defaultIdeas = [];
+const defaultLearning = [];
+const defaultTeam = [];
+const defaultAlerts = [];
+const defaultWeeklyPlan = [];
+const defaultExpenses = [];
+
+/* ====== EMBEDDED BRIEFING DATA ====== */
+const embeddedBriefing = {"date":"2026-02-11","generatedAt":"2026-02-11T06:00:00.000Z","headline":"Revenue on track. Two active projects need attention. Four tasks pending today.","sections":[{"title":"Financial Snapshot","items":["Monthly gross income stands at ₦2.0M across 2 active streams.","Monthly expenses total ₦700K, leaving net income at ₦1.3M — healthy position.","Annual projected income: ₦24.0M gross, ₦15.6M net.","Next incoming payment: Feb 28 — Principal Consultant, Ginger Technologies Limited."]},{"title":"Today's Priorities","items":["Review and advance Ginger Technologies February Strategy Campaign Rollout.","Follow up on Social Media Manager/Coordinator onboarding — agreement, NWBS, and deposit still pending.","MNoB Planners: finalize edits, prepare prototype for print test.","Identify and confirm backup printer for MNoB Notebooks."]},{"title":"Project Status","items":["Ginger Technologies Campaign: 0/3 tasks complete — onboarding is the critical path. Push for signed agreement today.","MNoB Planners: 0/4 tasks complete — planner edits and prototype print are the next milestones."]},{"title":"Strategic Notes","items":["Separate business expenses from personal expenses — this remains non-negotiable for scaling.","Two income streams is a solid foundation. Begin scoping a third stream to diversify revenue risk.","Consider scheduling a quarterly review to assess income growth trajectory against the ₦24M annual target."]}]};
+
+const embeddedNation = {"date":"2026-02-11","generatedAt":"2026-02-11T09:00:00.000Z","docxFile":"Morning Intelligence Briefing - Feb 9 2026.docx","indicators":[{"label":"USD/NGN","value":"₦1,363.84","trend":"up","note":"Parallel: ₦1,455"},{"label":"Brent Crude","value":"$68.18/bbl","trend":"flat","note":"+0.20%"},{"label":"Inflation","value":"15.15%","trend":"up","note":"Dec 2025 • ↓ from 17.33%"},{"label":"NGX ASI","value":"171,727","trend":"up","note":"YTD +10.36%"}],"headlines":["Naira appreciated 4.24% over the past month; FDC fair value at ₦1,256.79 per PPP.","NGX market cap reached ₦110.2T — best weekly performance of 2026 at +3.84%.","Gold hit $5,031/oz, up 72.45% YoY as safe haven demand persists.","91% of Nigerian CEOs expect economic growth in 2026 (PwC).","MPC meeting scheduled Feb 23-24 — rate easing expected."],"sections":[{"title":"Foreign Exchange","emoji":"💱","items":["CBN official (NFEM): ₦1,365.72/USD — appreciated ~6% from ₦1,449 early Feb","Parallel market: ₦1,455/USD — spread narrowing, positive confidence signal","CBN injected ₦1.7T liquidity through cumulative repayments","FDC fair value at ₦1,256.79 per PPP model — Naira still undervalued"]},{"title":"Commodities","emoji":"📊","items":["Brent Crude $68.05 — below $75 budget benchmark, fiscal pressure risk","Gold record $4,931/oz — +25% since 2025, safe haven demand persists","Copper $5.88/lb — +28% YoY, AI data centers need 10x traditional power loads","Cocoa $4,197/t — Nigeria output down 11% YoY to 305,000 MT","Wheat $5.38/bu — Nigeria imports 97% of consumption; price moves hit food costs"]},{"title":"Geopolitical Risk","emoji":"🌍","items":["US-China: 34.7-47.5% tariffs in fragile 1-year truce; China signed $700B+ African contracts","Nigeria-China upgraded to Comprehensive Strategic Partnership; $24.6B BRI investments","Ukraine-Russia: 450 drones + 71 missiles in largest aerial assault of year","35M Nigerians projected to face severe food insecurity in 2026 lean season","US-Iran: Nuclear talks in Oman; IRGC seized two tankers near Farsi Island"]},{"title":"Government Policy","emoji":"🏛️","items":["2026 Budget: ₦58.18T — Defence ₦5.41T | Infrastructure ₦3.56T | Education ₦3.52T | Health ₦2.48T","Tax Reform: 4 new acts effective Jan 1; FIRS transitioning to NRS with AI compliance","Manufacturers can now recover input VAT on ALL purchases including services","Nigeria First procurement mandate; concrete roads replacing asphalt (cement play)","WTO Trade Policy Review reinforces modern investment framework commitment"]},{"title":"Stock Watchlist","emoji":"📈","items":["Tier 1: ZENITHBANK (₦72, +14.89%), TRANSPOWER (~₦1.8T cap), DANGCEM, SEPLAT ($3B plan), MTNN (+13.50%)","Tier 2: GTCO (₦99), BUACEMENT (+640.8% Q3), ARADEL (+16.42%), BUAFOODS, UBA (₦45.20)","Tier 3: GEREGU (~₦2T cap), AIRTELAFRI (~₦8.5T), NESTLE (turnaround ₦72.5B profit), OANDO","Allocation: 40% Financial | 30% Energy/Infra | 20% Consumer/Defensive | 10% Digital/Growth"]},{"title":"AI & Technology","emoji":"🤖","items":["Nigeria ranked #1 globally for AI adoption and optimism","AI market growing 27.08% annually; projected to add $15B to GDP by 2030","17 data centers + 9 under construction; Kasi Cloud Lekki $250M hyperscale nearing completion","Digital economy projected $18.3B revenue in 2026; 5 unicorns","Global AI capex: Amazon, Google, Meta, Microsoft combined ~$650B for 2026"]},{"title":"NGX Market Review","emoji":"🏛️","items":["Close: 171,727.49 | Daily: +1.01% | Weekly: +3.84% | YTD: +10.36%","Market Cap: ₦110.234T (+₦1.1T this week) | Breadth: 60 gainers vs 19 losers","Sector leaders: Oil & Gas +2.47% | Insurance +2.16% | Industrial +1.70%","NGX could reach ₦262T in 2026 through Dangote Refinery & NNPC mega-listings","Rate easing cycle expected to trigger asset reallocation from fixed income to equities"]}]};
+
+/* ====== MODAL COMPONENT ====== */
+const Modal = ({ title, onClose, children }) => (
+    <div className="fixed inset-0 modal-overlay z-50 flex items-center justify-center p-4" onClick={onClose}>
+        <div className="bg-white rounded-2xl w-full max-w-lg card-shadow p-0 max-h-[85vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+                <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-50 transition">{I.x("#9CA3AF")}</button>
+            </div>
+            <div className="px-6 py-5 overflow-auto flex-1">{children}</div>
+        </div>
     </div>
 );
 
-const SelectField = ({ label, value, onChange, options }) => (
-    <div style={{ marginBottom: "12px" }}>
-        <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>{label}</label>
-        <select value={value} onChange={(e) => onChange(e.target.value)} style={{ width: "100%", padding: "8px 10px", border: "1px solid #e5e7eb", borderRadius: "6px", fontSize: "14px", fontFamily: "inherit" }}>
-            <option value="">Select an option</option>
-            {options.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
-        </select>
-    </div>
-);
-
-const Button = ({ label, onClick, style = {}, variant = "primary" }) => {
-    const colors = { primary: { bg: "#1F2937", color: "white" }, danger: { bg: "#DC2626", color: "white" }, success: { bg: "#059669", color: "white" } };
-    const c = colors[variant] || colors.primary;
-    return <button onClick={onClick} style={{ padding: "8px 16px", backgroundColor: c.bg, color: c.color, border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "600", fontSize: "14px", transition: "opacity 0.2s", ...style }} onMouseEnter={(e) => e.target.style.opacity = "0.8"} onMouseLeave={(e) => e.target.style.opacity = "1"}>{label}</button>;
-};
-
-const Card = ({ title, children, style = {} }) => (
-    <div style={{ backgroundColor: "white", border: "1px solid #e5e7eb", borderRadius: "8px", padding: "16px", marginBottom: "16px", ...style }}>
-        {title && <h3 style={{ margin: "0 0 12px 0", fontSize: "16px", fontWeight: "600" }}>{title}</h3>}
+const Field = ({ label, children }) => (
+    <div className="mb-4">
+        <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">{label}</label>
         {children}
     </div>
 );
 
-const Stat = ({ icon, label, value, trend, trendValue }) => (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px", backgroundColor: "#f9fafb", borderRadius: "8px", marginBottom: "8px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <div style={{ color: "#6b7280" }}>{icon}</div>
-            <div>
-                <div style={{ fontSize: "13px", color: "#6b7280" }}>{label}</div>
-                <div style={{ fontSize: "18px", fontWeight: "700", color: "#1f2937" }}>{value}</div>
+const inputCls = "w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:bg-white transition";
+const btnPrimary = "w-full py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition";
+const btnDanger = "px-3 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium rounded-lg transition";
+
+/* ====== FORM COMPONENTS ====== */
+const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
+    const [name, setName] = useState(item ? item.name : '');
+    const [role, setRole] = useState(item ? (item.role || '') : '');
+    const [company, setCompany] = useState(item ? (item.company || '') : '');
+    const [type, setType] = useState(item ? item.type : 'Active');
+    const [monthly, setMonthly] = useState(item ? String(item.monthly) : '');
+    const [status, setStatus] = useState(item ? item.status : 'On Track');
+    const [nextPayment, setNextPayment] = useState(item ? (item.nextPayment || '') : '');
+    const [paymentCycle, setPaymentCycle] = useState(item ? (item.paymentCycle || 'Monthly') : 'Monthly');
+    const submit = () => {
+        if (!name || !monthly) return;
+        const val = Number(monthly.replace(/[^0-9.]/g, ''));
+        const data = { name, role, company, type, monthly: val, status, nextPayment, paymentCycle };
+        if (item) {
+            setIncomeStreams(prev => prev.map(s => s.id === item.id ? { ...s, ...data } : s));
+        } else {
+            setIncomeStreams(prev => [...prev, { id: newId(), ...data, lastPayment: new Date().toISOString().split('T')[0], trend: [val, val] }]);
+        }
+        onClose();
+    };
+    return (
+        <Modal title={item ? 'Edit Income Stream' : 'Add Income Stream'} onClose={onClose}>
+            <Field label="Client / Source Name"><input className={inputCls} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Ginger Technologies Limited" /></Field>
+            <div className="grid grid-cols-2 gap-3">
+                <Field label="Your Role"><input className={inputCls} value={role} onChange={e => setRole(e.target.value)} placeholder="e.g. Principal Consultant" /></Field>
+                <Field label="Your Company"><input className={inputCls} value={company} onChange={e => setCompany(e.target.value)} placeholder="e.g. Stamfordham" /></Field>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+                <Field label="Type">
+                    <select className={inputCls} value={type} onChange={e => setType(e.target.value)}>
+                        <option value="Active">Active</option><option value="Passive">Passive</option>
+                    </select>
+                </Field>
+                <Field label="Monthly Amount (₦)"><input className={inputCls} value={monthly} onChange={e => setMonthly(e.target.value)} placeholder="e.g. 1000000" type="number" /></Field>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+                <Field label="Next Payment Due"><input className={inputCls} type="date" value={nextPayment} onChange={e => setNextPayment(e.target.value)} /></Field>
+                <Field label="Payment Cycle">
+                    <select className={inputCls} value={paymentCycle} onChange={e => setPaymentCycle(e.target.value)}>
+                        <option value="Weekly">Weekly</option><option value="Bi-weekly">Bi-weekly</option><option value="Monthly">Monthly</option><option value="Quarterly">Quarterly</option><option value="Annual">Annual</option><option value="Project-based">Project-based</option>
+                    </select>
+                </Field>
+            </div>
+            <Field label="Status">
+                <select className={inputCls} value={status} onChange={e => setStatus(e.target.value)}>
+                    <option value="On Track">On Track</option><option value="Growing">Growing</option><option value="At Risk">At Risk</option>
+                </select>
+            </Field>
+            <div className="flex gap-2 mt-6">
+                {item && <button className={btnDanger} onClick={() => { setIncomeStreams(prev => prev.filter(s => s.id !== item.id)); onClose(); }}>Delete</button>}
+                <button className={btnPrimary} onClick={submit}>{item ? 'Save Changes' : 'Add Income Stream'}</button>
+            </div>
+        </Modal>
+    );
+};
+
+const ProjectForm = ({ item, onClose, setProjects, getProjectProgress }) => {
+    const [name, setName] = useState(item ? item.name : '');
+    const [desc, setDesc] = useState(item ? item.desc : '');
+    const [status, setStatus] = useState(item ? item.status : 'Planning');
+    const [launch, setLaunch] = useState(item ? item.launch : '');
+    const [team, setTeam] = useState(item ? String(item.team) : '1');
+    const [next, setNext] = useState(item ? item.next : '');
+    const autoProgress = item ? getProjectProgress(item.id) : null;
+    const submit = () => {
+        if (!name) return;
+        if (item) {
+            setProjects(prev => prev.map(p => p.id === item.id ? { ...p, name, desc, status, launch, team: Number(team), next } : p));
+        } else {
+            setProjects(prev => [...prev, { id: newId(), name, desc, progress: 0, status, start: new Date().toISOString().split('T')[0], launch, team: Number(team), next }]);
+        }
+        onClose();
+    };
+    return (
+        <Modal title={item ? 'Edit Project' : 'Add Project'} onClose={onClose}>
+            <Field label="Project Name"><input className={inputCls} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. NuOperandi MVP" /></Field>
+            <Field label="Description"><input className={inputCls} value={desc} onChange={e => setDesc(e.target.value)} placeholder="Brief description" /></Field>
+            {item && autoProgress !== null && (
+                <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                    <p className="text-xs text-blue-600 font-medium">Progress auto-calculated from linked tasks: {autoProgress}%</p>
+                </div>
+            )}
+            <div className="grid grid-cols-2 gap-3">
+                <Field label="Status">
+                    <select className={inputCls} value={status} onChange={e => setStatus(e.target.value)}>
+                        <option value="Planning">Planning</option><option value="In Progress">In Progress</option><option value="Launch Ready">Launch Ready</option><option value="Completed">Completed</option>
+                    </select>
+                </Field>
+                <Field label="Team Size"><input className={inputCls} type="number" min="1" value={team} onChange={e => setTeam(e.target.value)} /></Field>
+            </div>
+            <Field label="Target Launch Date"><input className={inputCls} type="date" value={launch} onChange={e => setLaunch(e.target.value)} /></Field>
+            <Field label="Next Action"><input className={inputCls} value={next} onChange={e => setNext(e.target.value)} placeholder="What's the next step?" /></Field>
+            <div className="flex gap-2 mt-6">
+                {item && <button className={btnDanger} onClick={() => { setProjects(prev => prev.filter(p => p.id !== item.id)); onClose(); }}>Delete</button>}
+                <button className={btnPrimary} onClick={submit}>{item ? 'Save Changes' : 'Add Project'}</button>
+            </div>
+        </Modal>
+    );
+};
+
+const WeeklyTaskForm = ({ item, onClose, setWeeklyPlan, activeProjects }) => {
+    const [task, setTask] = useState(item ? item.task : '');
+    const [projId, setProjId] = useState(item ? (item.projectId || '') : '');
+    const [subtasks, setSubtasks] = useState(item && item.subtasks ? item.subtasks.map(s => ({...s})) : []);
+    const [newSub, setNewSub] = useState('');
+    const [deadline, setDeadline] = useState(item ? (item.deadline || '') : '');
+    const [delegatedTo, setDelegatedTo] = useState(item ? (item.delegatedTo || '') : '');
+    const addSub = () => {
+        if (!newSub.trim()) return;
+        setSubtasks(prev => [...prev, { id: newId(), text: newSub.trim(), done: false }]);
+        setNewSub('');
+    };
+    const removeSub = (sid) => setSubtasks(prev => prev.filter(s => s.id !== sid));
+    const submit = () => {
+        if (!task) return;
+        const pid = projId ? Number(projId) : null;
+        if (item) {
+            setWeeklyPlan(prev => prev.map(w => w.id === item.id ? { ...w, task, projectId: pid, subtasks, deadline, delegatedTo } : w));
+        } else {
+            setWeeklyPlan(prev => [...prev, { id: newId(), task, projectId: pid, subtasks, deadline, delegatedTo }]);
+        }
+        onClose();
+    };
+    return (
+        <Modal title={item ? 'Edit Weekly Task' : 'Add Weekly Task'} onClose={onClose}>
+            <Field label="Task">
+                <input className={inputCls} value={task} onChange={e => setTask(e.target.value)} placeholder="What needs to happen this week?" />
+            </Field>
+            <Field label="Linked Project (optional)">
+                <select className={inputCls} value={projId} onChange={e => setProjId(e.target.value)}>
+                    <option value="">No project</option>
+                    {activeProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+            </Field>
+            <Field label="Sub-goals">
+                {subtasks.length > 0 && (
+                    <div className="space-y-2 mb-3">
+                        {subtasks.map(s => (
+                            <div key={s.id} className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg group">
+                                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0"></div>
+                                <span className="text-sm text-gray-700 flex-1">{s.text}</span>
+                                <button onClick={() => removeSub(s.id)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition p-0.5">{I.x("#9CA3AF")}</button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+                <div className="flex gap-2">
+                    <input className={inputCls} value={newSub} onChange={e => setNewSub(e.target.value)} placeholder="Add a sub-goal..." onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSub(); } }} />
+                    <button type="button" onClick={addSub} className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-lg transition flex-shrink-0">Add</button>
+                </div>
+            </Field>
+            <Field label="Deadline (optional)">
+                <input type="date" className={inputCls} value={deadline} onChange={e => setDeadline(e.target.value)} />
+            </Field>
+            <Field label="Delegate to (optional)">
+                <input type="text" className={inputCls} value={delegatedTo} onChange={e => setDelegatedTo(e.target.value)} placeholder="e.g. John, Sarah" />
+            </Field>
+            <div className="flex gap-2 mt-6">
+                {item && <button className={btnDanger} onClick={() => { setWeeklyPlan(prev => prev.filter(w => w.id !== item.id)); onClose(); }}>Delete</button>}
+                <button className={btnPrimary} onClick={submit}>{item ? 'Save Changes' : 'Add Weekly Task'}</button>
+            </div>
+        </Modal>
+    );
+};
+
+const TaskForm = ({ item, onClose, setQuickTasks, activeProjects }) => {
+    const [task, setTask] = useState(item ? item.task : '');
+    const [priority, setPriority] = useState(item ? item.priority : 'medium');
+    const [due, setDue] = useState(item ? item.due : 'Today');
+    const [projId, setProjId] = useState(item ? (item.projectId || '') : '');
+    const [delegatedTo, setDelegatedTo] = useState(item ? (item.delegatedTo || '') : '');
+    const submit = () => {
+        if (!task) return;
+        const pid = projId ? Number(projId) : null;
+        if (item) {
+            setQuickTasks(prev => prev.map(t => t.id === item.id ? { ...t, task, priority, due, projectId: pid, delegatedTo } : t));
+        } else {
+            setQuickTasks(prev => [...prev, { id: newId(), task, priority, due, projectId: pid, delegatedTo }]);
+        }
+        onClose();
+    };
+    return (
+        <Modal title={item ? 'Edit Task' : 'Add Task'} onClose={onClose}>
+            <Field label="Task"><input className={inputCls} value={task} onChange={e => setTask(e.target.value)} placeholder="What needs to be done?" /></Field>
+            <Field label="Linked Project (optional)">
+                <select className={inputCls} value={projId} onChange={e => setProjId(e.target.value)}>
+                    <option value="">No project</option>
+                    {activeProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+            </Field>
+            <div className="grid grid-cols-2 gap-3">
+                <Field label="Priority">
+                    <select className={inputCls} value={priority} onChange={e => setPriority(e.target.value)}>
+                        <option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
+                    </select>
+                </Field>
+                <Field label="Due"><input className={inputCls} value={due} onChange={e => setDue(e.target.value)} placeholder="e.g. Today, Feb 12" /></Field>
+            </div>
+            <Field label="Delegate to (optional)">
+                <input type="text" className={inputCls} value={delegatedTo} onChange={e => setDelegatedTo(e.target.value)} placeholder="e.g. John, Sarah" />
+            </Field>
+            <div className="flex gap-2 mt-6">
+                {item && <button className={btnDanger} onClick={() => { setQuickTasks(prev => prev.filter(t => t.id !== item.id)); onClose(); }}>Delete</button>}
+                <button className={btnPrimary} onClick={submit}>{item ? 'Save Changes' : 'Add Task'}</button>
+            </div>
+        </Modal>
+    );
+};
+
+const TimeBlockForm = ({ item, onClose, setTimeBlocks }) => {
+    const [task, setTask] = useState(item ? item.task : '');
+    const [time, setTime] = useState(item ? item.time : '');
+    const [end, setEnd] = useState(item ? item.end : '');
+    const [cat, setCat] = useState(item ? item.cat : 'blue');
+    const submit = () => {
+        if (!task || !time) return;
+        if (item) {
+            setTimeBlocks(prev => prev.map(b => b.id === item.id ? { ...b, task, time, end, cat } : b));
+        } else {
+            setTimeBlocks(prev => [...prev, { id: newId(), task, time, end, cat }]);
+        }
+        onClose();
+    };
+    return (
+        <Modal title={item ? 'Edit Time Block' : 'Add Time Block'} onClose={onClose}>
+            <Field label="Activity"><input className={inputCls} value={task} onChange={e => setTask(e.target.value)} placeholder="e.g. Deep Work, Client Call" /></Field>
+            <div className="grid grid-cols-2 gap-3">
+                <Field label="Start Time"><input className={inputCls} value={time} onChange={e => setTime(e.target.value)} placeholder="e.g. 9:00 AM" /></Field>
+                <Field label="End Time"><input className={inputCls} value={end} onChange={e => setEnd(e.target.value)} placeholder="e.g. 10:30 AM" /></Field>
+            </div>
+            <Field label="Category">
+                <select className={inputCls} value={cat} onChange={e => setCat(e.target.value)}>
+                    <option value="blue">Work</option><option value="purple">Meeting</option><option value="amber">Routine</option><option value="green">Personal</option>
+                </select>
+            </Field>
+            <div className="flex gap-2 mt-6">
+                {item && <button className={btnDanger} onClick={() => { setTimeBlocks(prev => prev.filter(b => b.id !== item.id)); onClose(); }}>Delete</button>}
+                <button className={btnPrimary} onClick={submit}>{item ? 'Save Changes' : 'Add Time Block'}</button>
+            </div>
+        </Modal>
+    );
+};
+
+const IdeaForm = ({ item, onClose, setIdeas }) => {
+    const [text, setText] = useState(item ? item.text : '');
+    const submit = () => {
+        if (!text) return;
+        if (item) { setIdeas(prev => prev.map(i => i.id === item.id ? { ...i, text } : i)); }
+        else { setIdeas(prev => [...prev, { id: newId(), text, t: 'Just now' }]); }
+        onClose();
+    };
+    return (
+        <Modal title={item ? 'Edit Idea' : 'Capture an Idea'} onClose={onClose}>
+            <Field label="What's on your mind?"><textarea className={inputCls + ' h-24 resize-none'} value={text} onChange={e => setText(e.target.value)} placeholder="An idea you don't want to forget..." /></Field>
+            <div className="flex gap-2 mt-4">
+                {item && <button className={btnDanger} onClick={() => { setIdeas(prev => prev.filter(i => i.id !== item.id)); onClose(); }}>Delete</button>}
+                <button className={btnPrimary} onClick={submit}>{item ? 'Save' : 'Save Idea'}</button>
+            </div>
+        </Modal>
+    );
+};
+
+const LearningForm = ({ item, idx, onClose, setLearning }) => {
+    const [text, setText] = useState(item || '');
+    const submit = () => {
+        if (!text) return;
+        if (item) { setLearning(prev => prev.map((l, i) => i === idx ? text : l)); }
+        else { setLearning(prev => [...prev, text]); }
+        onClose();
+    };
+    return (
+        <Modal title={item ? 'Edit Learning Goal' : 'Add Learning Goal'} onClose={onClose}>
+            <Field label="What do you want to learn?"><input className={inputCls} value={text} onChange={e => setText(e.target.value)} placeholder="e.g. Financial modelling, Mandarin" /></Field>
+            <div className="flex gap-2 mt-4">
+                {item && <button className={btnDanger} onClick={() => { setLearning(prev => prev.filter((_, i) => i !== idx)); onClose(); }}>Delete</button>}
+                <button className={btnPrimary} onClick={submit}>{item ? 'Save' : 'Add Goal'}</button>
+            </div>
+        </Modal>
+    );
+};
+
+const TeamForm = ({ item, onClose, setTeamMembers }) => {
+    const [name, setName] = useState(item ? item.name : '');
+    const [initials, setInitials] = useState(item ? item.initials : '');
+    const [status, setStatus] = useState(item ? item.status : 'available');
+    const submit = () => {
+        if (!name) return;
+        const auto = initials || name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        if (item) { setTeamMembers(prev => prev.map(m => m.id === item.id ? { ...m, name, initials: auto, status } : m)); }
+        else { setTeamMembers(prev => [...prev, { id: newId(), name, initials: auto, status }]); }
+        onClose();
+    };
+    return (
+        <Modal title={item ? 'Edit Team Member' : 'Add Team Member'} onClose={onClose}>
+            <Field label="Full Name"><input className={inputCls} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Aisha Okonkwo" /></Field>
+            <Field label="Initials (auto-generated if blank)"><input className={inputCls} value={initials} onChange={e => setInitials(e.target.value)} placeholder="e.g. AO" maxLength={3} /></Field>
+            <Field label="Status">
+                <select className={inputCls} value={status} onChange={e => setStatus(e.target.value)}>
+                    <option value="available">Available</option><option value="meeting">In Meeting</option><option value="leave">On Leave</option>
+                </select>
+            </Field>
+            <div className="flex gap-2 mt-4">
+                {item && <button className={btnDanger} onClick={() => { setTeamMembers(prev => prev.filter(m => m.id !== item.id)); onClose(); }}>Remove</button>}
+                <button className={btnPrimary} onClick={submit}>{item ? 'Save' : 'Add Member'}</button>
+            </div>
+        </Modal>
+    );
+};
+
+const AddMenu = ({ onClose, activeModule, setModal }) => {
+    const items = activeModule === 'command' ? [
+        { label: 'Daily Task', action: () => { onClose(); setModal('addTask'); } },
+        { label: 'Time Block', action: () => { onClose(); setModal('addTimeBlock'); } },
+        { label: 'Income Stream', action: () => { onClose(); setModal('addIncome'); } },
+        { label: 'Project', action: () => { onClose(); setModal('addProject'); } },
+    ] : activeModule === 'income' ? [
+        { label: 'Income Stream', action: () => { onClose(); setModal('addIncome'); } },
+        { label: 'Expense', action: () => { onClose(); setModal('addExpense'); } },
+        { label: 'Project', action: () => { onClose(); setModal('addProject'); } },
+    ] : activeModule === 'briefing' ? [
+        { label: 'Team Member', action: () => { onClose(); setModal('addTeam'); } },
+    ] : [
+        { label: 'Weekly Task', action: () => { onClose(); setModal('addWeekly'); } },
+        { label: 'Daily Task', action: () => { onClose(); setModal('addTask'); } },
+        { label: 'Time Block', action: () => { onClose(); setModal('addTimeBlock'); } },
+        { label: 'Idea', action: () => { onClose(); setModal('addIdea'); } },
+        { label: 'Learning Goal', action: () => { onClose(); setModal('addLearning'); } },
+    ];
+    return (
+        <div className="fixed inset-0 z-40" onClick={onClose}>
+            <div className="fixed bottom-24 right-8 bg-white rounded-xl border border-gray-100 card-shadow p-2 min-w-[180px] z-50" onClick={e => e.stopPropagation()}>
+                <p className="text-xs font-medium text-gray-400 uppercase tracking-wide px-3 py-2">Add New</p>
+                {items.map((it, i) => (
+                    <button key={i} onClick={it.action} className="w-full text-left px-3 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition flex items-center gap-2">
+                        {I.plus("#3B82F6")}
+                        {it.label}
+                    </button>
+                ))}
             </div>
         </div>
-        {trend && <div style={{ display: "flex", alignItems: "center", gap: "4px", color: trend === "up" ? "#059669" : "#dc2626" }}>{trend === "up" ? I.arrowUp() : I.arrowDown()} {trendValue}</div>}
-    </div>
-);
+    );
+};
 
-/* ====== MAIN APP ====== */
+const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams }) => {
+    const [name, setName] = useState(item ? item.name : '');
+    const [amount, setAmount] = useState(item ? String(item.amount) : '');
+    const [category, setCategory] = useState(item ? item.category : 'Salary');
+    const [frequency, setFrequency] = useState(item ? item.frequency : 'Monthly');
+    const [linkedStreamId, setLinkedStreamId] = useState(item ? (item.linkedStreamId || '') : '');
+    const [note, setNote] = useState(item ? (item.note || '') : '');
+    const [dueDate, setDueDate] = useState(item ? (item.dueDate || '') : '');
+    const submit = () => {
+        if (!name || !amount) return;
+        const val = Number(amount.replace(/[^0-9.]/g, ''));
+        const lsid = linkedStreamId ? Number(linkedStreamId) : null;
+        const data = { name, amount: val, category, frequency, linkedStreamId: lsid, note, dueDate: dueDate || null };
+        if (item) {
+            setExpenses(prev => prev.map(e => e.id === item.id ? { ...e, ...data } : e));
+        } else {
+            setExpenses(prev => [...prev, { id: newId(), ...data }]);
+        }
+        onClose();
+    };
+    return (
+        <Modal title={item ? 'Edit Expense' : 'Add Expense'} onClose={onClose}>
+            <Field label="Expense Name"><input className={inputCls} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Staff Salaries, Office Rent" /></Field>
+            <div className="grid grid-cols-2 gap-3">
+                <Field label="Amount (₦)"><input className={inputCls} value={amount} onChange={e => setAmount(e.target.value)} placeholder="e.g. 200000" type="number" /></Field>
+                <Field label="Frequency">
+                    <select className={inputCls} value={frequency} onChange={e => setFrequency(e.target.value)}>
+                        <option value="Monthly">Monthly</option><option value="Weekly">Weekly</option><option value="Quarterly">Quarterly</option><option value="Annual">Annual</option><option value="One-time">One-time</option>
+                    </select>
+                </Field>
+            </div>
+            <Field label="Category">
+                <select className={inputCls} value={category} onChange={e => setCategory(e.target.value)}>
+                    <option value="Salary">Salary</option><option value="Rent">Rent</option><option value="Operations">Operations</option><option value="Marketing">Marketing</option><option value="Software">Software & Tools</option><option value="Transport">Transport</option><option value="Utilities">Utilities</option><option value="Tax">Tax</option><option value="Other">Other</option>
+                </select>
+            </Field>
+            <Field label="Paid From (optional)">
+                <select className={inputCls} value={linkedStreamId} onChange={e => setLinkedStreamId(e.target.value)}>
+                    <option value="">General / Personal</option>
+                    {incomeStreams.map(s => <option key={s.id} value={s.id}>{s.name}{s.company ? ' (' + s.company + ')' : ''}</option>)}
+                </select>
+            </Field>
+            <div className="grid grid-cols-2 gap-3">
+                <Field label="Due Date (optional)"><input className={inputCls} type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} /></Field>
+                <Field label="Note (optional)"><input className={inputCls} value={note} onChange={e => setNote(e.target.value)} placeholder="e.g. 2 staff members" /></Field>
+            </div>
+            <div className="flex gap-2 mt-6">
+                {item && <button className={btnDanger} onClick={() => { setExpenses(prev => prev.filter(e => e.id !== item.id)); onClose(); }}>Delete</button>}
+                <button className={btnPrimary} onClick={submit}>{item ? 'Save Changes' : 'Add Expense'}</button>
+            </div>
+        </Modal>
+    );
+};
+
+/* ====== MAIN APP COMPONENT ====== */
 const NuOperandi = () => {
-    const [items, setItems] = useState(() => load('items', []));
-    const [learning, setLearning] = useState(() => load('learning', []));
-    const [financial, setFinancial] = useState(() => load('financial', []));
+    const [activeModule, setActiveModule] = useState('command');
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [currentTime, setCurrentTime] = useState(new Date());
     const [modal, setModal] = useState(null);
     const [editItem, setEditItem] = useState(null);
-    const [itemName, setItemName] = useState('');
-    const [itemValue, setItemValue] = useState('');
-    const [itemUnit, setItemUnit] = useState('count');
-    const [itemFreq, setItemFreq] = useState('daily');
-    const [itemColor, setItemColor] = useState('#3B82F6');
-    const [learningTitle, setLearningTitle] = useState('');
-    const [learningCategory, setLearningCategory] = useState('');
-    const [learningDuration, setLearningDuration] = useState('');
-    const [learningLevel, setLearningLevel] = useState('beginner');
-    const [financeDesc, setFinanceDesc] = useState('');
-    const [financeAmount, setFinanceAmount] = useState('');
-    const [financeType, setFinanceType] = useState('income');
-    const [financeDate, setFinanceDate] = useState(new Date().toISOString().split('T')[0]);
+    const [expandedProject, setExpandedProject] = useState(null);
+    const [expandedIncome, setExpandedIncome] = useState(null);
+    const [expandedIdeas, setExpandedIdeas] = useState(false);
+    const [plannerTab, setPlannerTab] = useState('weekly');
+    const [collapsedProjects, setCollapsedProjects] = useState(() => load('collapsedProjects', {}));
 
-    const addItem = useCallback(() => {
-        if (itemName.trim()) {
-            const newItem = { id: newId(), name: itemName, value: parseFloat(itemValue) || 0, unit: itemUnit, freq: itemFreq, color: itemColor, data: [parseFloat(itemValue) || 0], created: Date.now() };
-            const updated = [...items, newItem];
-            setItems(updated);
-            save('items', updated);
-            setItemName(''); setItemValue(''); setItemUnit('count'); setItemFreq('daily'); setItemColor('#3B82F6');
+    /* -- Editable Data State -- */
+    const [incomeStreams, setIncomeStreams] = useState(() => load('income', defaultIncome));
+    const [projects, setProjects] = useState(() => load('projects', defaultProjects));
+    const [quickTasks, setQuickTasks] = useState(() => load('tasks', defaultTasks));
+    const [timeBlocks, setTimeBlocks] = useState(() => load('timeblocks', defaultTimeBlocks));
+    const [ideas, setIdeas] = useState(() => load('ideas', defaultIdeas));
+    const [learning, setLearning] = useState(() => load('learning', defaultLearning));
+    const [teamMembers, setTeamMembers] = useState(() => load('team', defaultTeam));
+    const [alerts, setAlerts] = useState(() => load('alerts', defaultAlerts));
+    const [completedTasks, setCompletedTasks] = useState(() => load('completedTasks', {}));
+    const [completedTimeBlocks, setCompletedTimeBlocks] = useState(() => load('completedBlocks', {}));
+    const [weeklyPlan, setWeeklyPlan] = useState(() => load('weeklyPlan', defaultWeeklyPlan));
+    const [completedWeekly, setCompletedWeekly] = useState(() => load('completedWeekly', {}));
+    const [expenses, setExpenses] = useState(() => load('expenses', defaultExpenses));
+    const [briefing, setBriefing] = useState(() => load('briefing', embeddedBriefing));
+    const [nationBriefing, setNationBriefing] = useState(() => load('nationBriefing', embeddedNation));
+    const [taskHistory, setTaskHistory] = useState(() => load('taskHistory', []));
+
+    /* -- Auto-save all data -- */
+    useEffect(() => { save('income', incomeStreams); }, [incomeStreams]);
+    useEffect(() => { save('projects', projects); }, [projects]);
+    useEffect(() => { save('tasks', quickTasks); }, [quickTasks]);
+    useEffect(() => { save('timeblocks', timeBlocks); }, [timeBlocks]);
+    useEffect(() => { save('ideas', ideas); }, [ideas]);
+    useEffect(() => { save('learning', learning); }, [learning]);
+    useEffect(() => { save('team', teamMembers); }, [teamMembers]);
+    useEffect(() => { save('alerts', alerts); }, [alerts]);
+    useEffect(() => { save('completedTasks', completedTasks); }, [completedTasks]);
+    useEffect(() => { save('completedBlocks', completedTimeBlocks); }, [completedTimeBlocks]);
+    useEffect(() => { save('weeklyPlan', weeklyPlan); }, [weeklyPlan]);
+    useEffect(() => { save('expenses', expenses); }, [expenses]);
+    useEffect(() => { save('completedWeekly', completedWeekly); }, [completedWeekly]);
+    useEffect(() => { save('collapsedProjects', collapsedProjects); }, [collapsedProjects]);
+    useEffect(() => { save('briefing', briefing); }, [briefing]);
+    useEffect(() => { save('nationBriefing', nationBriefing); }, [nationBriefing]);
+    useEffect(() => { save('taskHistory', taskHistory); }, [taskHistory]);
+
+    useEffect(() => {
+        const liveBriefing = generateLiveBriefing();
+        setBriefing(liveBriefing);
+    }, []);
+
+    useEffect(() => {
+        if (embeddedNation && embeddedNation.generatedAt) {
+            const storedN = nationBriefing;
+            if (!storedN || !storedN.generatedAt || embeddedNation.generatedAt > storedN.generatedAt) {
+                setNationBriefing(embeddedNation);
+            }
         }
-    }, [items, itemName, itemValue, itemUnit, itemFreq, itemColor]);
+        fetchLiveNationData();
+    }, []);
 
-    const updateItem = useCallback((id, updates) => {
-        const updated = items.map(item => item.id === id ? { ...item, ...updates } : item);
-        setItems(updated);
-        save('items', updated);
-    }, [items]);
+    useEffect(() => {
+        if (modal) return;
+        const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+        return () => clearInterval(timer);
+    }, [modal]);
 
-    const deleteItem = useCallback((id) => {
-        const updated = items.filter(item => item.id !== id);
-        setItems(updated);
-        save('items', updated);
-    }, [items]);
+    useEffect(() => {
+        const archiveCompletedTasks = () => {
+            const today = new Date().toISOString().split('T')[0];
+            const completed = quickTasks.filter(t => completedTasks[t.id]);
+            if (completed.length === 0) return;
+            const archiveEntry = {
+                date: today,
+                tasks: completed.map(t => ({
+                    ...t,
+                    completedAt: new Date().toISOString()
+                }))
+            };
+            setTaskHistory(prev => {
+                const existing = prev.find(h => h.date === today);
+                if (existing) {
+                    return prev.map(h => h.date === today
+                        ? { ...h, tasks: [...h.tasks, ...archiveEntry.tasks] }
+                        : h
+                    );
+                }
+                return [archiveEntry, ...prev];
+            });
+            // Remove archived tasks from active list
+            const completedIds = completed.map(t => t.id);
+            setQuickTasks(prev => prev.filter(t => !completedIds.includes(t.id)));
+            setCompletedTasks(prev => {
+                const next = { ...prev };
+                completedIds.forEach(id => delete next[id]);
+                return next;
+            });
+        };
 
-    const addValueToItem = useCallback((id, value) => {
-        const item = items.find(i => i.id === id);
-        if (item) {
-            const updated = items.map(i => i.id === id ? { ...i, value: i.value + value, data: [...i.data, i.value + value].slice(-14) } : i);
-            setItems(updated);
-            save('items', updated);
+        const now = new Date();
+        const midnight = new Date(now);
+        midnight.setHours(24, 0, 0, 0);
+        const msUntilMidnight = midnight - now;
+
+        const timer = setTimeout(() => {
+            archiveCompletedTasks();
+            // Then set interval for subsequent days
+            const interval = setInterval(archiveCompletedTasks, 24 * 60 * 60 * 1000);
+            return () => clearInterval(interval);
+        }, msUntilMidnight);
+
+        return () => clearTimeout(timer);
+    }, [quickTasks, completedTasks]);
+
+    const greeting = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; };
+    const fmtDate = (d) => new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).format(d);
+    const fmtNaira = (v) => '₦' + (Number(v) >= 1000000 ? (Number(v) / 1000000).toFixed(1) + 'M' : Number(v) >= 1000 ? (Number(v) / 1000).toFixed(0) + 'K' : Number(v).toLocaleString());
+    const totalMonthly = incomeStreams.reduce((s, i) => s + Number(i.monthly || 0), 0);
+    const totalExpenses = expenses.reduce((s, e) => {
+        const amt = Number(e.amount || 0);
+        if (e.frequency === 'Weekly') return s + amt * 4.33;
+        if (e.frequency === 'Quarterly') return s + amt / 3;
+        if (e.frequency === 'Annual') return s + amt / 12;
+        if (e.frequency === 'One-time') return s;
+        return s + amt;
+    }, 0);
+    const netMonthly = totalMonthly - totalExpenses;
+    const nextPaymentDue = useMemo(() => {
+        const upcoming = incomeStreams.filter(s => s.nextPayment).sort((a, b) => a.nextPayment.localeCompare(b.nextPayment));
+        if (upcoming.length === 0) return null;
+        return upcoming[0];
+    }, [incomeStreams]);
+
+    const toggleTask = (id) => setCompletedTasks(p => ({ ...p, [id]: !p[id] }));
+    const toggleBlock = (id) => setCompletedTimeBlocks(p => ({ ...p, [id]: !p[id] }));
+    const toggleWeekly = (id) => setCompletedWeekly(p => ({ ...p, [id]: !p[id] }));
+    const toggleProjectCollapse = (pid) => setCollapsedProjects(p => ({ ...p, [pid]: !p[pid] }));
+    const toggleSubtask = (weeklyId, subtaskId) => {
+        setWeeklyPlan(prev => prev.map(w => {
+            if (w.id !== weeklyId || !w.subtasks) return w;
+            return { ...w, subtasks: w.subtasks.map(s => s.id === subtaskId ? { ...s, done: !s.done } : s) };
+        }));
+    };
+    const archiveCompleted = () => {
+        const today = new Date().toISOString().split('T')[0];
+        const completed = quickTasks.filter(t => completedTasks[t.id]);
+        if (completed.length === 0) return;
+        const archiveEntry = {
+            date: today,
+            tasks: completed.map(t => ({ ...t, completedAt: new Date().toISOString() }))
+        };
+        setTaskHistory(prev => {
+            const existing = prev.find(h => h.date === today);
+            if (existing) {
+                return prev.map(h => h.date === today ? { ...h, tasks: [...h.tasks, ...archiveEntry.tasks] } : h);
+            }
+            return [archiveEntry, ...prev];
+        });
+        const completedIds = completed.map(t => t.id);
+        setQuickTasks(prev => prev.filter(t => !completedIds.includes(t.id)));
+        setCompletedTasks(prev => {
+            const next = { ...prev };
+            completedIds.forEach(id => delete next[id]);
+            return next;
+        });
+    };
+    const getSubProgress = (w) => {
+        if (!w.subtasks || w.subtasks.length === 0) return null;
+        const done = w.subtasks.filter(s => s.done).length;
+        return { done, total: w.subtasks.length, pct: Math.round((done / w.subtasks.length) * 100) };
+    };
+
+    const getProjectProgress = useCallback((projectId) => {
+        const linkedWeekly = weeklyPlan.filter(w => w.projectId === projectId);
+        const linkedTasks = quickTasks.filter(t => t.projectId === projectId);
+        if (linkedWeekly.length === 0 && linkedTasks.length === 0) return null;
+        let totalUnits = 0, doneUnits = 0;
+        linkedWeekly.forEach(w => {
+            if (w.subtasks && w.subtasks.length > 0) {
+                totalUnits += w.subtasks.length;
+                doneUnits += w.subtasks.filter(s => s.done).length;
+            } else {
+                totalUnits += 1;
+                if (completedWeekly[w.id]) doneUnits += 1;
+            }
+        });
+        linkedTasks.forEach(t => {
+            totalUnits += 1;
+            if (completedTasks[t.id]) doneUnits += 1;
+        });
+        return totalUnits === 0 ? 0 : Math.round((doneUnits / totalUnits) * 100);
+    }, [weeklyPlan, quickTasks, completedWeekly, completedTasks]);
+
+    const generateLiveBriefing = useCallback(() => {
+        const today = new Date();
+        const dateStr = today.toISOString().split('T')[0];
+        const streamCount = incomeStreams.filter(s => Number(s.monthly || 0) > 0).length;
+        const pendingToday = quickTasks.filter(t => !completedTasks[t.id]);
+        const activeProjects = projects.filter(p => p.status !== 'Completed');
+
+        const headline = `${streamCount} income stream${streamCount !== 1 ? 's' : ''} active. ${fmtNaira(netMonthly)} net monthly. ${pendingToday.length} task${pendingToday.length !== 1 ? 's' : ''} pending today.`;
+
+        const sections = [];
+
+        sections.push({
+            title: "Financial Snapshot",
+            items: [
+                `Monthly gross income: ${fmtNaira(totalMonthly)} across ${streamCount} active stream${streamCount !== 1 ? 's' : ''}.`,
+                `Monthly expenses: ${fmtNaira(totalExpenses)} — net income: ${fmtNaira(netMonthly)}.`,
+                `Annual projected: ${fmtNaira(totalMonthly * 12)} gross, ${fmtNaira(netMonthly * 12)} net.`,
+                nextPaymentDue ? `Next payment: ${new Date(nextPaymentDue.nextPayment + 'T00:00:00').toLocaleDateString('en-US', {month: 'short', day: 'numeric'})} — ${nextPaymentDue.role}, ${nextPaymentDue.name}.` : 'No upcoming payments scheduled.'
+            ]
+        });
+
+        if (pendingToday.length > 0) {
+            sections.push({ title: "Today's Priorities", items: pendingToday.slice(0, 6).map(t => t.task) });
+        } else {
+            sections.push({ title: "Today's Priorities", items: ["✅ All tasks complete — clear schedule ahead."] });
         }
-    }, [items]);
 
-    const addLearning = useCallback(() => {
-        if (learningTitle.trim() && learningCategory.trim()) {
-            const newLearning = { id: newId(), title: learningTitle, category: learningCategory, duration: parseInt(learningDuration) || 0, level: learningLevel, created: Date.now(), updated: Date.now() };
-            const updated = [...learning, newLearning];
-            setLearning(updated);
-            save('learning', updated);
-            setLearningTitle(''); setLearningCategory(''); setLearningDuration(''); setLearningLevel('beginner');
+        // Deadline awareness
+        const deadlineTasks = weeklyPlan.filter(w => w.deadline && !completedWeekly[w.id]).sort((a, b) => a.deadline.localeCompare(b.deadline));
+        if (deadlineTasks.length > 0) {
+            const deadlineItems = deadlineTasks.slice(0, 3).map(w => {
+                const d = new Date(w.deadline + 'T00:00:00');
+                const today = new Date(); today.setHours(0,0,0,0);
+                const diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
+                const urgency = diff <= 0 ? 'OVERDUE' : diff === 1 ? 'Due tomorrow' : diff <= 3 ? `Due in ${diff} days` : `Due ${d.toLocaleDateString('en-US', {month:'short', day:'numeric'})}`;
+                return `${urgency}: ${w.task}${w.delegatedTo ? ' (delegated to ' + w.delegatedTo + ')' : ''}`;
+            });
+            sections.push({ title: "Upcoming Deadlines", items: deadlineItems });
         }
-    }, [learning, learningTitle, learningCategory, learningDuration, learningLevel]);
 
-    const updateLearning = useCallback((id, updates) => {
-        const updated = learning.map(l => l.id === id ? { ...l, ...updates, updated: Date.now() } : l);
-        setLearning(updated);
-        save('learning', updated);
-    }, [learning]);
-
-    const deleteLearning = useCallback((id) => {
-        const updated = learning.filter(l => l.id !== id);
-        setLearning(updated);
-        save('learning', updated);
-    }, [learning]);
-
-    const addFinance = useCallback(() => {
-        if (financeDesc.trim() && financeAmount) {
-            const newEntry = { id: newId(), description: financeDesc, amount: parseFloat(financeAmount), type: financeType, date: financeDate, created: Date.now() };
-            const updated = [...financial, newEntry];
-            setFinancial(updated);
-            save('financial', updated);
-            setFinanceDesc(''); setFinanceAmount(''); setFinanceType('income'); setFinanceDate(new Date().toISOString().split('T')[0]);
+        if (activeProjects.length > 0) {
+            sections.push({
+                title: "Project Status",
+                items: activeProjects.slice(0, 5).map(p => {
+                    const progress = getProjectProgress(p.id);
+                    return `${p.name}: ${progress !== null ? progress + '% complete' : 'No linked tasks'} — ${p.status}`;
+                })
+            });
         }
-    }, [financial, financeDesc, financeAmount, financeType, financeDate]);
 
-    const deleteFinance = useCallback((id) => {
-        const updated = financial.filter(f => f.id !== id);
-        setFinancial(updated);
-        save('financial', updated);
-    }, [financial]);
+        sections.push({
+            title: "Strategic Notes",
+            items: [
+                netMonthly > 0 ? `Positive cash flow of ${fmtNaira(netMonthly)}/month — maintain trajectory.` : `Cash flow gap of ${fmtNaira(Math.abs(netMonthly))}/month — review expenses.`,
+                streamCount < 3 ? `${streamCount} income stream${streamCount !== 1 ? 's' : ''} active — consider diversifying to reduce revenue risk.` : `${streamCount} income streams — well-diversified revenue base.`,
+                `Annual target: ${fmtNaira(totalMonthly * 12)} gross. Track monthly to stay on course.`
+            ]
+        });
 
-    const totalIncome = useMemo(() => financial.filter(f => f.type === 'income').reduce((sum, f) => sum + f.amount, 0), [financial]);
-    const totalExpense = useMemo(() => financial.filter(f => f.type === 'expense').reduce((sum, f) => sum + f.amount, 0), [financial]);
-    const netBalance = totalIncome - totalExpense;
-    const totalItemValue = useMemo(() => items.reduce((sum, item) => sum + item.value, 0), [items]);
-    const avgLearningDuration = useMemo(() => learning.length > 0 ? (learning.reduce((sum, l) => sum + l.duration, 0) / learning.length).toFixed(1) : 0, [learning]);
+        return { date: dateStr, generatedAt: today.toISOString(), headline, sections, autoGenerated: true };
+    }, [incomeStreams, quickTasks, completedTasks, projects, totalMonthly, totalExpenses, netMonthly, nextPaymentDue, getProjectProgress]);
 
-    return (
-        <div style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", backgroundColor: "#f3f4f6", minHeight: "100vh", padding: "0", margin: "0" }}>
-            {/* HEADER */}
-            <header style={{ backgroundColor: "white", borderBottom: "1px solid #e5e7eb", padding: "20px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <Emblem size={40} />
-                    <h1 style={{ margin: "0", fontSize: "24px", fontWeight: "700", color: "#1f2937" }}>NuOperandi</h1>
+    const fetchLiveNationData = useCallback(async () => {
+        try {
+            const res = await fetch('https://open.er-api.com/v6/latest/USD');
+            const data = await res.json();
+            if (data.result === 'success' && data.rates && data.rates.NGN) {
+                const rate = data.rates.NGN;
+                const timeStr = new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
+                setNationBriefing(prev => {
+                    if (!prev) return prev;
+                    return {
+                        ...prev,
+                        indicators: prev.indicators.map(ind =>
+                            ind.label === 'USD/NGN'
+                                ? { ...ind, value: '₦' + rate.toFixed(2), note: 'Live • ' + timeStr, trend: 'up' }
+                                : ind
+                        ),
+                        lastLiveUpdate: new Date().toISOString()
+                    };
+                });
+            }
+        } catch (e) { }
+    }, []);
+
+    const pushToDaily = (weeklyItem) => {
+        const existingTask = quickTasks.find(t => t.weeklySourceId === weeklyItem.id);
+        if (existingTask) return;
+        setQuickTasks(prev => [...prev, {
+            id: newId(),
+            task: weeklyItem.task,
+            priority: 'medium',
+            due: 'Today',
+            projectId: weeklyItem.projectId || null,
+            weeklySourceId: weeklyItem.id
+        }]);
+    };
+
+    const catColors = { amber: 'bg-amber-50 border-amber-200 text-amber-800', blue: 'bg-blue-50 border-blue-200 text-blue-800', purple: 'bg-purple-50 border-purple-200 text-purple-800', green: 'bg-emerald-50 border-emerald-200 text-emerald-800' };
+    const catDot = { amber: 'bg-amber-400', blue: 'bg-blue-400', purple: 'bg-purple-400', green: 'bg-emerald-400' };
+    const statusColors = { 'On Track': 'bg-emerald-50 text-emerald-700', 'Growing': 'bg-blue-50 text-blue-700', 'At Risk': 'bg-red-50 text-red-700', 'In Progress': 'bg-blue-50 text-blue-700', 'Planning': 'bg-amber-50 text-amber-700', 'Launch Ready': 'bg-emerald-50 text-emerald-700', 'Completed': 'bg-gray-100 text-gray-600' };
+    const prioColor = { high: 'bg-red-100 text-red-600', medium: 'bg-amber-100 text-amber-600', low: 'bg-emerald-100 text-emerald-600' };
+    const prioLabel = { high: 'High', medium: 'Med', low: 'Low' };
+
+    const projectName = (id) => {
+        if (!id) return null;
+        const p = projects.find(pr => pr.id === id);
+        return p ? p.name : null;
+    };
+
+    const activeProjects = useMemo(() => projects.filter(p => p.status !== 'Completed'), [projects]);
+
+    const Empty = ({ icon, title, sub, action, actionLabel }) => (
+        <div className="text-center py-12 px-4">
+            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">{icon}</div>
+            <p className="text-sm font-medium text-gray-900 mb-1">{title}</p>
+            <p className="text-xs text-gray-400 mb-5">{sub}</p>
+            {action && <button onClick={action} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition">{I.plus("white")} {actionLabel}</button>}
+        </div>
+    );
+
+    const Sidebar = () => (
+        <div className={'fixed left-0 top-0 h-screen flex flex-col z-10 bg-white border-r border-gray-100 sidebar-shadow transition-all duration-300 ' + (sidebarOpen ? 'w-60' : 'w-16')}>
+            <div className="p-4 flex items-center justify-between border-b border-gray-50">
+                {sidebarOpen ? (
+                    <div className="flex items-center gap-2.5"><Emblem size={34} /><span className="text-base font-semibold text-gray-900 tracking-tight">NuOperandi</span></div>
+                ) : (
+                    <Emblem size={28} />
+                )}
+                <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 hover:text-gray-600 transition p-1 rounded-md hover:bg-gray-50">{sidebarOpen ? I.x("#9CA3AF") : I.menu("#9CA3AF")}</button>
+            </div>
+            <nav className="flex-1 p-2 space-y-0.5 mt-2">
+                {[
+                    { id: 'command', icon: () => I.command(activeModule === 'command' ? '#3B82F6' : '#6B7280'), label: 'Command Centre' },
+                    { id: 'income', icon: () => I.dollar(activeModule === 'income' ? '#3B82F6' : '#6B7280'), label: 'Income & Projects' },
+                    { id: 'briefing', icon: () => I.bar(activeModule === 'briefing' ? '#3B82F6' : '#6B7280'), label: 'Morning Briefing' },
+                    { id: 'planner', icon: () => I.calendar(activeModule === 'planner' ? '#3B82F6' : '#6B7280'), label: 'Planner' },
+                    { id: 'history', icon: () => I.history(activeModule === 'history' ? '#3B82F6' : '#6B7280'), label: 'History' }
+                ].map(item => (
+                    <button key={item.id} onClick={() => setActiveModule(item.id)}
+                        className={'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm ' + (activeModule === item.id ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50')}>
+                        {item.icon()}{sidebarOpen && <span>{item.label}</span>}
+                    </button>
+                ))}
+            </nav>
+            <div className="p-2 border-t border-gray-50">
+                <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition text-sm">{I.settings("#9CA3AF")}{sidebarOpen && <span>Settings</span>}</button>
+            </div>
+        </div>
+    );
+
+    const TopBar = () => {
+        const todayTasksTotal = quickTasks.length;
+        const todayTasksDone = quickTasks.filter(t => completedTasks[t.id]).length;
+        const todayRemaining = todayTasksTotal - todayTasksDone;
+        return (
+        <div className="bg-white/80 backdrop-blur-md border-b border-gray-100 px-8 py-5 flex items-center justify-between sticky top-0 z-10">
+            <div className="flex-1 min-w-0">
+                <h1 className="text-xl font-semibold text-gray-900">{greeting()}, <span className="text-blue-500">Tutu</span></h1>
+                <p className="text-sm text-gray-400 mt-0.5">{fmtDate(currentTime)}</p>
+                <p className="text-xs text-gray-400 mt-2 italic truncate max-w-xl" style={{color:'#B8952C'}}>"{getQuote()}"</p>
+            </div>
+            <div className="flex items-center gap-5 flex-shrink-0">
+                <button onClick={() => { setActiveModule('planner'); setPlannerTab('daily'); }} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 hover:bg-blue-50 border border-gray-100 hover:border-blue-200 transition cursor-pointer group" title="Go to Today's Tasks">
+                    {I.clipboard("#6B7280")}
+                    <span className="text-xs font-medium text-gray-500 group-hover:text-blue-600 transition">{todayTasksDone}/{todayTasksTotal} tasks</span>
+                    {todayRemaining > 0 && <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600">{todayRemaining}</span>}
+                    {todayRemaining === 0 && todayTasksTotal > 0 && <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-600">Done</span>}
+                </button>
+                <span className="text-sm text-gray-400 font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                <button className="relative text-gray-400 hover:text-gray-600 transition">{I.bell("#9CA3AF")}<span className="absolute -top-1 -right-1 w-2 h-2 bg-red-400 rounded-full"></span></button>
+                <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm">TA</div>
+            </div>
+        </div>
+        );
+    };
+
+    const MetricCard = ({label, value, sub, trend, icon}) => (
+        <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow card-shadow-hover transition-all">
+            <div className="flex items-center justify-between mb-3"><span className="text-xs font-medium text-gray-400 uppercase tracking-wide">{label}</span>{icon}</div>
+            <p className="text-2xl font-semibold text-gray-900">{value}</p>
+            {sub && <p className={'text-xs mt-1.5 ' + (trend > 0 ? 'text-emerald-500' : trend < 0 ? 'text-red-400' : 'text-gray-400')}>{sub}</p>}
+        </div>
+    );
+
+    const CommandCentre = () => {
+        const pendingTasks = quickTasks.filter(t => !completedTasks[t.id]);
+        const todayDone = quickTasks.length - pendingTasks.length;
+        const weeklyDoneCC = (() => { let d = 0, t = 0; weeklyPlan.forEach(w => { if (w.subtasks && w.subtasks.length > 0) { t += w.subtasks.length; d += w.subtasks.filter(s => s.done).length; } else { t += 1; if (completedWeekly[w.id]) d += 1; } }); return { done: d, total: t }; })();
+        const upcomingBlocks = timeBlocks.filter(b => !completedTimeBlocks[b.id]);
+        const completedBlocks = timeBlocks.filter(b => completedTimeBlocks[b.id]);
+        const briefingDate = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).format(new Date());
+
+        return (
+        <div className="space-y-6 max-w-6xl">
+            <div className="grid grid-cols-4 gap-4">
+                <MetricCard label="Net Income" value={fmtNaira(netMonthly)} sub={netMonthly >= 0 ? 'Healthy' : 'Deficit'} trend={netMonthly >= 0 ? 1 : -1} icon={I.wallet(netMonthly >= 0 ? "#10B981" : "#EF4444")} />
+                <MetricCard label="Annual Projected" value={fmtNaira(totalMonthly * 12)} sub={fmtNaira(netMonthly * 12) + ' net/yr'} trend={netMonthly >= 0 ? 1 : -1} icon={I.bar("#8B5CF6")} />
+                <MetricCard label="Next Payment" value={nextPaymentDue ? new Date(nextPaymentDue.nextPayment).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '--'} sub={nextPaymentDue ? nextPaymentDue.name : 'No dates set'} trend={0} icon={I.calendar("#3B82F6")} />
+                <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow card-shadow-hover transition-all cursor-pointer" onClick={() => { setActiveModule('planner'); setPlannerTab('daily'); }}>
+                    <div className="flex items-center justify-between mb-3"><span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Today's Tasks</span>{I.clipboard("#F59E0B")}</div>
+                    <p className="text-2xl font-semibold text-gray-900">{todayDone}/{quickTasks.length}</p>
+                    <p className={'text-xs mt-1.5 ' + (pendingTasks.length === 0 && quickTasks.length > 0 ? 'text-emerald-500' : pendingTasks.length > 0 ? 'text-amber-500' : 'text-gray-400')}>{pendingTasks.length === 0 && quickTasks.length > 0 ? 'All done!' : pendingTasks.length + ' pending'}</p>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                    <div style={{ padding: "8px 12px", backgroundColor: "#f0fdf4", borderRadius: "6px", fontSize: "13px", fontWeight: "600", color: "#065f46" }}>{getQuote().substring(0, 40)}...</div>
-                    <button onClick={() => window.open('https://github.com/tututunmbi/nuoperandi', '_blank')} style={{ padding: "0", background: "none", border: "none", cursor: "pointer", color: "#6b7280" }}>{I.github()}</button>
-                </div>
-            </header>
+            </div>
 
-            {/* MODALS */}
-            {modal === 'item' && <div style={{ position: "fixed", top: "0", left: "0", width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: "1000" }}><div style={{ backgroundColor: "white", borderRadius: "12px", padding: "24px", maxWidth: "500px", width: "90%", boxShadow: "0 20px 25px rgba(0,0,0,0.15)" }}><h2 style={{ margin: "0 0 20px 0", fontSize: "20px", fontWeight: "700" }}>Add Metric</h2><InputField label="Metric Name" value={itemName} onChange={setItemName} placeholder="e.g., Push-ups, Words Written" /><InputField label="Value" value={itemValue} onChange={setItemValue} type="number" /><SelectField label="Unit" value={itemUnit} onChange={setItemUnit} options={['count', 'minutes', 'hours', 'km', 'kg', 'pages', 'words', 'dollars']} /><SelectField label="Frequency" value={itemFreq} onChange={setItemFreq} options={['daily', 'weekly', 'monthly']} /><div style={{ marginBottom: "12px" }}><label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>Color</label><div style={{ display: "flex", gap: "8px" }}>{ ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899'].map(c => <div key={c} onClick={() => setItemColor(c)} style={{ width: "32px", height: "32px", backgroundColor: c, borderRadius: "6px", cursor: "pointer", border: itemColor === c ? "2px solid #000" : "2px solid #e5e7eb" }} />) }</div></div><div style={{ display: "flex", gap: "8px" }}><Button label="Cancel" onClick={() => { setModal(null); setItemName(''); setItemValue(''); }} /><Button label="Add" variant="success" onClick={addItem} /></div></div>}</n
-    {modal === 'learning' && <div style={{ position: "fixed", top: "0", left: "0", width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: "1000" }}><div style={{ backgroundColor: "white", borderRadius: "12px", padding: "24px", maxWidth: "500px", width: "90%", boxShadow: "0 20px 25px rgba(0,0,0,0.15)" }}><h2 style={{ margin: "0 0 20px 0", fontSize: "20px", fontWeight: "700" }}>Add Learning</h2><InputField label="Title" value={learningTitle} onChange={setLearningTitle} placeholder="e.g., React Fundamentals" /><InputField label="Category" value={learningCategory} onChange={setLearningCategory} placeholder="e.g., Web Development" /><InputField label="Duration (minutes)" value={learningDuration} onChange={setLearningDuration} type="number" /><SelectField label="Level" value={learningLevel} onChange={setLearningLevel} options={['beginner', 'intermediate', 'advanced']} /><div style={{ display: "flex", gap: "8px" }}><Button label="Cancel" onClick={() => { setModal(null); setLearningTitle(''); setLearningCategory(''); setLearningDuration(''); }} /><Button label="Add" variant="success" onClick={addLearning} /></div></div>}</n
-    {modal === 'finance' && <div style={{ position: "fixed", top: "0", left: "0", width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: "1000" }}><div style={{ backgroundColor: "white", borderRadius: "12px", padding: "24px", maxWidth: "500px", width: "90%", boxShadow: "0 20px 25px rgba(0,0,0,0.15)" }}><h2 style={{ margin: "0 0 20px 0", fontSize: "20px", fontWeight: "700" }}>Add Finance Entry</h2><InputField label="Description" value={financeDesc} onChange={setFinanceDesc} placeholder="e.g., Salary, Groceries" /><InputField label="Amount" value={financeAmount} onChange={setFinanceAmount} type="number" /><SelectField label="Type" value={financeType} onChange={setFinanceType} options={['income', 'expense']} /><InputField label="Date" value={financeDate} onChange={setFinanceDate} type="date" /><div style={{ display: "flex", gap: "8px" }}><Button label="Cancel" onClick={() => { setModal(null); setFinanceDesc(''); setFinanceAmount(''); }} /><Button label="Add" variant="success" onClick={addFinance} /></div></div>}
-
-    {modal && modal.startsWith('editItem_') && editItem && <EditItemForm item={editItem} idx={parseInt(modal.split('_')[1])} setItems={setItems} onClose={() => { setModal(null); setEditItem(null); }} />}
-    {modal && modal.startsWith('editLearning_') && editItem && <EditLearningForm item={editItem} idx={parseInt(modal.split('_')[1])} setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
-
-            {/* MAIN CONTENT */}
-            <main style={{ maxWidth: "1400px", margin: "0 auto", padding: "24px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px" }}>
-                {/* SECTION 1: METRICS */}
-                <section>
-                    <Card title="Metrics" style={{ marginTop: "0" }}>
-                        <div style={{ marginBottom: "16px" }}>
-                            <Button label="+ Add Metric" onClick={() => setModal('item')} />
+            <div className="grid grid-cols-5 gap-6">
+                <div className="col-span-3 space-y-6">
+                    <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                        <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                                {I.clock("#3B82F6")}
+                                <h3 className="text-sm font-semibold text-gray-900">Today's Schedule</h3>
+                                {upcomingBlocks.length > 0 && <span className="text-xs px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600">{upcomingBlocks.length} remaining</span>}
+                            </div>
+                            <button onClick={() => setModal('addTimeBlock')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
                         </div>
-                        {items.map((item, idx) => (
-                            <div key={item.id} style={{ marginBottom: "16px", padding: "12px", backgroundColor: "#f9fafb", borderRadius: "8px", border: `2px solid ${item.color}` }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "8px" }}>
-                                    <div style={{ fontWeight: "600", fontSize: "14px" }}>{item.name}</div>
-                                    <div style={{ display: "flex", gap: "4px" }}>
-                                        <button onClick={() => { setEditItem(item); setModal(`editItem_${idx}`); }} style={{ padding: "4px 8px", backgroundColor: "transparent", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer", color: "#6b7280", fontSize: "12px" }}>{I.edit()}</button>
-                                        <button onClick={() => deleteItem(item.id)} style={{ padding: "4px 8px", backgroundColor: "transparent", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer", color: "#dc2626", fontSize: "12px" }}>{I.trash()}</button>
+                        {timeBlocks.length === 0 ? (
+                            <div className="p-8 text-center">
+                                <p className="text-sm text-gray-400">No time blocks scheduled</p>
+                                <button onClick={() => setModal('addTimeBlock')} className="text-xs text-blue-500 hover:text-blue-600 font-medium mt-2">Add your first block</button>
+                            </div>
+                        ) : (
+                            <div className="divide-y divide-gray-50">
+                                {timeBlocks.map(b => (
+                                    <div key={b.id} className={'px-5 py-3 flex items-center gap-4 group transition ' + (completedTimeBlocks[b.id] ? 'opacity-40 bg-gray-50/50' : 'hover:bg-gray-50/30')}>
+                                        <span className="cursor-pointer flex-shrink-0" onClick={() => toggleBlock(b.id)}>
+                                            {completedTimeBlocks[b.id] ? I.check("#10B981") : I.circle("#D1D5DB")}
+                                        </span>
+                                        <div className={'w-2 h-2 rounded-full flex-shrink-0 ' + (catDot[b.cat] || catDot.blue)}></div>
+                                        <span className="text-xs font-medium text-gray-400 w-28 flex-shrink-0">{b.time}{b.end ? ' - ' + b.end : ''}</span>
+                                        <span className={'text-sm flex-1 ' + (completedTimeBlocks[b.id] ? 'line-through text-gray-400' : 'text-gray-900')}>{b.task}</span>
+                                        <button onClick={() => { setEditItem(b); setModal('editTimeBlock'); }} className="p-1 rounded-lg hover:bg-gray-100 transition opacity-0 group-hover:opacity-100">{I.edit("#9CA3AF")}</button>
                                     </div>
-                                </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                                    <div style={{ fontSize: "18px", fontWeight: "700" }}>{item.value} {item.unit}</div>
-                                    <Spark data={item.data} color={item.color} />
-                                </div>
-                                <div style={{ display: "flex", gap: "6px" }}>
-                                    <Button label={`+1 ${item.unit}`} onClick={() => addValueToItem(item.id, 1)} style={{ flex: "1", fontSize: "12px", padding: "6px" }} />
-                                    <Button label={`-1 ${item.unit}`} onClick={() => addValueToItem(item.id, -1)} style={{ flex: "1", fontSize: "12px", padding: "6px" }} />
+                                ))}
+                            </div>
+                        )}
+                        {timeBlocks.length > 0 && (
+                            <div className="px-5 py-2.5 border-t border-gray-50 bg-gray-50/30">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs text-gray-400">{completedBlocks.length}/{timeBlocks.length} completed</span>
+                                    <button onClick={() => { setActiveModule('planner'); setPlannerTab('schedule'); }} className="text-xs text-blue-500 hover:text-blue-600 font-medium">View full schedule</button>
                                 </div>
                             </div>
-                        ))}
-                    </Card>
-                </section>
+                        )}
+                    </div>
 
-                {/* SECTION 2: LEARNING */}
-                <section>
-                    <Card title="Learning" style={{ marginTop: "0" }}>
-                        <div style={{ marginBottom: "16px" }}>
-                            <Button label="+ Add Learning" onClick={() => setModal('learning')} />
+                    <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                        <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                                {I.zap("#F59E0B")}
+                                <h3 className="text-sm font-semibold text-gray-900">Pending Tasks</h3>
+                                {pendingTasks.length > 0 && <span className="text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600">{pendingTasks.length}</span>}
+                            </div>
+                            <button onClick={() => setModal('addTask')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
                         </div>
-                        {learning.map((item, idx) => (
-                            <div key={item.id} style={{ marginBottom: "12px", padding: "12px", backgroundColor: "#f0fdf4", borderRadius: "8px", borderLeft: "4px solid #10B981" }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+                        {pendingTasks.length === 0 ? (
+                            <div className="p-6 text-center">
+                                <p className="text-sm text-gray-400">{quickTasks.length > 0 ? 'All tasks completed today!' : 'No tasks for today'}</p>
+                            </div>
+                        ) : (
+                            <div className="divide-y divide-gray-50">
+                                {pendingTasks.slice(0, 6).map(t => {
+                                    const proj = t.projectId ? projects.find(p => p.id === t.projectId) : null;
+                                    return (
+                                    <div key={t.id} className="px-5 py-3 flex items-center gap-3 group hover:bg-gray-50/30 transition">
+                                        <span className="cursor-pointer flex-shrink-0" onClick={() => toggleTask(t.id)}>
+                                            {I.circle("#D1D5DB")}
+                                        </span>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm text-gray-900 truncate">{t.task}</p>
+                                            {proj && <p className="text-xs text-gray-400 truncate">{proj.name}</p>}
+                                        </div>
+                                        {t.priority === 'high' && <span className="text-xs px-1.5 py-0.5 rounded bg-red-50 text-red-500 font-medium flex-shrink-0">High</span>}
+                                        {t.due && <span className="text-xs text-gray-400 flex-shrink-0">{t.due}</span>}
+                                    </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                        {pendingTasks.length > 6 && (
+                            <div className="px-5 py-2.5 border-t border-gray-50 bg-gray-50/30 text-center">
+                                <button onClick={() => { setActiveModule('planner'); setPlannerTab('daily'); }} className="text-xs text-blue-500 hover:text-blue-600 font-medium">View all {pendingTasks.length} tasks</button>
+                            </div>
+                        )}
+                    </div>
+                    {quickTasks.filter(t => t.delegatedTo && !completedTasks[t.id]).length > 0 && (
+                        <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                            <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+                                <div className="flex items-center gap-2.5">
+                                    {I.user("#8B5CF6")}
+                                    <h3 className="text-sm font-semibold text-gray-900">Delegated</h3>
+                                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600">{quickTasks.filter(t => t.delegatedTo && !completedTasks[t.id]).length}</span>
+                                </div>
+                            </div>
+                            <div className="divide-y divide-gray-50">
+                                {quickTasks.filter(t => t.delegatedTo && !completedTasks[t.id]).slice(0, 4).map(t => (
+                                    <div key={t.id} className="px-5 py-3 flex items-center gap-3">
+                                        <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-semibold text-xs flex-shrink-0">{t.delegatedTo.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)}</div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm text-gray-900 truncate">{t.task}</p>
+                                            <p className="text-xs text-purple-500">{t.delegatedTo}</p>
+                                        </div>
+                                        {t.due && <span className="text-xs text-gray-400 flex-shrink-0">{t.due}</span>}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                <div className="col-span-2 space-y-6">
+                    <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden group hover:shadow-md transition-all">
+                        <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 text-white overflow-hidden">
+                            <div className="absolute inset-0 opacity-5" style={{backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 11px, rgba(255,255,255,0.3) 11px, rgba(255,255,255,0.3) 12px)'}}></div>
+                            <div className="relative">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-1 h-6 rounded-full bg-amber-400"></div>
+                                        <span className="text-xs font-semibold uppercase tracking-widest text-amber-400">Intelligence</span>
+                                    </div>
+                                    {I.newspaper("#B8952C")}
+                                </div>
+                                <h3 className="text-lg font-bold leading-snug mb-1" style={{fontFamily: 'Georgia, Times New Roman, serif'}}>Morning Briefing</h3>
+                                <p className="text-xs text-slate-400 mb-3" style={{fontFamily: 'Georgia, serif'}}>{briefingDate}</p>
+
+                                {briefing ? (
                                     <div>
-                                        <div style={{ fontWeight: "600", fontSize: "14px" }}>{item.title}</div>
-                                        <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>{item.category} • {item.duration} min • {item.level}</div>
+                                        {briefing.headline && <p className="text-sm font-semibold text-amber-300 mb-3 leading-snug" style={{fontFamily: 'Georgia, serif'}}>{briefing.headline}</p>}
+
+                                        <div className="border-t border-slate-700 pt-3 space-y-3 max-h-64 overflow-y-auto" style={{scrollbarWidth: 'thin', scrollbarColor: '#475569 transparent'}}>
+                                            {briefing.sections && briefing.sections.map((sec, si) => (
+                                                <div key={si}>
+                                                    <p className="text-xs font-semibold uppercase tracking-wider text-amber-400/80 mb-1.5">{sec.title}</p>
+                                                    <div className="space-y-1">
+                                                        {sec.items && sec.items.map((item, ii) => (
+                                                            <div key={ii} className="flex gap-2">
+                                                                <div className="w-1 h-1 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></div>
+                                                                <p className="text-xs text-slate-300 leading-relaxed">{item}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="border-t border-slate-700 mt-3 pt-3 flex items-center justify-between">
+                                            <p className="text-xs text-slate-500">{briefing.autoGenerated ? <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live</span> : 'Generated ' + (briefing.generatedAt ? new Date(briefing.generatedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '')}</p>
+                                            <button onClick={() => setActiveModule('briefing')} className="text-xs text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1">Full briefing {I.arrowRight("#D4A843")}</button>
+                                        </div>
                                     </div>
-                                    <div style={{ display: "flex", gap: "4px" }}>
-                                        <button onClick={() => { setEditItem(item); setModal(`editLearning_${idx}`); }} style={{ padding: "4px 8px", backgroundColor: "transparent", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer", color: "#6b7280", fontSize: "12px" }}>{I.edit()}</button>
-                                        <button onClick={() => deleteLearning(item.id)} style={{ padding: "4px 8px", backgroundColor: "transparent", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer", color: "#dc2626", fontSize: "12px" }}>{I.trash()}</button>
+                                ) : (
+                                    <div>
+                                        <div className="border-t border-slate-700 pt-3 mb-3 space-y-1.5">
+                                            <div className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-slate-600"></div><p className="text-xs text-slate-500">Market intelligence & competitive analysis</p></div>
+                                            <div className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-slate-600"></div><p className="text-xs text-slate-500">Revenue & performance summary</p></div>
+                                            <div className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-slate-600"></div><p className="text-xs text-slate-500">Strategic priorities & action items</p></div>
+                                        </div>
+                                        <p className="text-xs text-slate-500 italic">No briefing yet today. Say "morning briefing" in Cowork to generate.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                        <div className="px-5 py-4 bg-emerald-50/50 border-b border-emerald-100/50 flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                                <h3 className="text-sm font-semibold text-gray-900">State of the Nation</h3>
+                            </div>
+                            <button onClick={() => setActiveModule('briefing')} className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">Full report</button>
+                        </div>
+                        {nationBriefing ? (
+                            <div>
+                                <div className="grid grid-cols-2 divide-x divide-gray-50">
+                                    {nationBriefing.indicators && nationBriefing.indicators.map((ind, i) => (
+                                        <div key={i} className="px-4 py-3 border-b border-gray-50">
+                                            <p className="text-xs text-gray-400 mb-0.5">{ind.label}</p>
+                                            <p className="text-sm font-semibold text-gray-900">{ind.value}</p>
+                                            <p className={'text-xs ' + (ind.trend === 'up' ? 'text-emerald-500' : ind.trend === 'down' ? 'text-red-400' : 'text-gray-400')}>{ind.note}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="px-5 py-3 space-y-2 border-b border-gray-100">
+                                    {nationBriefing.headlines && nationBriefing.headlines.slice(0, 4).map((h, i) => (
+                                        <div key={i} className="flex gap-2">
+                                            <div className="w-1 h-1 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0"></div>
+                                            <p className="text-xs text-gray-600 leading-relaxed">{h}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                                {nationBriefing.sections && nationBriefing.sections.length > 0 && (
+                                    <div className="px-5 py-3 space-y-3 max-h-72 overflow-y-auto" style={{scrollbarWidth: 'thin', scrollbarColor: '#A7F3D0 transparent'}}>
+                                        {nationBriefing.sections.map((sec, si) => (
+                                            <div key={si}>
+                                                <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 mb-1.5">{sec.emoji} {sec.title}</p>
+                                                <div className="space-y-1">
+                                                    {sec.items && sec.items.map((item, ii) => (
+                                                        <div key={ii} className="flex gap-2">
+                                                            <div className="w-1 h-1 rounded-full bg-emerald-300 mt-1.5 flex-shrink-0"></div>
+                                                            <p className="text-xs text-gray-500 leading-relaxed">{item}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                <div className="px-5 py-2.5 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between">
+                                    <p className="text-xs text-gray-400">{nationBriefing.lastLiveUpdate ? <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> FX live</span> : ('Data from ' + (nationBriefing.date ? new Date(nationBriefing.date + 'T00:00:00').toLocaleDateString('en-US', {month: 'short', day: 'numeric'}) : ''))}</p>
+                                    {nationBriefing.docxFile && <p className="text-xs text-emerald-500 font-medium">{I.newspaper("#059669")} Report ready</p>}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="p-6 text-center">
+                                <p className="text-sm text-gray-400">No nation briefing yet</p>
+                                <p className="text-xs text-gray-400 mt-1">Say "morning briefing" in Cowork to generate</p>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow">
+                        <div className="flex items-center gap-2.5 mb-4">
+                            {I.trending("#3B82F6")}
+                            <h3 className="text-sm font-semibold text-gray-900">Weekly Progress</h3>
+                        </div>
+                        <div className="flex items-end gap-3 mb-3">
+                            <span className="text-3xl font-semibold text-gray-900">{weeklyDoneCC.done}</span>
+                            <span className="text-sm text-gray-400 pb-1">/ {weeklyDoneCC.total} tasks</span>
+                        </div>
+                        {weeklyDoneCC.total > 0 && (
+                            <div>
+                                <div className="w-full h-2.5 bg-gray-100 rounded-full">
+                                    <div className="h-full bg-blue-500 rounded-full transition-all" style={{width: (weeklyDoneCC.total > 0 ? (weeklyDoneCC.done / weeklyDoneCC.total) * 100 : 0) + '%'}}></div>
+                                </div>
+                                <p className="text-xs text-gray-400 mt-2">{Math.round((weeklyDoneCC.done / weeklyDoneCC.total) * 100)}% complete this week</p>
+                            </div>
+                        )}
+                        <button onClick={() => { setActiveModule('planner'); setPlannerTab('weekly'); }} className="text-xs text-blue-500 hover:text-blue-600 font-medium mt-3 flex items-center gap-1">View weekly plan {I.arrowRight("#3B82F6")}</button>
+                    </div>
+
+                    <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                        <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                                {I.bulb("#8B5CF6")}
+                                <h3 className="text-sm font-semibold text-gray-900">Active Projects</h3>
+                                <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600">{activeProjects.length}</span>
+                            </div>
+                            <button onClick={() => setActiveModule('income')} className="text-xs text-blue-500 hover:text-blue-600 font-medium">View all</button>
+                        </div>
+                        {activeProjects.length === 0 ? (
+                            <div className="p-6 text-center"><p className="text-sm text-gray-400">No active projects</p></div>
+                        ) : (
+                            <div className="divide-y divide-gray-50">
+                                {[...activeProjects].sort((a, b) => (getProjectProgress(b.id) || 0) - (getProjectProgress(a.id) || 0)).slice(0, 5).map(p => {
+                                    const prog = getProjectProgress(p.id) || 0;
+                                    return (
+                                    <div key={p.id} className="px-5 py-3 hover:bg-gray-50/30 transition cursor-pointer" onClick={() => { setEditItem(p); setModal('editProject'); }}>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <p className="text-sm font-medium text-gray-900 truncate">{p.name}</p>
+                                            <span className="text-xs text-gray-400 flex-shrink-0 ml-2">{prog}%</span>
+                                        </div>
+                                        <div className="w-full h-1.5 bg-gray-100 rounded-full"><div className="h-full bg-blue-500 rounded-full transition-all" style={{width: prog + '%'}}></div></div>
+                                    </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+        );
+    };
+
+    const IncomeModule = () => {
+        const expensesByCategory = useMemo(() => {
+            const cats = {};
+            expenses.forEach(e => {
+                const monthly = e.frequency === 'Weekly' ? e.amount * 4.33 : e.frequency === 'Quarterly' ? e.amount / 3 : e.frequency === 'Annual' ? e.amount / 12 : e.frequency === 'One-time' ? 0 : e.amount;
+                cats[e.category] = (cats[e.category] || 0) + monthly;
+            });
+            return Object.entries(cats).sort((a, b) => b[1] - a[1]);
+        }, [expenses]);
+
+        const expensesByStream = useMemo(() => {
+            const map = {};
+            expenses.forEach(e => {
+                if (e.linkedStreamId) {
+                    if (!map[e.linkedStreamId]) map[e.linkedStreamId] = [];
+                    map[e.linkedStreamId].push(e);
+                }
+            });
+            return map;
+        }, [expenses]);
+
+        const catIcons = { 'Salary': '💰', 'Rent': '🏠', 'Operations': '⚙️', 'Marketing': '📣', 'Software': '💻', 'Transport': '🚗', 'Utilities': '⚡', 'Tax': '📋', 'Other': '📌' };
+
+        return (
+        <div className="space-y-8 max-w-6xl">
+            <div className="grid grid-cols-5 gap-4">
+                <MetricCard label="Monthly Income" value={fmtNaira(totalMonthly)} sub={incomeStreams.length + ' streams'} trend={1} icon={I.trending("#10B981")} />
+                <MetricCard label="Monthly Expenses" value={fmtNaira(totalExpenses)} sub={expenses.length + ' items'} trend={-1} icon={I.receipt("#EF4444")} />
+                <MetricCard label="Net Income" value={fmtNaira(netMonthly)} sub={netMonthly >= 0 ? 'Healthy' : 'Deficit'} trend={netMonthly >= 0 ? 1 : -1} icon={I.wallet(netMonthly >= 0 ? "#10B981" : "#EF4444")} />
+                <MetricCard label="Annual Projected" value={fmtNaira(totalMonthly * 12)} sub={fmtNaira(netMonthly * 12) + ' net/yr'} trend={netMonthly >= 0 ? 1 : -1} icon={I.bar("#8B5CF6")} />
+                <MetricCard label="Next Payment" value={nextPaymentDue ? new Date(nextPaymentDue.nextPayment).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '--'} sub={nextPaymentDue ? nextPaymentDue.name : 'No dates set'} trend={0} icon={I.calendar("#3B82F6")} />
+            </div>
+
+            <div>
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-base font-semibold text-gray-900">Income Streams</h2>
+                    <button onClick={() => setModal('addIncome')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
+                </div>
+                {incomeStreams.length === 0 ? (
+                    <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                        <Empty icon={I.dollar("#9CA3AF")} title="No income streams yet" sub="Add your first income stream to start tracking" action={() => setModal('addIncome')} actionLabel="Add Income Stream" />
+                    </div>
+                ) : (
+                    <div className="space-y-2">
+                        {incomeStreams.map(s => (
+                            <div key={s.id} className="bg-white rounded-xl border border-gray-100 p-5 card-shadow card-shadow-hover transition-all">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4 cursor-pointer flex-1" onClick={() => setExpandedIncome(expandedIncome === s.id ? null : s.id)}>
+                                        <div className={'w-2 h-12 rounded-full ' + (s.status === 'Growing' ? 'bg-blue-400' : s.status === 'At Risk' ? 'bg-red-300' : 'bg-emerald-400')}></div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-medium text-gray-900 text-sm">{s.name}</p>
+                                            {(s.role || s.company) && <p className="text-xs text-gray-400 mt-0.5">{s.role}{s.role && s.company ? ' • ' : ''}{s.company}</p>}
+                                            <div className="flex gap-2 mt-1 flex-wrap">
+                                                <span className={'text-xs px-2 py-0.5 rounded-full ' + (s.type === 'Active' ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-500')}>{s.type}</span>
+                                                <span className={'text-xs px-2 py-0.5 rounded-full ' + (statusColors[s.status] || 'bg-gray-100 text-gray-600')}>{s.status}</span>
+                                                {s.paymentCycle && <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">{s.paymentCycle}</span>}
+                                                {s.nextPayment && <span className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">Due {new Date(s.nextPayment).toLocaleDateString('en-US', {month:'short', day:'numeric'})}</span>}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-4 flex-shrink-0">
+                                        {s.trend && <Spark data={s.trend} />}
+                                        <div className="text-right">
+                                            <p className="text-xl font-semibold text-gray-900">{fmtNaira(s.monthly)}</p>
+                                            {expensesByStream[s.id] && <p className="text-xs text-red-500 mt-0.5">-{fmtNaira(expensesByStream[s.id].reduce((t,e) => t + e.amount, 0))} expenses</p>}
+                                        </div>
+                                        <button onClick={e => { e.stopPropagation(); setEditItem(s); setModal('editIncome'); }} className="p-1.5 rounded-lg hover:bg-gray-100 transition">{I.edit("#9CA3AF")}</button>
                                     </div>
                                 </div>
                             </div>
                         ))}
-                    </Card>
-                </section>
+                    </div>
+                )}
+            </div>
 
-                {/* SECTION 3: FINANCE */}
-                <section>
-                    <Card title="Finance" style={{ marginTop: "0" }}>
-                        <div style={{ marginBottom: "16px" }}>
-                            <Button label="+ Add Entry" onClick={() => setModal('finance')} />
-                        </div>
-                        <Stat icon={I.dollar()} label="Total Income" value={`$${totalIncome.toFixed(2)}`} />
-                        <Stat icon={I.dollar()} label="Total Expense" value={`$${totalExpense.toFixed(2)}`} />
-                        <Stat icon={I.zap()} label="Net Balance" value={`$${netBalance.toFixed(2)}`} trend={netBalance >= 0 ? "up" : "down"} trendValue={`${Math.abs(netBalance).toFixed(2)}`} />
-                        <div style={{ marginTop: "16px", padding: "12px", backgroundColor: "#f0f9ff", borderRadius: "8px", borderLeft: "4px solid #3B82F6" }}>
-                            <div style={{ fontSize: "12px", color: "#1e40af", fontWeight: "600" }}>Recent Entries</div>
-                            {financial.slice().reverse().map((entry) => (
-                                <div key={entry.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px", paddingTop: "8px", borderTop: "1px solid #bfdbfe" }}>
-                                    <div style={{ fontSize: "13px" }}>{entry.description}</div>
-                                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                                        <div style={{ color: entry.type === 'income' ? '#059669' : '#dc2626", fontWeight: "600" }}>${entry.amount.toFixed(2)}</div>
-                                        <button onClick={() => deleteFinance(entry.id)} style={{ padding: "2px 6px", backgroundColor: "transparent", border: "none", cursor: "pointer", color: "#6b7280", fontSize: "12px" }}>{I.x()}</button>
+            <div>
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-base font-semibold text-gray-900">Expenses</h2>
+                    <button onClick={() => setModal('addExpense')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
+                </div>
+                {expenses.length === 0 ? (
+                    <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                        <Empty icon={I.receipt("#9CA3AF")} title="No expenses tracked yet" sub="Add expenses to see your net income" action={() => setModal('addExpense')} actionLabel="Add Expense" />
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {totalExpenses > 0 && (
+                            <div className="bg-white rounded-xl border border-gray-100 card-shadow p-5">
+                                <div className="flex items-center justify-between mb-3">
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Monthly Breakdown</p>
+                                    <p className="text-sm font-semibold text-gray-900">{fmtNaira(totalExpenses)}/mo</p>
+                                </div>
+                                <div className="w-full h-3 bg-gray-100 rounded-full flex overflow-hidden mb-3">
+                                    {expensesByCategory.map(([cat, amt], i) => {
+                                        const colors = ['bg-red-400','bg-orange-400','bg-amber-400','bg-blue-400','bg-purple-400','bg-pink-400','bg-teal-400','bg-indigo-400','bg-gray-400'];
+                                        return <div key={cat} className={colors[i % colors.length] + ' h-full'} style={{width: (amt / totalExpenses * 100) + '%'}} title={cat + ': ' + fmtNaira(amt)}></div>;
+                                    })}
+                                </div>
+                                <div className="flex flex-wrap gap-x-4 gap-y-1">
+                                    {expensesByCategory.map(([cat, amt], i) => {
+                                        const dots = ['bg-red-400','bg-orange-400','bg-amber-400','bg-blue-400','bg-purple-400','bg-pink-400','bg-teal-400','bg-indigo-400','bg-gray-400'];
+                                        return <div key={cat} className="flex items-center gap-1.5"><div className={'w-2 h-2 rounded-full ' + dots[i % dots.length]}></div><span className="text-xs text-gray-500">{cat}</span><span className="text-xs font-medium text-gray-700">{fmtNaira(amt)}</span></div>;
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                        <div className="space-y-2">
+                            {expenses.map(e => {
+                                const linked = e.linkedStreamId ? incomeStreams.find(s => s.id === e.linkedStreamId) : null;
+                                const dueDateObj = e.dueDate ? new Date(e.dueDate + 'T00:00:00') : null;
+                                const today = new Date(); today.setHours(0,0,0,0);
+                                const daysUntilDue = dueDateObj ? Math.ceil((dueDateObj - today) / 86400000) : null;
+                                const dueColor = daysUntilDue !== null ? (daysUntilDue < 0 ? 'text-red-500' : daysUntilDue <= 3 ? 'text-amber-500' : 'text-gray-400') : '';
+                                const dueLabel = daysUntilDue !== null ? (daysUntilDue < 0 ? 'Overdue' : daysUntilDue === 0 ? 'Due today' : daysUntilDue === 1 ? 'Due tomorrow' : daysUntilDue <= 7 ? 'Due in ' + daysUntilDue + ' days' : dueDateObj.toLocaleDateString('en-US', {month: 'short', day: 'numeric'})) : '';
+                                return (
+                                <div key={e.id} className={'bg-white rounded-xl border px-5 py-4 card-shadow card-shadow-hover transition-all ' + (daysUntilDue !== null && daysUntilDue < 0 ? 'border-red-200' : daysUntilDue !== null && daysUntilDue <= 3 ? 'border-amber-200' : 'border-gray-100')}>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                            <span className="text-lg flex-shrink-0" role="img">{catIcons[e.category] || '📌'}</span>
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-medium text-gray-900">{e.name}</p>
+                                                <div className="flex gap-2 mt-0.5 flex-wrap">
+                                                    <span className="text-xs text-gray-400">{e.category}</span>
+                                                    <span className="text-xs text-gray-300">•</span>
+                                                    <span className="text-xs text-gray-400">{e.frequency}</span>
+                                                    {linked && <><span className="text-xs text-gray-300">•</span><span className="text-xs text-blue-500">from {linked.name}</span></>}
+                                                    {e.dueDate && <><span className="text-xs text-gray-300">•</span><span className={'text-xs font-medium ' + dueColor}>{dueLabel}</span></>}
+                                                    {e.note && <><span className="text-xs text-gray-300">•</span><span className="text-xs text-gray-400 italic">{e.note}</span></>}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3 flex-shrink-0">
+                                            <p className="text-lg font-semibold text-red-600">-{fmtNaira(e.amount)}</p>
+                                            <button onClick={() => { setEditItem(e); setModal('editExpense'); }} className="p-1.5 rounded-lg hover:bg-gray-100 transition">{I.edit("#9CA3AF")}</button>
+                                        </div>
                                     </div>
+                                </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <div>
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-base font-semibold text-gray-900">Active Projects</h2>
+                    <button onClick={() => setModal('addProject')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
+                </div>
+                {projects.length === 0 ? (
+                    <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                        <Empty icon={I.bar("#9CA3AF")} title="No projects yet" sub="Add your first project to start tracking progress" action={() => setModal('addProject')} actionLabel="Add Project" />
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-3 gap-4">
+                        {projects.map(p => {
+                            const autoP = getProjectProgress(p.id);
+                            const displayProgress = autoP !== null ? autoP : p.progress;
+                            const linkedCount = weeklyPlan.filter(w => w.projectId === p.id).length + quickTasks.filter(t => t.projectId === p.id).length;
+                            return (
+                            <div key={p.id} className="bg-white rounded-xl border border-gray-100 p-5 card-shadow card-shadow-hover transition-all">
+                                <div className="flex items-start justify-between mb-3">
+                                    <h3 className="font-semibold text-gray-900 text-sm">{p.name}</h3>
+                                    <div className="flex items-center gap-1">
+                                        <span className={'text-xs px-2 py-0.5 rounded-full ' + (statusColors[p.status] || 'bg-gray-100 text-gray-600')}>{p.status}</span>
+                                        <button onClick={() => { setEditItem(p); setModal('editProject'); }} className="p-1 rounded-lg hover:bg-gray-100 transition ml-1">{I.edit("#9CA3AF")}</button>
+                                    </div>
+                                </div>
+                                <p className="text-xs text-gray-400 mb-4">{p.desc}</p>
+                                <div className="mb-3">
+                                    <div className="flex justify-between mb-1.5">
+                                        <span className="text-xs text-gray-400">{displayProgress}%</span>
+                                        <span className="text-xs text-gray-400">{linkedCount > 0 ? linkedCount + ' linked tasks' : p.team + ' people'}</span>
+                                    </div>
+                                    <div className="w-full h-1.5 bg-gray-100 rounded-full"><div className={'h-full rounded-full transition-all ' + (autoP !== null ? 'bg-blue-500' : 'bg-blue-300')} style={{width: displayProgress + '%'}}></div></div>
+                                </div>
+                                {p.next && <p className="text-xs text-blue-600 font-medium mt-2">Next: {p.next}</p>}
+                                {p.launch && <p className="text-xs text-gray-400 mt-1">Launch: {new Date(p.launch).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'})}</p>}
+                            </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+        </div>
+        );
+    };
+
+    const BriefingModule = () => (
+        <div className="space-y-8 max-w-6xl">
+            <div className="bg-blue-50 rounded-xl border border-blue-100 p-5">
+                <p className="text-sm text-blue-800 font-medium">Your morning intelligence briefing document is generated separately.</p>
+                <p className="text-xs text-blue-600 mt-1">Say "morning briefing" in Cowork to generate today's document with live market data.</p>
+            </div>
+
+            <div>
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-base font-semibold text-gray-900">Team</h2>
+                    <button onClick={() => setModal('addTeam')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
+                </div>
+                {teamMembers.length === 0 ? (
+                    <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                        <Empty icon={I.calendar("#9CA3AF")} title="No team members yet" sub="Add your team to track availability" action={() => setModal('addTeam')} actionLabel="Add Team Member" />
+                    </div>
+                ) : (
+                    <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow flex flex-wrap items-center gap-6">
+                        {teamMembers.map((m, i) => (
+                            <div key={m.id || i} className="flex items-center gap-3 group cursor-pointer" onClick={() => { setEditItem(m); setModal('editTeam'); }}>
+                                <div className="relative">
+                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-sm">{m.initials}</div>
+                                    <div className={'absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ' + (m.status === 'available' ? 'bg-emerald-400' : m.status === 'meeting' ? 'bg-amber-400' : 'bg-gray-300')}></div>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-gray-900">{m.name}</p>
+                                    <p className="text-xs text-gray-400 capitalize">{m.status}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            <div>
+                <h2 className="text-base font-semibold text-gray-900 mb-4">Quick Snapshot</h2>
+                <div className="grid grid-cols-3 gap-4">
+                    <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow text-center">
+                        <p className="text-2xl font-semibold text-gray-900">{incomeStreams.length}</p>
+                        <p className="text-xs text-gray-400 mt-1">Income Streams</p>
+                    </div>
+                    <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow text-center">
+                        <p className="text-2xl font-semibold text-gray-900">{projects.length}</p>
+                        <p className="text-xs text-gray-400 mt-1">Active Projects</p>
+                    </div>
+                    <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow text-center">
+                        <p className="text-2xl font-semibold text-gray-900">{quickTasks.filter(t => !completedTasks[t.id]).length}</p>
+                        <p className="text-xs text-gray-400 mt-1">Pending Tasks</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+
+    const PlannerModule = () => {
+        const weeklyByProject = useMemo(() => {
+            const grouped = {};
+            const unlinked = [];
+            weeklyPlan.forEach(w => {
+                if (w.projectId) {
+                    if (!grouped[w.projectId]) grouped[w.projectId] = [];
+                    grouped[w.projectId].push(w);
+                } else {
+                    unlinked.push(w);
+                }
+            });
+            return { grouped, unlinked };
+        }, [weeklyPlan]);
+
+        const { weeklyDone, weeklyTotal } = useMemo(() => {
+            let done = 0, total = 0;
+            weeklyPlan.forEach(w => {
+                if (w.subtasks && w.subtasks.length > 0) {
+                    total += w.subtasks.length;
+                    done += w.subtasks.filter(s => s.done).length;
+                } else {
+                    total += 1;
+                    if (completedWeekly[w.id]) done += 1;
+                }
+            });
+            return { weeklyDone: done, weeklyTotal: total };
+        }, [weeklyPlan, completedWeekly]);
+        const dailyDone = quickTasks.filter(t => completedTasks[t.id]).length;
+        const dailyTotal = quickTasks.length;
+
+        const WeeklyTaskRow = ({ w, showProject }) => {
+            const alreadyPushed = quickTasks.some(t => t.weeklySourceId === w.id);
+            const sp = getSubProgress(w);
+            return (
+                <div>
+                    <div className={'px-5 py-3.5 flex items-center gap-3 group ' + (completedWeekly[w.id] ? 'opacity-50' : '')}>
+                        <span className="cursor-pointer flex-shrink-0" onClick={() => toggleWeekly(w.id)}>
+                            {completedWeekly[w.id] ? I.check("#10B981") : I.circle("#D1D5DB")}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                            <p className={'text-sm ' + (completedWeekly[w.id] ? 'line-through text-gray-400' : 'text-gray-900')}>{w.task}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                                {sp && <p className="text-xs text-gray-400">{sp.done}/{sp.total} sub-goals done</p>}
+                                {w.deadline && <span className={'text-xs px-1.5 py-0.5 rounded ' + (new Date(w.deadline) < new Date() ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-600')}>{new Date(w.deadline + 'T00:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric'})}</span>}
+                                {w.delegatedTo && <span className="text-xs px-1.5 py-0.5 rounded bg-purple-50 text-purple-500 flex items-center gap-1">{I.user("#8B5CF6")} {w.delegatedTo}</span>}
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
+                            {!completedWeekly[w.id] && !alreadyPushed && (
+                                <button onClick={() => pushToDaily(w)} className="p-1.5 rounded-lg hover:bg-blue-50 transition text-blue-500" title="Push to today">
+                                    {I.arrowRight("#3B82F6")}
+                                </button>
+                            )}
+                            {alreadyPushed && <span className="text-xs text-emerald-500 px-2">In today</span>}
+                            <button onClick={() => { setEditItem(w); setModal('editWeekly'); }} className="p-1.5 rounded-lg hover:bg-gray-100 transition">{I.edit("#9CA3AF")}</button>
+                        </div>
+                    </div>
+                    {w.subtasks && w.subtasks.length > 0 && !completedWeekly[w.id] && (
+                        <div className="pl-12 pr-5 pb-3 space-y-1">
+                            {w.subtasks.map(s => (
+                                <div key={s.id} className="flex items-center gap-2.5 py-1 cursor-pointer group/sub" onClick={() => toggleSubtask(w.id, s.id)}>
+                                    <div className={'w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition ' + (s.done ? 'bg-emerald-500 border-emerald-500' : 'border-gray-300 group-hover/sub:border-blue-400')}>
+                                        {s.done && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                                    </div>
+                                    <span className={'text-xs ' + (s.done ? 'line-through text-gray-400' : 'text-gray-600')}>{s.text}</span>
                                 </div>
                             ))}
                         </div>
-                    </Card>
-                </section>
-            </main>
+                    )}
+                </div>
+            );
+        };
 
-            {/* MODALS FOR EDITING ITEMS AND LEARNING */}
-            {modal && modal.startsWith('editItem_') && editItem && <EditItemForm item={editItem} idx={parseInt(modal.split('_')[1])} setItems={setItems} onClose={() => { setModal(null); setEditItem(null); }} />}
-            {modal && modal.startsWith('editLearning_') && editItem && <EditLearningForm item={editItem} idx={parseInt(modal.split('_')[1])} setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
-        </div>
-    );
-};
+        return (
+        <div className="space-y-8 max-w-6xl">
+            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1 w-fit">
+                {[
+                    { id: 'weekly', label: 'Weekly Plan', count: weeklyTotal - weeklyDone },
+                    { id: 'daily', label: 'Today', count: dailyTotal - dailyDone },
+                    { id: 'schedule', label: 'Schedule', count: timeBlocks.filter(b => !completedTimeBlocks[b.id]).length },
+                ].map(tab => (
+                    <button key={tab.id} onClick={() => setPlannerTab(tab.id)}
+                        className={'px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ' + (plannerTab === tab.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700')}>
+                        {tab.label}
+                        {tab.count > 0 && <span className={'text-xs px-1.5 py-0.5 rounded-full ' + (plannerTab === tab.id ? 'bg-blue-100 text-blue-600' : 'bg-gray-200 text-gray-500')}>{tab.count}</span>}
+                    </button>
+                ))}
+            </div>
 
-const EditItemForm = ({ item, idx, setItems, onClose }) => {
-    const [name, setName] = useState(item.name);
-    const [value, setValue] = useState(item.value);
-    const [unit, setUnit] = useState(item.unit);
-    const [color, setColor] = useState(item.color);
+            {plannerTab === 'weekly' && (
+                <div className="space-y-6">
+                    <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow">
+                        <div className="flex items-center justify-between mb-3">
+                            <div>
+                                <h2 className="text-base font-semibold text-gray-900">This Week</h2>
+                                <p className="text-xs text-gray-400 mt-0.5">{weeklyDone} of {weeklyTotal} tasks completed</p>
+                            </div>
+                            <button onClick={() => setModal('addWeekly')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add Task</button>
+                        </div>
+                        {weeklyTotal > 0 && (
+                            <div className="w-full h-2 bg-gray-100 rounded-full">
+                                <div className="h-full bg-blue-500 rounded-full transition-all" style={{width: (weeklyTotal > 0 ? (weeklyDone / weeklyTotal) * 100 : 0) + '%'}}></div>
+                            </div>
+                        )}
+                    </div>
 
-    const handleSave = useCallback(() => {
-        setItems(items => items.map((i, index) => index === idx ? { ...i, name, value: parseFloat(value) || 0, unit, color } : i));
-        save('items', items => items.map((i, index) => index === idx ? { ...i, name, value: parseFloat(value) || 0, unit, color } : i));
-        onClose();
-    }, [idx, name, value, unit, color, setItems, onClose]);
+                    {weeklyPlan.length === 0 ? (
+                        <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                            <Empty icon={I.clipboard("#9CA3AF")} title="No weekly tasks yet" sub="Start by adding your key objectives for the week" action={() => setModal('addWeekly')} actionLabel="Add Weekly Task" />
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            {Object.keys(weeklyByProject.grouped).map(pid => {
+                                const proj = projects.find(p => p.id === Number(pid));
+                                const tasks = weeklyByProject.grouped[pid];
+                                let projTotal = 0, projDone = 0;
+                                tasks.forEach(w => {
+                                    if (w.subtasks && w.subtasks.length > 0) { projTotal += w.subtasks.length; projDone += w.subtasks.filter(s => s.done).length; }
+                                    else { projTotal += 1; if (completedWeekly[w.id]) projDone += 1; }
+                                });
+                                return (
+                                    <div key={pid} className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                                        <div className="px-5 py-3.5 bg-blue-50/50 border-b border-blue-100/50 flex items-center justify-between cursor-pointer select-none hover:bg-blue-50/80 transition" onClick={() => toggleProjectCollapse(pid)}>
+                                            <div className="flex items-center gap-3">
+                                                <span className={'transition-transform duration-200 ' + (collapsedProjects[pid] ? '' : 'rotate-90')}>{I.chevron("#9CA3AF")}</span>
+                                                <div className="w-2 h-8 rounded-full bg-blue-400"></div>
+                                                <div>
+                                                    <p className="text-sm font-semibold text-gray-900">{proj ? proj.name : 'Unknown Project'}</p>
+                                                    <p className="text-xs text-gray-400">{projDone}/{projTotal} done</p>
+                                                </div>
+                                            </div>
+                                            {proj && (
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs text-gray-400">{getProjectProgress(Number(pid)) || 0}%</span>
+                                                    <div className="w-20 h-1.5 bg-gray-100 rounded-full"><div className="h-full bg-blue-500 rounded-full transition-all" style={{width: (getProjectProgress(Number(pid)) || 0) + '%'}}></div></div>
+                                                </div>
+                                            )}
+                                        </div>
+                                        {!collapsedProjects[pid] && <div className="divide-y divide-gray-50">
+                                            {tasks.map(w => <WeeklyTaskRow key={w.id} w={w} />)}
+                                        </div>}
+                                    </div>
+                                );
+                            })}
 
-    return (
-        <div style={{ position: "fixed", top: "0", left: "0", width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: "1001" }}>
-            <div style={{ backgroundColor: "white", borderRadius: "12px", padding: "24px", maxWidth: "500px", width: "90%", boxShadow: "0 20px 25px rgba(0,0,0,0.15)" }}>
-                <h2 style={{ margin: "0 0 20px 0", fontSize: "20px", fontWeight: "700" }}>Edit Metric</h2>
-                <InputField label="Metric Name" value={name} onChange={setName} />
-                <InputField label="Value" value={value} onChange={setValue} type="number" />
-                <SelectField label="Unit" value={unit} onChange={setUnit} options={['count', 'minutes', 'hours', 'km', 'kg', 'pages', 'words', 'dollars']} />
-                <div style={{ marginBottom: "12px" }}>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>Color</label>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                        {['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899'].map(c => (
-                            <div key={c} onClick={() => setColor(c)} style={{ width: "32px", height: "32px", backgroundColor: c, borderRadius: "6px", cursor: "pointer", border: color === c ? "2px solid #000" : "2px solid #e5e7eb" }} />
-                        ))}
+                            {weeklyByProject.unlinked.length > 0 && (
+                                <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                                    <div className="px-5 py-3.5 bg-gray-50/50 border-b border-gray-100 flex items-center gap-3 cursor-pointer select-none hover:bg-gray-50/80 transition" onClick={() => toggleProjectCollapse('general')}>
+                                        <span className={'transition-transform duration-200 ' + (collapsedProjects['general'] ? '' : 'rotate-90')}>{I.chevron("#9CA3AF")}</span>
+                                        <div className="w-2 h-8 rounded-full bg-gray-300"></div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-gray-900">General Tasks</p>
+                                            <p className="text-xs text-gray-400">Not linked to a project</p>
+                                        </div>
+                                    </div>
+                                    {!collapsedProjects['general'] && <div className="divide-y divide-gray-50">
+                                        {weeklyByProject.unlinked.map(w => <WeeklyTaskRow key={w.id} w={w} />)}
+                                    </div>}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {plannerTab === 'daily' && (
+                <div className="space-y-6">
+                    <div className="grid grid-cols-2 gap-6">
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-base font-semibold text-gray-900">Today's Tasks</h2>
+                                <div className="flex items-center gap-2">
+                                    {quickTasks.some(t => completedTasks[t.id]) && (
+                                        <button onClick={archiveCompleted} className="text-xs text-gray-400 hover:text-gray-600 font-medium flex items-center gap-1">{I.history("#9CA3AF")} Archive done</button>
+                                    )}
+                                    <button onClick={() => setModal('addTask')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
+                                </div>
+                            </div>
+                            {quickTasks.length === 0 ? (
+                                <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                                    <Empty icon={I.check("#9CA3AF")} title="No tasks yet" sub="Add tasks or pull from your weekly plan" action={() => setModal('addTask')} actionLabel="Add Task" />
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    {/* Pending tasks first */}
+                                    {quickTasks.filter(t => !completedTasks[t.id]).map(t => (
+                                        <div key={t.id} className="bg-white rounded-xl border border-gray-100 p-4 card-shadow card-shadow-hover transition-all flex items-center gap-3">
+                                            <span className="cursor-pointer" onClick={() => toggleTask(t.id)}>{I.circle("#D1D5DB")}</span>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-medium text-gray-900">{t.task}</p>
+                                                <div className="flex items-center gap-2 mt-0.5">
+                                                    <span className="text-xs text-gray-400">{t.due}</span>
+                                                    {t.projectId && projectName(t.projectId) && (
+                                                        <span className="text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-500 truncate max-w-[120px]">{projectName(t.projectId)}</span>
+                                                    )}
+                                                    {t.delegatedTo && (
+                                                        <span className="text-xs px-1.5 py-0.5 rounded bg-purple-50 text-purple-500 flex items-center gap-1">{I.user("#8B5CF6")} {t.delegatedTo}</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <span className={'text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ' + (prioColor[t.priority] || prioColor.medium)}>{prioLabel[t.priority] || 'Med'}</span>
+                                            <button onClick={() => { setEditItem(t); setModal('editTask'); }} className="p-1 rounded-lg hover:bg-gray-100 transition flex-shrink-0">{I.edit("#9CA3AF")}</button>
+                                        </div>
+                                    ))}
+                                    {/* Completed tasks (dimmed) */}
+                                    {quickTasks.filter(t => completedTasks[t.id]).map(t => (
+                                        <div key={t.id} className="bg-white rounded-xl border border-gray-100 p-4 card-shadow transition-all flex items-center gap-3 opacity-50">
+                                            <span className="cursor-pointer" onClick={() => toggleTask(t.id)}>{I.check("#10B981")}</span>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-medium text-gray-400 line-through">{t.task}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            {/* Delegated section */}
+                            {quickTasks.filter(t => t.delegatedTo && !completedTasks[t.id]).length > 0 && (
+                                <div className="mt-6">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        {I.user("#8B5CF6")}
+                                        <h3 className="text-sm font-semibold text-gray-900">Delegated</h3>
+                                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600">{quickTasks.filter(t => t.delegatedTo && !completedTasks[t.id]).length}</span>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {quickTasks.filter(t => t.delegatedTo && !completedTasks[t.id]).map(t => (
+                                            <div key={'del-'+t.id} className="bg-purple-50/50 rounded-xl border border-purple-100 p-4 flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-semibold text-xs flex-shrink-0">{t.delegatedTo.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)}</div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium text-gray-900">{t.task}</p>
+                                                    <p className="text-xs text-purple-500 mt-0.5">Assigned to {t.delegatedTo}</p>
+                                                </div>
+                                                <span className={'text-xs px-2 py-0.5 rounded-full font-medium ' + (prioColor[t.priority] || prioColor.medium)}>{prioLabel[t.priority] || 'Med'}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div>
+                            <h2 className="text-base font-semibold text-gray-900 mb-4">At a Glance</h2>
+                            <div className="space-y-3">
+                                <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+                                    <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Weekly Progress</p>
+                                    <p className="text-2xl font-semibold text-gray-900">{weeklyDone} / {weeklyTotal}</p>
+                                    <p className="text-xs text-gray-400">weekly tasks done</p>
+                                    {weeklyTotal > 0 && (
+                                        <div className="w-full h-1.5 bg-gray-100 rounded-full mt-2"><div className="h-full bg-blue-500 rounded-full transition-all" style={{width: ((weeklyDone / weeklyTotal) * 100) + '%'}}></div></div>
+                                    )}
+                                </div>
+                                <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+                                    <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Today</p>
+                                    <p className="text-2xl font-semibold text-gray-900">{dailyDone} / {dailyTotal}</p>
+                                    <p className="text-xs text-gray-400">tasks done</p>
+                                </div>
+                                <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+                                    <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Schedule</p>
+                                    <p className="text-2xl font-semibold text-gray-900">{timeBlocks.filter(b => !completedTimeBlocks[b.id]).length}</p>
+                                    <p className="text-xs text-gray-400">blocks remaining</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                        <button onClick={() => setExpandedIdeas(!expandedIdeas)} className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition rounded-xl">
+                            <div className="flex items-center gap-3">{I.bulb("#F59E0B")}<span className="text-base font-semibold text-gray-900">Ideas & Learning</span><span className="text-xs text-gray-400 ml-2">{ideas.length + learning.length} items</span></div>
+                            <span className={'transition-transform ' + (expandedIdeas ? 'rotate-90' : '')}>{I.chevron("#9CA3AF")}</span>
+                        </button>
+                        {expandedIdeas && (
+                            <div className="px-5 pb-5 space-y-5">
+                                <div>
+                                    <div className="flex items-center justify-between mb-3">
+                                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Ideas I Don't Want to Forget</p>
+                                        <button onClick={() => setModal('addIdea')} className="text-xs text-blue-500 hover:text-blue-600 font-medium">{I.plus("#3B82F6")}</button>
+                                    </div>
+                                    {ideas.length === 0 ? <p className="text-sm text-gray-400 italic">No ideas captured yet. Click + to add one.</p> : (
+                                        <div className="space-y-2">
+                                            {ideas.map(idea => (
+                                                <div key={idea.id} className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg group">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-2 flex-shrink-0"></div>
+                                                    <div className="flex-1"><p className="text-sm text-gray-800">{idea.text}</p><p className="text-xs text-gray-400 mt-0.5">{idea.t}</p></div>
+                                                    <button onClick={() => { setEditItem(idea); setModal('editIdea'); }} className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-amber-100 transition">{I.edit("#9CA3AF")}</button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="pt-4 border-t border-gray-100">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Things I Said I'd Learn</p>
+                                        <button onClick={() => setModal('addLearning')} className="text-xs text-blue-500 hover:text-blue-600 font-medium">{I.plus("#3B82F6")}</button>
+                                    </div>
+                                    {learning.length === 0 ? <p className="text-sm text-gray-400 italic">No learning goals yet. Click + to add one.</p> : (
+                                        <div className="space-y-2">
+                                            {learning.map((item, i) => (
+                                                <div key={i} className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg group">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0"></div>
+                                                    <p className="text-sm text-gray-800 flex-1">{item}</p>
+                                                    <button onClick={() => { setEditItem(item); setModal('editLearning_' + i); }} className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-blue-100 transition">{I.edit("#9CA3AF")}</button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
-                <div style={{ display: "flex", gap: "8px" }}>
-                    <Button label="Cancel" onClick={onClose} />
-                    <Button label="Save" variant="success" onClick={handleSave} />
+            )}
+
+            {plannerTab === 'schedule' && (
+                <div className="space-y-6">
+                    <div>
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-base font-semibold text-gray-900">Today's Schedule</h2>
+                            <button onClick={() => setModal('addTimeBlock')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
+                        </div>
+                        {timeBlocks.length === 0 ? (
+                            <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                                <Empty icon={I.calendar("#9CA3AF")} title="No time blocks yet" sub="Plan your day by adding time blocks" action={() => setModal('addTimeBlock')} actionLabel="Add Time Block" />
+                            </div>
+                        ) : (
+                            <div className="space-y-2">
+                                {timeBlocks.map(b => (
+                                    <div key={b.id} className={(catColors[b.cat] || catColors.blue) + ' border rounded-xl px-5 py-3.5 transition-all hover:shadow-sm ' + (completedTimeBlocks[b.id] ? 'opacity-50' : '')}>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-4 cursor-pointer flex-1" onClick={() => toggleBlock(b.id)}>
+                                                <div className={'w-2 h-2 rounded-full ' + (catDot[b.cat] || catDot.blue)}></div>
+                                                <span className="text-xs font-medium opacity-70 w-32">{b.time}{b.end ? ' - ' + b.end : ''}</span>
+                                                <span className={'text-sm font-medium ' + (completedTimeBlocks[b.id] ? 'line-through opacity-60' : '')}>{b.task}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <button onClick={() => { setEditItem(b); setModal('editTimeBlock'); }} className="p-1 rounded-lg hover:bg-white/50 transition">{I.edit("#9CA3AF")}</button>
+                                                {completedTimeBlocks[b.id] ? I.check("#10B981") : <span className="cursor-pointer" onClick={() => toggleBlock(b.id)}>{I.circle("#D1D5DB")}</span>}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
-    );
-};
+        );
+    };
 
-const EditLearningForm = ({ item, idx, setLearning, onClose }) => {
-    const [title, setTitle] = useState(item.title);
-    const [category, setCategory] = useState(item.category);
-    const [duration, setDuration] = useState(item.duration);
-    const [level, setLevel] = useState(item.level);
-
-    const handleSave = useCallback(() => {
-        setLearning(learning => learning.map((l, index) => index === idx ? { ...l, title, category, duration: parseInt(duration) || 0, level } : l));
-        save('learning', learning => learning.map((l, index) => index === idx ? { ...l, title, category, duration: parseInt(duration) || 0, level } : l));
-        onClose();
-    }, [idx, title, category, duration, level, setLearning, onClose]);
-
-    return (
-        <div style={{ position: "fixed", top: "0", left: "0", width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: "1001" }}>
-            <div style={{ backgroundColor: "white", borderRadius: "12px", padding: "24px", maxWidth: "500px", width: "90%", boxShadow: "0 20px 25px rgba(0,0,0,0.15)" }}>
-                <h2 style={{ margin: "0 0 20px 0", fontSize: "20px", fontWeight: "700" }}>Edit Learning</h2>
-                <InputField label="Title" value={title} onChange={setTitle} />
-                <InputField label="Category" value={category} onChange={setCategory} />
-                <InputField label="Duration (minutes)" value={duration} onChange={setDuration} type="number" />
-                <SelectField label="Level" value={level} onChange={setLevel} options={['beginner', 'intermediate', 'advanced']} />
-                <div style={{ display: "flex", gap: "8px" }}>
-                    <Button label="Cancel" onClick={onClose} />
-                    <Button label="Save" variant="success" onClick={handleSave} />
+    const HistoryModule = () => {
+        const sortedHistory = [...taskHistory].sort((a, b) => b.date.localeCompare(a.date));
+        return (
+            <div className="space-y-6 max-w-4xl">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h2 className="text-base font-semibold text-gray-900">Task History</h2>
+                        <p className="text-xs text-gray-400 mt-0.5">Completed tasks archived by date</p>
+                    </div>
                 </div>
+                {sortedHistory.length === 0 ? (
+                    <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                        <Empty icon={I.history("#9CA3AF")} title="No history yet" sub="Completed tasks will appear here after end-of-day archival" />
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {sortedHistory.map(entry => (
+                            <div key={entry.date} className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                                <div className="px-5 py-3.5 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        {I.calendar("#6B7280")}
+                                        <p className="text-sm font-semibold text-gray-900">{new Date(entry.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                                    </div>
+                                    <span className="text-xs text-gray-400">{entry.tasks.length} task{entry.tasks.length !== 1 ? 's' : ''}</span>
+                                </div>
+                                <div className="divide-y divide-gray-50">
+                                    {entry.tasks.map((t, i) => (
+                                        <div key={t.id || i} className="px-5 py-3 flex items-center gap-3">
+                                            {I.check("#10B981")}
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm text-gray-600">{t.task}</p>
+                                                <div className="flex items-center gap-2 mt-0.5">
+                                                    {t.projectId && <span className="text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-500">{projectName(t.projectId)}</span>}
+                                                    {t.delegatedTo && <span className="text-xs px-1.5 py-0.5 rounded bg-purple-50 text-purple-500">{I.user("#8B5CF6")} {t.delegatedTo}</span>}
+                                                </div>
+                                            </div>
+                                            {t.completedAt && <span className="text-xs text-gray-400">{new Date(t.completedAt).toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'})}</span>}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
+        );
+    };
+
+    // MAIN RETURN
+    return (
+        <div className="h-screen bg-gray-50 flex">
+            <Sidebar />
+            <div className={'flex-1 flex flex-col transition-all duration-300 ' + (sidebarOpen ? 'ml-60' : 'ml-16')}>
+                <TopBar />
+                <main className="flex-1 overflow-auto px-8 py-6">
+                    {activeModule === 'command' && <CommandCentre />}
+                    {activeModule === 'income' && <IncomeModule />}
+                    {activeModule === 'briefing' && <BriefingModule />}
+                    {activeModule === 'planner' && <PlannerModule />}
+                    {activeModule === 'history' && <HistoryModule />}
+                </main>
+            </div>
+
+            {/* Floating + Button */}
+            <button onClick={() => setModal(modal === 'addMenu' ? null : 'addMenu')} className={'fixed bottom-8 right-8 w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-lg hover:shadow-xl hover:bg-blue-600 transition-all duration-200 ' + (modal === 'addMenu' ? 'rotate-45' : '')} title="Quick Add">
+                {I.plus("white")}
+            </button>
+
+            {/* MODALS */}
+            {modal === 'addMenu' && <AddMenu onClose={() => setModal(null)} activeModule={activeModule} setModal={setModal} />}
+            {modal === 'addIncome' && <IncomeForm setIncomeStreams={setIncomeStreams} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'editIncome' && <IncomeForm item={editItem} setIncomeStreams={setIncomeStreams} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'addProject' && <ProjectForm setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'editProject' && <ProjectForm item={editItem} setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'addWeekly' && <WeeklyTaskForm setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'editWeekly' && <WeeklyTaskForm item={editItem} setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'addTask' && <TaskForm setQuickTasks={setQuickTasks} activeProjects={activeProjects} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'editTask' && <TaskForm item={editItem} setQuickTasks={setQuickTasks} activeProjects={activeProjects} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'addTimeBlock' && <TimeBlockForm setTimeBlocks={setTimeBlocks} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'editTimeBlock' && <TimeBlockForm item={editItem} setTimeBlocks={setTimeBlocks} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'addIdea' && <IdeaForm setIdeas={setIdeas} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'editIdea' && <IdeaForm item={editItem} setIdeas={setIdeas} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'addTeam' && <TeamForm setTeamMembers={setTeamMembers} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'addExpense' && <ExpenseForm setExpenses={setExpenses} incomeStreams={incomeStreams} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'editExpense' && <ExpenseForm item={editItem} setExpenses={setExpenses} incomeStreams={incomeStreams} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'editTeam' && <TeamForm item={editItem} setTeamMembers={setTeamMembers} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'addLearning' && <LearningForm setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal && modal.startsWith('editLearning_') && <LearningForm item={editItem} idx={parseInt(modal.split('_')[1])} setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
         </div>
     );
 };
