@@ -319,7 +319,7 @@ const WeeklyTaskForm = ({ item, onClose, setWeeklyPlan, activeProjects }) => {
                 <input type="date" className={inputCls} value={deadline} onChange={e => setDeadline(e.target.value)} />
             </Field>
             <Field label="Delegate to (optional)">
-                <input type="text" className={inputCls} value={delegatedTo} onChange={e => setDelegatedTo(e.target.value)} placeholder="e.g. John, Sarah" />
+                <input type="text" className={inputCls} value={delegatedTo} onChange={e => setDelegatedTo(e.target.value)} placeholder="e.g. @username" />
             </Field>
             <div className="flex gap-2 mt-6">
                 {item && <button className={btnDanger} onClick={() => { setWeeklyPlan(prev => prev.filter(w => w.id !== item.id)); onClose(); }}>Delete</button>}
@@ -363,7 +363,7 @@ const TaskForm = ({ item, onClose, setQuickTasks, activeProjects }) => {
                 <Field label="Due"><input className={inputCls} value={due} onChange={e => setDue(e.target.value)} placeholder="e.g. Today, Feb 12" /></Field>
             </div>
             <Field label="Delegate to (optional)">
-                <input type="text" className={inputCls} value={delegatedTo} onChange={e => setDelegatedTo(e.target.value)} placeholder="e.g. John, Sarah" />
+                <input type="text" className={inputCls} value={delegatedTo} onChange={e => setDelegatedTo(e.target.value)} placeholder="e.g. @username" />
             </Field>
             <div className="flex gap-2 mt-6">
                 {item && <button className={btnDanger} onClick={() => { setQuickTasks(prev => prev.filter(t => t.id !== item.id)); onClose(); }}>Delete</button>}
@@ -442,6 +442,66 @@ const LearningForm = ({ item, idx, onClose, setLearning }) => {
                 <button className={btnPrimary} onClick={submit}>{item ? 'Save' : 'Add Goal'}</button>
             </div>
         </Modal>
+    );
+};
+
+const ProfileEditModal = ({ userProfile, setUserProfile, onClose }) => {
+    const [name, setName] = useState(userProfile ? userProfile.name : '');
+    const [username, setUsername] = useState(userProfile ? userProfile.username : '');
+    const autoInitials = name.trim() ? name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '';
+    const submit = () => {
+        if (!name.trim() || !username.trim()) return;
+        setUserProfile({ name: name.trim(), username: username.trim().toLowerCase().replace(/\s+/g, ''), initials: autoInitials });
+        onClose();
+    };
+    return (
+        <Modal title="Profile Settings" onClose={onClose}>
+            <Field label="Full Name"><input className={inputCls} value={name} onChange={e => setName(e.target.value)} placeholder="Your name" /></Field>
+            <Field label="Username">
+                <input className={inputCls} value={username} onChange={e => setUsername(e.target.value.replace(/\s+/g, ''))} placeholder="e.g. tutu" />
+                <p className="text-xs text-gray-400 mt-1">Others can delegate tasks to you using @{username.trim().toLowerCase().replace(/\s+/g, '') || 'username'}</p>
+            </Field>
+            {autoInitials && (
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg mb-4">
+                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm">{autoInitials}</div>
+                    <div><p className="text-sm font-medium text-gray-700">{name.trim()}</p><p className="text-xs text-gray-400">@{username.trim().toLowerCase().replace(/\s+/g, '')}</p></div>
+                </div>
+            )}
+            <button className={btnPrimary} onClick={submit}>Save Profile</button>
+        </Modal>
+    );
+};
+
+const SetupScreen = ({ onSetProfile }) => {
+    const [name, setName] = useState('');
+    const [username, setUsername] = useState('');
+    const autoInitials = name.trim() ? name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '';
+    const submit = () => {
+        if (!name.trim() || !username.trim()) return;
+        onSetProfile({ name: name.trim(), username: username.trim().toLowerCase().replace(/\s+/g, ''), initials: autoInitials });
+    };
+    return (
+        <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-white to-gray-50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl w-full max-w-md card-shadow p-8 text-center">
+                <div className="mb-6"><Emblem size={48} /><h1 className="text-2xl font-bold text-gray-900 mt-3">Welcome to NuOperandi</h1><p className="text-sm text-gray-500 mt-2">Your personal operating system. Let's set up your profile.</p></div>
+                <div className="text-left space-y-4">
+                    <Field label="Your Full Name">
+                        <input className={inputCls} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Tutu Adetunmbi" />
+                    </Field>
+                    <Field label="Username">
+                        <input className={inputCls} value={username} onChange={e => setUsername(e.target.value.replace(/\s+/g, ''))} placeholder="e.g. tutu" />
+                        <p className="text-xs text-gray-400 mt-1">Others can use this to delegate tasks to you</p>
+                    </Field>
+                    {autoInitials && (
+                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm">{autoInitials}</div>
+                            <div><p className="text-sm font-medium text-gray-700">{name.trim()}</p><p className="text-xs text-gray-400">@{username.trim().toLowerCase().replace(/\s+/g, '')}</p></div>
+                        </div>
+                    )}
+                </div>
+                <button className={btnPrimary + ' mt-6'} onClick={submit} disabled={!name.trim() || !username.trim()}>Get Started</button>
+            </div>
+        </div>
     );
 };
 
@@ -573,6 +633,7 @@ const NuOperandi = () => {
     const [expandedIdeas, setExpandedIdeas] = useState(false);
     const [plannerTab, setPlannerTab] = useState('weekly');
     const [collapsedProjects, setCollapsedProjects] = useState(() => load('collapsedProjects', {}));
+    const [userProfile, setUserProfile] = useState(() => load('profile', null));
 
     /* -- Editable Data State -- */
     const [incomeStreams, setIncomeStreams] = useState(() => load('income', defaultIncome));
@@ -610,6 +671,7 @@ const NuOperandi = () => {
     useEffect(() => { save('briefing', briefing); }, [briefing]);
     useEffect(() => { save('nationBriefing', nationBriefing); }, [nationBriefing]);
     useEffect(() => { save('taskHistory', taskHistory); }, [taskHistory]);
+    useEffect(() => { if (userProfile) save('profile', userProfile); }, [userProfile]);
 
     useEffect(() => {
         const liveBriefing = generateLiveBriefing();
@@ -904,7 +966,7 @@ const NuOperandi = () => {
                 ))}
             </nav>
             <div className="p-2 border-t border-gray-50">
-                <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition text-sm">{I.settings("#9CA3AF")}{sidebarOpen && <span>Settings</span>}</button>
+                <button onClick={() => setModal('settings')} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition text-sm">{I.settings("#9CA3AF")}{sidebarOpen && <span>Settings</span>}</button>
             </div>
         </div>
     );
@@ -916,7 +978,7 @@ const NuOperandi = () => {
         return (
         <div className="bg-white/80 backdrop-blur-md border-b border-gray-100 px-8 py-5 flex items-center justify-between sticky top-0 z-10">
             <div className="flex-1 min-w-0">
-                <h1 className="text-xl font-semibold text-gray-900">{greeting()}, <span className="text-blue-500">Tutu</span></h1>
+                <h1 className="text-xl font-semibold text-gray-900">{greeting()}, <span className="text-blue-500">{userProfile ? userProfile.name.split(' ')[0] : 'User'}</span></h1>
                 <p className="text-sm text-gray-400 mt-0.5">{fmtDate(currentTime)}</p>
                 <p className="text-xs text-gray-400 mt-2 italic truncate max-w-xl" style={{color:'#B8952C'}}>"{getQuote()}"</p>
             </div>
@@ -929,7 +991,7 @@ const NuOperandi = () => {
                 </button>
                 <span className="text-sm text-gray-400 font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
                 <button className="relative text-gray-400 hover:text-gray-600 transition">{I.bell("#9CA3AF")}<span className="absolute -top-1 -right-1 w-2 h-2 bg-red-400 rounded-full"></span></button>
-                <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm">TA</div>
+                <div onClick={() => setModal('settings')} className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm cursor-pointer hover:bg-blue-600 transition">{userProfile ? userProfile.initials : 'U'}</div>
             </div>
         </div>
         );
@@ -1874,6 +1936,7 @@ const NuOperandi = () => {
     };
 
     // MAIN RETURN
+    if (!userProfile) return <SetupScreen onSetProfile={p => setUserProfile(p)} />;
     return (
         <div className="h-screen bg-gray-50 flex">
             <Sidebar />
@@ -1913,6 +1976,7 @@ const NuOperandi = () => {
             {modal === 'editTeam' && <TeamForm item={editItem} setTeamMembers={setTeamMembers} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'addLearning' && <LearningForm setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal && modal.startsWith('editLearning_') && <LearningForm item={editItem} idx={parseInt(modal.split('_')[1])} setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'settings' && <ProfileEditModal userProfile={userProfile} setUserProfile={setUserProfile} onClose={() => { setModal(null); }} />}
         </div>
     );
 };
