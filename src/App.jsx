@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { supabase } from './supabaseClient';
 
 /* ====== STORAGE ====== */
 const save = (key, data) => { try { localStorage.setItem('nuoperandi_' + key, JSON.stringify(data)); } catch(e) {} };
@@ -264,7 +265,7 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress }) => {
     );
 };
 
-const WeeklyTaskForm = ({ item, onClose, setWeeklyPlan, activeProjects }) => {
+const WeeklyTaskForm = ({ item, onClose, setWeeklyPlan, activeProjects, onDelegate }) => {
     const [task, setTask] = useState(item ? item.task : '');
     const [projId, setProjId] = useState(item ? (item.projectId || '') : '');
     const [subtasks, setSubtasks] = useState(item && item.subtasks ? item.subtasks.map(s => ({...s})) : []);
@@ -277,6 +278,13 @@ const WeeklyTaskForm = ({ item, onClose, setWeeklyPlan, activeProjects }) => {
         setNewSub('');
     };
     const removeSub = (sid) => setSubtasks(prev => prev.filter(s => s.id !== sid));
+    const [userSuggestions, setUserSuggestions] = useState([]);
+    const searchUsers = async (q) => {
+        if (!q || q.length < 2) { setUserSuggestions([]); return; }
+        const clean = q.replace('@', '').toLowerCase();
+        const { data } = await supabase.from('profiles').select('username, full_name').ilike('username', clean + '%').limit(5);
+        setUserSuggestions(data || []);
+    };
     const submit = () => {
         if (!task) return;
         const pid = projId ? Number(projId) : null;
@@ -284,6 +292,9 @@ const WeeklyTaskForm = ({ item, onClose, setWeeklyPlan, activeProjects }) => {
             setWeeklyPlan(prev => prev.map(w => w.id === item.id ? { ...w, task, projectId: pid, subtasks, deadline, delegatedTo } : w));
         } else {
             setWeeklyPlan(prev => [...prev, { id: newId(), task, projectId: pid, subtasks, deadline, delegatedTo }]);
+        }
+        if (delegatedTo && onDelegate) {
+            onDelegate({ task_text: task, task_type: 'weekly', recipient_username: delegatedTo.replace('@', '').toLowerCase(), deadline });
         }
         onClose();
     };
@@ -319,7 +330,12 @@ const WeeklyTaskForm = ({ item, onClose, setWeeklyPlan, activeProjects }) => {
                 <input type="date" className={inputCls} value={deadline} onChange={e => setDeadline(e.target.value)} />
             </Field>
             <Field label="Delegate to (optional)">
-                <input type="text" className={inputCls} value={delegatedTo} onChange={e => setDelegatedTo(e.target.value)} placeholder="e.g. @username" />
+                <input type="text" className={inputCls} value={delegatedTo} onChange={e => { setDelegatedTo(e.target.value); searchUsers(e.target.value); }} placeholder="e.g. @username" />
+                {userSuggestions.length > 0 && <div className="mt-1 border border-gray-200 rounded-lg overflow-hidden">{userSuggestions.map(u => (
+                    <div key={u.username} className="px-3 py-2 text-xs cursor-pointer hover:bg-blue-50 flex items-center gap-2" onClick={() => { setDelegatedTo(u.username); setUserSuggestions([]); }}>
+                        <span className="font-medium text-blue-600">@{u.username}</span><span className="text-gray-400">{u.full_name}</span>
+                    </div>
+                ))}</div>}
             </Field>
             <div className="flex gap-2 mt-6">
                 {item && <button className={btnDanger} onClick={() => { setWeeklyPlan(prev => prev.filter(w => w.id !== item.id)); onClose(); }}>Delete</button>}
@@ -329,12 +345,19 @@ const WeeklyTaskForm = ({ item, onClose, setWeeklyPlan, activeProjects }) => {
     );
 };
 
-const TaskForm = ({ item, onClose, setQuickTasks, activeProjects }) => {
+const TaskForm = ({ item, onClose, setQuickTasks, activeProjects, onDelegate }) => {
     const [task, setTask] = useState(item ? item.task : '');
     const [priority, setPriority] = useState(item ? item.priority : 'medium');
     const [due, setDue] = useState(item ? item.due : 'Today');
     const [projId, setProjId] = useState(item ? (item.projectId || '') : '');
     const [delegatedTo, setDelegatedTo] = useState(item ? (item.delegatedTo || '') : '');
+    const [userSuggestions, setUserSuggestions] = useState([]);
+    const searchUsers = async (q) => {
+        if (!q || q.length < 2) { setUserSuggestions([]); return; }
+        const clean = q.replace('@', '').toLowerCase();
+        const { data } = await supabase.from('profiles').select('username, full_name').ilike('username', clean + '%').limit(5);
+        setUserSuggestions(data || []);
+    };
     const submit = () => {
         if (!task) return;
         const pid = projId ? Number(projId) : null;
@@ -342,6 +365,9 @@ const TaskForm = ({ item, onClose, setQuickTasks, activeProjects }) => {
             setQuickTasks(prev => prev.map(t => t.id === item.id ? { ...t, task, priority, due, projectId: pid, delegatedTo } : t));
         } else {
             setQuickTasks(prev => [...prev, { id: newId(), task, priority, due, projectId: pid, delegatedTo }]);
+        }
+        if (delegatedTo && onDelegate) {
+            onDelegate({ task_text: task, task_type: 'quick', recipient_username: delegatedTo.replace('@', '').toLowerCase(), priority });
         }
         onClose();
     };
@@ -363,7 +389,12 @@ const TaskForm = ({ item, onClose, setQuickTasks, activeProjects }) => {
                 <Field label="Due"><input className={inputCls} value={due} onChange={e => setDue(e.target.value)} placeholder="e.g. Today, Feb 12" /></Field>
             </div>
             <Field label="Delegate to (optional)">
-                <input type="text" className={inputCls} value={delegatedTo} onChange={e => setDelegatedTo(e.target.value)} placeholder="e.g. @username" />
+                <input type="text" className={inputCls} value={delegatedTo} onChange={e => { setDelegatedTo(e.target.value); searchUsers(e.target.value); }} placeholder="e.g. @username" />
+                {userSuggestions.length > 0 && <div className="mt-1 border border-gray-200 rounded-lg overflow-hidden">{userSuggestions.map(u => (
+                    <div key={u.username} className="px-3 py-2 text-xs cursor-pointer hover:bg-blue-50 flex items-center gap-2" onClick={() => { setDelegatedTo(u.username); setUserSuggestions([]); }}>
+                        <span className="font-medium text-blue-600">@{u.username}</span><span className="text-gray-400">{u.full_name}</span>
+                    </div>
+                ))}</div>}
             </Field>
             <div className="flex gap-2 mt-6">
                 {item && <button className={btnDanger} onClick={() => { setQuickTasks(prev => prev.filter(t => t.id !== item.id)); onClose(); }}>Delete</button>}
@@ -445,13 +476,108 @@ const LearningForm = ({ item, idx, onClose, setLearning }) => {
     );
 };
 
-const ProfileEditModal = ({ userProfile, setUserProfile, onClose }) => {
+const AuthFlow = ({ onAuth }) => {
+    const [mode, setMode] = useState('login');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+    const [username, setUsername] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [usernameStatus, setUsernameStatus] = useState('');
+    const autoInitials = name.trim() ? name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '';
+
+    const checkUsername = async (u) => {
+        if (!u || u.length < 2) { setUsernameStatus(''); return; }
+        const { data } = await supabase.from('profiles').select('id').eq('username', u.toLowerCase()).maybeSingle();
+        setUsernameStatus(data ? 'taken' : 'available');
+    };
+
+    const handleSignUp = async () => {
+        if (!email || !password || !name.trim() || !username.trim()) { setError('All fields are required'); return; }
+        if (password.length < 6) { setError('Password must be at least 6 characters'); return; }
+        if (usernameStatus === 'taken') { setError('Username is already taken'); return; }
+        setLoading(true); setError('');
+        const { data: authData, error: authErr } = await supabase.auth.signUp({ email, password });
+        if (authErr) { setError(authErr.message); setLoading(false); return; }
+        if (authData.user) {
+            const profile = { name: name.trim(), username: username.trim().toLowerCase().replace(/\s+/g, ''), initials: autoInitials };
+            const { error: profErr } = await supabase.from('profiles').insert({
+                id: authData.user.id, username: profile.username, full_name: profile.name, initials: profile.initials, email
+            });
+            if (profErr) { setError('Profile error: ' + profErr.message); setLoading(false); return; }
+            onAuth(authData.user, profile);
+        }
+        setLoading(false);
+    };
+
+    const handleLogin = async () => {
+        if (!email || !password) { setError('Email and password required'); return; }
+        setLoading(true); setError('');
+        const { data, error: authErr } = await supabase.auth.signInWithPassword({ email, password });
+        if (authErr) { setError(authErr.message); setLoading(false); return; }
+        if (data.user) {
+            const { data: prof } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
+            if (prof) {
+                onAuth(data.user, { name: prof.full_name, username: prof.username, initials: prof.initials });
+            }
+        }
+        setLoading(false);
+    };
+
+    return (
+        <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-white to-gray-50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl w-full max-w-md card-shadow p-8 text-center">
+                <div className="mb-6"><Emblem size={48} /><h1 className="text-2xl font-bold text-gray-900 mt-3">Welcome to NuOperandi</h1><p className="text-sm text-gray-500 mt-2">Your personal operating system.</p></div>
+                <div className="flex rounded-lg bg-gray-100 p-1 mb-6">
+                    <button onClick={() => { setMode('login'); setError(''); }} className={'flex-1 py-2 text-sm font-medium rounded-md transition ' + (mode === 'login' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500')}>Log In</button>
+                    <button onClick={() => { setMode('signup'); setError(''); }} className={'flex-1 py-2 text-sm font-medium rounded-md transition ' + (mode === 'signup' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500')}>Sign Up</button>
+                </div>
+                <div className="text-left space-y-3">
+                    {mode === 'signup' && (
+                        <>
+                            <Field label="Full Name"><input className={inputCls} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Tutu Adetunmbi" /></Field>
+                            <Field label="Username">
+                                <input className={inputCls} value={username} onChange={e => { const v = e.target.value.replace(/\s+/g, '').toLowerCase(); setUsername(v); checkUsername(v); }} placeholder="e.g. tutu" />
+                                {usernameStatus === 'available' && <p className="text-xs text-green-500 mt-1">@{username} is available</p>}
+                                {usernameStatus === 'taken' && <p className="text-xs text-red-500 mt-1">@{username} is taken</p>}
+                            </Field>
+                        </>
+                    )}
+                    <Field label="Email"><input type="email" className={inputCls} value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" /></Field>
+                    <Field label="Password"><input type="password" className={inputCls} value={password} onChange={e => setPassword(e.target.value)} placeholder={mode === 'signup' ? 'Min 6 characters' : 'Your password'} /></Field>
+                    {mode === 'signup' && autoInitials && username && (
+                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm">{autoInitials}</div>
+                            <div><p className="text-sm font-medium text-gray-700">{name.trim()}</p><p className="text-xs text-gray-400">@{username}</p></div>
+                        </div>
+                    )}
+                </div>
+                {error && <p className="text-sm text-red-500 mt-3 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+                <button className={btnPrimary + ' mt-6 w-full'} onClick={mode === 'signup' ? handleSignUp : handleLogin} disabled={loading}>
+                    {loading ? 'Please wait...' : (mode === 'signup' ? 'Create Account' : 'Log In')}
+                </button>
+                <p className="text-xs text-gray-400 mt-4">{mode === 'login' ? "Don't have an account?" : 'Already have an account?'} <button onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); }} className="text-blue-500 hover:underline">{mode === 'login' ? 'Sign up' : 'Log in'}</button></p>
+            </div>
+        </div>
+    );
+};
+
+const ProfileEditModal = ({ userProfile, setUserProfile, supaUser, onClose }) => {
     const [name, setName] = useState(userProfile ? userProfile.name : '');
     const [username, setUsername] = useState(userProfile ? userProfile.username : '');
+    const [saving, setSaving] = useState(false);
     const autoInitials = name.trim() ? name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '';
-    const submit = () => {
+    const handleSignOut = async () => { await supabase.auth.signOut(); window.location.reload(); };
+    const submit = async () => {
         if (!name.trim() || !username.trim()) return;
-        setUserProfile({ name: name.trim(), username: username.trim().toLowerCase().replace(/\s+/g, ''), initials: autoInitials });
+        setSaving(true);
+        const profile = { name: name.trim(), username: username.trim().toLowerCase().replace(/\s+/g, ''), initials: autoInitials };
+        setUserProfile(profile);
+        if (supaUser) {
+            await supabase.from('profiles').update({ full_name: profile.name, username: profile.username, initials: profile.initials }).eq('id', supaUser.id);
+        }
+        setSaving(false);
         onClose();
     };
     return (
@@ -467,43 +593,43 @@ const ProfileEditModal = ({ userProfile, setUserProfile, onClose }) => {
                     <div><p className="text-sm font-medium text-gray-700">{name.trim()}</p><p className="text-xs text-gray-400">@{username.trim().toLowerCase().replace(/\s+/g, '')}</p></div>
                 </div>
             )}
-            <button className={btnPrimary} onClick={submit}>Save Profile</button>
+            <button className={btnPrimary + ' w-full'} onClick={submit} disabled={saving}>{saving ? 'Saving...' : 'Save Profile'}</button>
+            <button onClick={handleSignOut} className="w-full mt-3 py-2.5 text-sm text-red-500 hover:bg-red-50 rounded-lg transition">Sign Out</button>
         </Modal>
     );
 };
 
-const SetupScreen = ({ onSetProfile }) => {
-    const [name, setName] = useState('');
-    const [username, setUsername] = useState('');
-    const autoInitials = name.trim() ? name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '';
-    const submit = () => {
-        if (!name.trim() || !username.trim()) return;
-        onSetProfile({ name: name.trim(), username: username.trim().toLowerCase().replace(/\s+/g, ''), initials: autoInitials });
-    };
-    return (
-        <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-white to-gray-50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl w-full max-w-md card-shadow p-8 text-center">
-                <div className="mb-6"><Emblem size={48} /><h1 className="text-2xl font-bold text-gray-900 mt-3">Welcome to NuOperandi</h1><p className="text-sm text-gray-500 mt-2">Your personal operating system. Let's set up your profile.</p></div>
-                <div className="text-left space-y-4">
-                    <Field label="Your Full Name">
-                        <input className={inputCls} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Tutu Adetunmbi" />
-                    </Field>
-                    <Field label="Username">
-                        <input className={inputCls} value={username} onChange={e => setUsername(e.target.value.replace(/\s+/g, ''))} placeholder="e.g. tutu" />
-                        <p className="text-xs text-gray-400 mt-1">Others can use this to delegate tasks to you</p>
-                    </Field>
-                    {autoInitials && (
-                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm">{autoInitials}</div>
-                            <div><p className="text-sm font-medium text-gray-700">{name.trim()}</p><p className="text-xs text-gray-400">@{username.trim().toLowerCase().replace(/\s+/g, '')}</p></div>
-                        </div>
-                    )}
-                </div>
-                <button className={btnPrimary + ' mt-6'} onClick={submit} disabled={!name.trim() || !username.trim()}>Get Started</button>
+const NotificationsPanel = ({ notifications, onMarkRead, onClose }) => (
+    <div className="fixed inset-0 z-50" onClick={onClose}>
+        <div className="fixed top-16 right-8 bg-white rounded-xl border border-gray-100 card-shadow w-96 max-h-96 overflow-y-auto z-50" onClick={e => e.stopPropagation()}>
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 className="font-semibold text-gray-900">Notifications</h3>
+                <button onClick={onClose} className="text-gray-400 hover:text-gray-600">{I.x("#9CA3AF")}</button>
             </div>
+            {notifications.length === 0 ? (
+                <div className="p-6 text-center"><p className="text-sm text-gray-400">No notifications yet</p></div>
+            ) : (
+                <div className="divide-y divide-gray-50">
+                    {notifications.map(n => (
+                        <div key={n.id} className={'px-5 py-3 hover:bg-gray-50 transition cursor-pointer ' + (!n.is_read ? 'bg-blue-50/30' : '')} onClick={() => onMarkRead(n.id)}>
+                            <div className="flex items-start gap-3">
+                                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-semibold text-xs flex-shrink-0">
+                                    {n.sender_name ? n.sender_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?'}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-medium text-gray-900">{n.title}</p>
+                                    <p className="text-xs text-gray-500 mt-0.5 truncate">{n.message}</p>
+                                    <p className="text-xs text-gray-300 mt-1">{new Date(n.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                                </div>
+                                {!n.is_read && <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-1.5"></div>}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
-    );
-};
+    </div>
+);
 
 const TeamForm = ({ item, onClose, setTeamMembers }) => {
     const [name, setName] = useState(item ? item.name : '');
@@ -634,6 +760,11 @@ const NuOperandi = () => {
     const [plannerTab, setPlannerTab] = useState('weekly');
     const [collapsedProjects, setCollapsedProjects] = useState(() => load('collapsedProjects', {}));
     const [userProfile, setUserProfile] = useState(() => load('profile', null));
+    const [supaUser, setSupaUser] = useState(null);
+    const [authLoading, setAuthLoading] = useState(true);
+    const [notifications, setNotifications] = useState([]);
+    const [notificationsOpen, setNotificationsOpen] = useState(false);
+    const [delegatedToMe, setDelegatedToMe] = useState([]);
 
     /* -- Editable Data State -- */
     const [incomeStreams, setIncomeStreams] = useState(() => load('income', defaultIncome));
@@ -672,6 +803,80 @@ const NuOperandi = () => {
     useEffect(() => { save('nationBriefing', nationBriefing); }, [nationBriefing]);
     useEffect(() => { save('taskHistory', taskHistory); }, [taskHistory]);
     useEffect(() => { if (userProfile) save('profile', userProfile); }, [userProfile]);
+
+    /* -- Supabase Auth -- */
+    useEffect(() => {
+        const initAuth = async () => {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session?.user) {
+                    setSupaUser(session.user);
+                    const { data: prof } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+                    if (prof) setUserProfile({ name: prof.full_name, username: prof.username, initials: prof.initials });
+                }
+            } catch (e) { console.log('Auth init:', e); }
+            setAuthLoading(false);
+        };
+        initAuth();
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session?.user) { setSupaUser(session.user); } else { setSupaUser(null); }
+        });
+        return () => subscription?.unsubscribe();
+    }, []);
+
+    /* -- Real-time Notifications -- */
+    useEffect(() => {
+        if (!supaUser) return;
+        const fetchNotifs = async () => {
+            const { data } = await supabase.from('notifications').select('*').eq('user_id', supaUser.id).order('created_at', { ascending: false }).limit(20);
+            if (data) setNotifications(data);
+        };
+        fetchNotifs();
+        const channel = supabase.channel('notifs-' + supaUser.id).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: 'user_id=eq.' + supaUser.id }, payload => {
+            setNotifications(prev => [payload.new, ...prev]);
+        }).subscribe();
+        return () => { supabase.removeChannel(channel); };
+    }, [supaUser]);
+
+    /* -- Delegated to me -- */
+    useEffect(() => {
+        if (!supaUser || !userProfile) return;
+        const fetchDelegated = async () => {
+            const { data } = await supabase.from('delegated_tasks').select('*').eq('recipient_username', userProfile.username).order('created_at', { ascending: false });
+            if (data) setDelegatedToMe(data);
+        };
+        fetchDelegated();
+        const channel = supabase.channel('delegated-' + userProfile.username).on('postgres_changes', { event: '*', schema: 'public', table: 'delegated_tasks', filter: 'recipient_username=eq.' + userProfile.username }, () => { fetchDelegated(); }).subscribe();
+        return () => { supabase.removeChannel(channel); };
+    }, [supaUser, userProfile]);
+
+    const markNotifRead = async (id) => {
+        await supabase.from('notifications').update({ is_read: true }).eq('id', id);
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+    };
+
+    const unreadCount = notifications.filter(n => !n.is_read).length;
+
+    const handleAuth = (user, profile) => {
+        setSupaUser(user);
+        setUserProfile(profile);
+        save('profile', profile);
+    };
+
+    const handleDelegate = async (taskInfo) => {
+        if (!supaUser || !userProfile) return;
+        try {
+            await supabase.from('delegated_tasks').insert({
+                delegator_id: supaUser.id,
+                recipient_username: taskInfo.recipient_username,
+                task_text: taskInfo.task_text,
+                task_type: taskInfo.task_type,
+                priority: taskInfo.priority || 'medium',
+                deadline: taskInfo.deadline || null,
+                delegator_name: userProfile.name
+            });
+        } catch (e) { console.log('Delegation sync error:', e); }
+    };
 
     useEffect(() => {
         const liveBriefing = generateLiveBriefing();
@@ -990,7 +1195,7 @@ const NuOperandi = () => {
                     {todayRemaining === 0 && todayTasksTotal > 0 && <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-600">Done</span>}
                 </button>
                 <span className="text-sm text-gray-400 font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
-                <button className="relative text-gray-400 hover:text-gray-600 transition">{I.bell("#9CA3AF")}<span className="absolute -top-1 -right-1 w-2 h-2 bg-red-400 rounded-full"></span></button>
+                <button onClick={() => setNotificationsOpen(!notificationsOpen)} className="relative text-gray-400 hover:text-gray-600 transition">{I.bell("#9CA3AF")}{unreadCount > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center animate-pulse">{unreadCount}</span>}</button>
                 <div onClick={() => setModal('settings')} className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm cursor-pointer hover:bg-blue-600 transition">{userProfile ? userProfile.initials : 'U'}</div>
             </div>
         </div>
@@ -1124,6 +1329,29 @@ const NuOperandi = () => {
                                             <p className="text-xs text-purple-500">{t.delegatedTo}</p>
                                         </div>
                                         {t.due && <span className="text-xs text-gray-400 flex-shrink-0">{t.due}</span>}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    {delegatedToMe.filter(t => t.status === 'pending').length > 0 && (
+                        <div className="bg-white rounded-xl border border-purple-200 card-shadow overflow-hidden">
+                            <div className="px-5 py-4 border-b border-purple-50 flex items-center justify-between bg-purple-50/30">
+                                <div className="flex items-center gap-2.5">
+                                    {I.inbox ? I.inbox("#8B5CF6") : I.user("#8B5CF6")}
+                                    <h3 className="text-sm font-semibold text-purple-900">Assigned to Me</h3>
+                                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600">{delegatedToMe.filter(t => t.status === 'pending').length}</span>
+                                </div>
+                            </div>
+                            <div className="divide-y divide-purple-50">
+                                {delegatedToMe.filter(t => t.status === 'pending').slice(0, 5).map(t => (
+                                    <div key={t.id} className="px-5 py-3 flex items-center gap-3">
+                                        <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-semibold text-xs flex-shrink-0">{t.delegator_name ? t.delegator_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) : '?'}</div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm text-gray-900 truncate">{t.task_text}</p>
+                                            <p className="text-xs text-purple-500">from {t.delegator_name}</p>
+                                        </div>
+                                        <button onClick={async () => { await supabase.from('delegated_tasks').update({ status: 'accepted' }).eq('id', t.id); setDelegatedToMe(prev => prev.map(d => d.id === t.id ? {...d, status: 'accepted'} : d)); }} className="text-xs px-2 py-1 rounded bg-green-50 text-green-600 hover:bg-green-100 transition">Accept</button>
                                     </div>
                                 ))}
                             </div>
@@ -1936,7 +2164,8 @@ const NuOperandi = () => {
     };
 
     // MAIN RETURN
-    if (!userProfile) return <SetupScreen onSetProfile={p => setUserProfile(p)} />;
+    if (authLoading) return <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-white to-gray-50 z-50 flex items-center justify-center"><Emblem size={48} /><p className="ml-3 text-gray-400">Loading...</p></div>;
+    if (!supaUser || !userProfile) return <AuthFlow onAuth={handleAuth} />;
     return (
         <div className="h-screen bg-gray-50 flex">
             <Sidebar />
@@ -1962,10 +2191,10 @@ const NuOperandi = () => {
             {modal === 'editIncome' && <IncomeForm item={editItem} setIncomeStreams={setIncomeStreams} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'addProject' && <ProjectForm setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'editProject' && <ProjectForm item={editItem} setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }} />}
-            {modal === 'addWeekly' && <WeeklyTaskForm setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} onClose={() => { setModal(null); setEditItem(null); }} />}
-            {modal === 'editWeekly' && <WeeklyTaskForm item={editItem} setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} onClose={() => { setModal(null); setEditItem(null); }} />}
-            {modal === 'addTask' && <TaskForm setQuickTasks={setQuickTasks} activeProjects={activeProjects} onClose={() => { setModal(null); setEditItem(null); }} />}
-            {modal === 'editTask' && <TaskForm item={editItem} setQuickTasks={setQuickTasks} activeProjects={activeProjects} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'addWeekly' && <WeeklyTaskForm setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'editWeekly' && <WeeklyTaskForm item={editItem} setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'addTask' && <TaskForm setQuickTasks={setQuickTasks} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'editTask' && <TaskForm item={editItem} setQuickTasks={setQuickTasks} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'addTimeBlock' && <TimeBlockForm setTimeBlocks={setTimeBlocks} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'editTimeBlock' && <TimeBlockForm item={editItem} setTimeBlocks={setTimeBlocks} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'addIdea' && <IdeaForm setIdeas={setIdeas} onClose={() => { setModal(null); setEditItem(null); }} />}
@@ -1976,7 +2205,8 @@ const NuOperandi = () => {
             {modal === 'editTeam' && <TeamForm item={editItem} setTeamMembers={setTeamMembers} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'addLearning' && <LearningForm setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal && modal.startsWith('editLearning_') && <LearningForm item={editItem} idx={parseInt(modal.split('_')[1])} setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
-            {modal === 'settings' && <ProfileEditModal userProfile={userProfile} setUserProfile={setUserProfile} onClose={() => { setModal(null); }} />}
+            {modal === 'settings' && <ProfileEditModal userProfile={userProfile} setUserProfile={setUserProfile} supaUser={supaUser} onClose={() => { setModal(null); }} />}
+            {notificationsOpen && <NotificationsPanel notifications={notifications} onMarkRead={markNotifRead} onClose={() => setNotificationsOpen(false)} />}
         </div>
     );
 };
