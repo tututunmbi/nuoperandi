@@ -221,6 +221,42 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
     );
 };
 
+const AcceptTaskModal = ({ task, onChooseDaily, onChooseWeekly, onCancel }) => {
+  const priorityColors = { high: 'bg-red-100 text-red-600', medium: 'bg-amber-100 text-amber-600', low: 'bg-green-100 text-green-600' };
+  return (
+    <div className="fixed inset-0 modal-overlay z-50 flex items-center justify-center p-4" onClick={onCancel}>
+      <div className="bg-white rounded-2xl w-full max-w-md card-shadow p-0 overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h2 className="text-lg font-semibold text-gray-900">Where should this go?</h2>
+          <button onClick={onCancel} className="text-gray-400 hover:text-gray-600 transition">{I.x("#9CA3AF")}</button>
+        </div>
+        <div className="px-6 py-5">
+          <div className="mb-4 p-3 bg-gray-50 rounded-xl">
+            <p className="text-sm font-medium text-gray-900 mb-1">{task.task_text}</p>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-purple-600">from {task.delegator_name}</span>
+              {task.priority && <span className={"text-xs px-1.5 py-0.5 rounded-full " + (priorityColors[task.priority] || priorityColors.medium)}>{task.priority}</span>}
+              {task.deadline && <span className="text-xs text-gray-400">{task.deadline}</span>}
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <button onClick={() => onChooseDaily(task)} className={"flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition hover:shadow-md " + (task.task_type === 'quick' ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-blue-300')}>
+              <span className="text-2xl">&#128203;</span>
+              <span className="text-sm font-medium text-gray-900">Daily Tasks</span>
+              <span className="text-xs text-gray-500">Add to today's plan</span>
+            </button>
+            <button onClick={() => onChooseWeekly(task)} className={"flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition hover:shadow-md " + (task.task_type === 'weekly' ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-blue-300')}>
+              <span className="text-2xl">&#128197;</span>
+              <span className="text-sm font-medium text-gray-900">Weekly Plan</span>
+              <span className="text-xs text-gray-500">Add to this week</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ProjectForm = ({ item, onClose, setProjects, getProjectProgress }) => {
     const [name, setName] = useState(item ? item.name : '');
     const [desc, setDesc] = useState(item ? item.desc : '');
@@ -599,37 +635,70 @@ const ProfileEditModal = ({ userProfile, setUserProfile, supaUser, onClose }) =>
     );
 };
 
-const NotificationsPanel = ({ notifications, onMarkRead, onClose }) => (
+const NotificationsPanel = ({ notifications, onMarkRead, onClose, delegatedToMe, onAcceptTask, quickTasks, weeklyPlan, setActiveModule, setPlannerTab }) => {
+  const findTaskInPlanner = (notif) => {
+    const matchedDelegated = delegatedToMe && delegatedToMe.find(d => 
+      notif.related_task_id ? d.id === notif.related_task_id : (notif.message && d.task_text && notif.message.includes(d.task_text.substring(0, 30)))
+    );
+    if (!matchedDelegated) return null;
+    if (matchedDelegated.status === 'pending') return { status: 'pending', task: matchedDelegated };
+    const inDaily = quickTasks && quickTasks.find(t => t.delegatedFrom && t.task === matchedDelegated.task_text);
+    if (inDaily) return { status: 'accepted', location: 'daily', task: matchedDelegated };
+    const inWeekly = weeklyPlan && weeklyPlan.find(w => w.delegatedFrom && w.task === matchedDelegated.task_text);
+    if (inWeekly) return { status: 'accepted', location: 'weekly', task: matchedDelegated };
+    return { status: 'accepted', location: null, task: matchedDelegated };
+  };
+
+  const handleNotifClick = (n) => {
+    const found = findTaskInPlanner(n);
+    if (found && found.status === 'pending' && onAcceptTask) {
+      onAcceptTask(found.task);
+      onMarkRead(n.id);
+      return;
+    }
+    if (found && found.status === 'accepted' && found.location) {
+      if (setActiveModule) setActiveModule('planner');
+      if (setPlannerTab) setPlannerTab(found.location === 'weekly' ? 'weekly' : 'daily');
+      onMarkRead(n.id);
+      onClose();
+      return;
+    }
+    onMarkRead(n.id);
+  };
+
+  return (
     <div className="fixed inset-0 z-50" onClick={onClose}>
-        <div className="fixed top-16 right-8 bg-white rounded-xl border border-gray-100 card-shadow w-96 max-h-96 overflow-y-auto z-50" onClick={e => e.stopPropagation()}>
-            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h3 className="font-semibold text-gray-900">Notifications</h3>
-                <button onClick={onClose} className="text-gray-400 hover:text-gray-600">{I.x("#9CA3AF")}</button>
-            </div>
-            {notifications.length === 0 ? (
-                <div className="p-6 text-center"><p className="text-sm text-gray-400">No notifications yet</p></div>
-            ) : (
-                <div className="divide-y divide-gray-50">
-                    {notifications.map(n => (
-                        <div key={n.id} className={'px-5 py-3 hover:bg-gray-50 transition cursor-pointer ' + (!n.is_read ? 'bg-blue-50/30' : '')} onClick={() => onMarkRead(n.id)}>
-                            <div className="flex items-start gap-3">
-                                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-semibold text-xs flex-shrink-0">
-                                    {n.sender_name ? n.sender_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?'}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-medium text-gray-900">{n.title}</p>
-                                    <p className="text-xs text-gray-500 mt-0.5 truncate">{n.message}</p>
-                                    <p className="text-xs text-gray-300 mt-1">{new Date(n.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-                                </div>
-                                {!n.is_read && <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-1.5"></div>}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
+      <div className="fixed top-16 right-8 bg-white rounded-xl border border-gray-100 card-shadow w-96 max-h-96 overflow-y-auto z-50" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <span className="text-sm font-semibold text-gray-900">Notifications</span>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition">{I.x("#9CA3AF")}</button>
         </div>
+        {notifications.length === 0 ? (
+          <div className="px-4 py-8 text-center text-xs text-gray-400">No notifications yet</div>
+        ) : notifications.map(n => {
+          const found = findTaskInPlanner(n);
+          return (
+            <div key={n.id} onClick={() => handleNotifClick(n)} className="px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition cursor-pointer flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                <span className="text-xs font-bold text-purple-600">{n.sender_name ? n.sender_name.split(' ').map(w => w[0]).join('').substring(0, 2) : '?'}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-gray-900 truncate">{n.title}</p>
+                <p className="text-xs text-gray-500 truncate">{n.message}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-gray-300">{new Date(n.created_at).toLocaleDateString()}</span>
+                  {found && found.status === 'pending' && <span className="text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600">Tap to accept</span>}
+                  {found && found.status === 'accepted' && <span className="text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-600">In planner</span>}
+                </div>
+              </div>
+              {!n.is_read && <div className="w-2 h-2 rounded-full bg-blue-500 mt-1 flex-shrink-0"></div>}
+            </div>
+          );
+        })}
+      </div>
     </div>
-);
+  );
+}
 
 const TeamForm = ({ item, onClose, setTeamMembers }) => {
     const [name, setName] = useState(item ? item.name : '');
@@ -765,6 +834,7 @@ const NuOperandi = () => {
     const [notifications, setNotifications] = useState([]);
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [delegatedToMe, setDelegatedToMe] = useState([]);
+  const [acceptingTask, setAcceptingTask] = useState(null);
 
     /* -- Editable Data State -- */
     const [incomeStreams, setIncomeStreams] = useState(() => load('income', defaultIncome));
@@ -985,6 +1055,40 @@ const NuOperandi = () => {
         setCompletedTasks(p => { const next = { ...p }; delete next[id]; return next; });
       }, 1500);
     }
+  };
+
+  const acceptToDaily = async (task) => {
+    setQuickTasks(prev => [...prev, {
+      id: newId(),
+      task: task.task_text,
+      priority: task.priority || 'medium',
+      due: 'Today',
+      projectId: null,
+      delegatedTo: '',
+      delegatedFrom: task.delegator_name
+    }]);
+    try {
+      await supabase.from('delegated_tasks').update({ status: 'accepted' }).eq('id', task.id);
+    } catch (e) { console.log('Accept sync error:', e); }
+    setDelegatedToMe(prev => prev.map(d => d.id === task.id ? {...d, status: 'accepted'} : d));
+    setAcceptingTask(null);
+  };
+
+  const acceptToWeekly = async (task) => {
+    setWeeklyPlan(prev => [...prev, {
+      id: newId(),
+      task: task.task_text,
+      projectId: null,
+      subtasks: [],
+      deadline: task.deadline || new Date().toISOString().split('T')[0],
+      delegatedTo: '',
+      delegatedFrom: task.delegator_name
+    }]);
+    try {
+      await supabase.from('delegated_tasks').update({ status: 'accepted' }).eq('id', task.id);
+    } catch (e) { console.log('Accept sync error:', e); }
+    setDelegatedToMe(prev => prev.map(d => d.id === task.id ? {...d, status: 'accepted'} : d));
+    setAcceptingTask(null);
   };
   const toggleWeekly = (id) => {
     const wasCompleted = completedWeekly[id];
@@ -1361,6 +1465,7 @@ const NuOperandi = () => {
                                             <p className="text-xs text-purple-500">{t.delegatedTo}</p>
                                         </div>
                                         {t.due && <span className="text-xs text-gray-400 flex-shrink-0">{t.due}</span>}
+                        {t.delegatedFrom && <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600">from {t.delegatedFrom}</span>}
                                     </div>
                                 ))}
                             </div>
@@ -1383,7 +1488,7 @@ const NuOperandi = () => {
                                             <p className="text-sm text-gray-900 truncate">{t.task_text}</p>
                                             <p className="text-xs text-purple-500">from {t.delegator_name}</p>
                                         </div>
-                                        <button onClick={async () => { await supabase.from('delegated_tasks').update({ status: 'accepted' }).eq('id', t.id); setDelegatedToMe(prev => prev.map(d => d.id === t.id ? {...d, status: 'accepted'} : d)); }} className="text-xs px-2 py-1 rounded bg-green-50 text-green-600 hover:bg-green-100 transition">Accept</button>
+                                        <button onClick={() => setAcceptingTask(t)} className="text-xs px-2 py-1 rounded bg-green-50 text-green-600 hover:bg-green-100 transition">Accept</button>
                                     </div>
                                 ))}
                             </div>
@@ -1844,6 +1949,7 @@ const NuOperandi = () => {
                                 {sp && <p className="text-xs text-gray-400">{sp.done}/{sp.total} sub-goals done</p>}
                                 {w.deadline && <span className={'text-xs px-1.5 py-0.5 rounded ' + (new Date(w.deadline) < new Date() ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-600')}>{new Date(w.deadline + 'T00:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric'})}</span>}
                                 {w.delegatedTo && <span className="text-xs px-1.5 py-0.5 rounded bg-purple-50 text-purple-500 flex items-center gap-1">{I.user("#8B5CF6")} {w.delegatedTo}</span>}
+                      {w.delegatedFrom && <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600">from {w.delegatedFrom}</span>}
                             </div>
                         </div>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
@@ -2223,7 +2329,8 @@ const NuOperandi = () => {
             {modal === 'editIncome' && <IncomeForm item={editItem} setIncomeStreams={setIncomeStreams} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'addProject' && <ProjectForm setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'editProject' && <ProjectForm item={editItem} setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }} />}
-            {modal === 'addWeekly' && <WeeklyTaskForm setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {acceptingTask && <AcceptTaskModal task={acceptingTask} onChooseDaily={acceptToDaily} onChooseWeekly={acceptToWeekly} onCancel={() => setAcceptingTask(null)} />}
+      {modal === 'addWeekly' && <WeeklyTaskForm setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'editWeekly' && <WeeklyTaskForm item={editItem} setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'addTask' && <TaskForm setQuickTasks={setQuickTasks} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'editTask' && <TaskForm item={editItem} setQuickTasks={setQuickTasks} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
@@ -2238,7 +2345,7 @@ const NuOperandi = () => {
             {modal === 'addLearning' && <LearningForm setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal && modal.startsWith('editLearning_') && <LearningForm item={editItem} idx={parseInt(modal.split('_')[1])} setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'settings' && <ProfileEditModal userProfile={userProfile} setUserProfile={setUserProfile} supaUser={supaUser} onClose={() => { setModal(null); }} />}
-            {notificationsOpen && <NotificationsPanel notifications={notifications} onMarkRead={markNotifRead} onClose={() => setNotificationsOpen(false)} />}
+            {notificationsOpen && <NotificationsPanel notifications={notifications} onMarkRead={markNotifRead} onClose={() => setNotificationsOpen(false)} delegatedToMe={delegatedToMe} onAcceptTask={setAcceptingTask} quickTasks={quickTasks} weeklyPlan={weeklyPlan} setActiveModule={setActiveModule} setPlannerTab={setPlannerTab} />}}
         </div>
     );
 };
