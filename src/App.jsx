@@ -965,17 +965,49 @@ const NuOperandi = () => {
         return upcoming[0];
     }, [incomeStreams]);
 
-    const toggleTask = (id) => setCompletedTasks(p => ({ ...p, [id]: !p[id] }));
-    const toggleBlock = (id) => setCompletedTimeBlocks(p => ({ ...p, [id]: !p[id] }));
-    const toggleWeekly = (id) => setCompletedWeekly(p => ({ ...p, [id]: !p[id] }));
-    const toggleProjectCollapse = (pid) => setCollapsedProjects(p => ({ ...p, [pid]: !p[pid] }));
-    const toggleSubtask = (weeklyId, subtaskId) => {
-        setWeeklyPlan(prev => prev.map(w => {
-            if (w.id !== weeklyId || !w.subtasks) return w;
-            return { ...w, subtasks: w.subtasks.map(s => s.id === subtaskId ? { ...s, done: !s.done } : s) };
-        }));
-    };
-    const archiveCompleted = () => {
+    const toggleTask = (id) => {
+    const wasCompleted = completedTasks[id];
+    setCompletedTasks(p => ({ ...p, [id]: !p[id] }));
+    if (!wasCompleted) {
+      setTimeout(() => {
+        setQuickTasks(prev => {
+          const task = prev.find(t => t.id === id);
+          if (!task) return prev;
+          const today = new Date().toISOString().split('T')[0];
+          const archiveEntry = { ...task, completedAt: new Date().toISOString() };
+          setTaskHistory(ph => {
+            const existing = ph.find(h => h.date === today);
+            if (existing) return ph.map(h => h.date === today ? { ...h, tasks: [...h.tasks, archiveEntry] } : h);
+            return [{ date: today, tasks: [archiveEntry] }, ...ph];
+          });
+          return prev.filter(t => t.id !== id);
+        });
+        setCompletedTasks(p => { const next = { ...p }; delete next[id]; return next; });
+      }, 1500);
+    }
+  };
+  const toggleWeekly = (id) => {
+    const wasCompleted = completedWeekly[id];
+    setCompletedWeekly(p => ({ ...p, [id]: !p[id] }));
+    if (!wasCompleted) {
+      setTimeout(() => {
+        setWeeklyPlan(prev => {
+          const task = prev.find(t => t.id === id);
+          if (!task) return prev;
+          const today = new Date().toISOString().split('T')[0];
+          const archiveEntry = { ...task, completedAt: new Date().toISOString(), source: 'weekly' };
+          setTaskHistory(ph => {
+            const existing = ph.find(h => h.date === today);
+            if (existing) return ph.map(h => h.date === today ? { ...h, tasks: [...h.tasks, archiveEntry] } : h);
+            return [{ date: today, tasks: [archiveEntry] }, ...ph];
+          });
+          return prev.filter(t => t.id !== id);
+        });
+        setCompletedWeekly(p => { const next = { ...p }; delete next[id]; return next; });
+      }, 1500);
+    }
+  };
+  const archiveCompleted = () => {
         const today = new Date().toISOString().split('T')[0];
         const completed = quickTasks.filter(t => completedTasks[t.id]);
         if (completed.length === 0) return;
@@ -2127,7 +2159,7 @@ const NuOperandi = () => {
                 </div>
                 {sortedHistory.length === 0 ? (
                     <div className="bg-white rounded-xl border border-gray-100 card-shadow">
-                        <Empty icon={I.history("#9CA3AF")} title="No history yet" sub="Completed tasks will appear here after end-of-day archival" />
+                        <Empty icon={I.history("#9CA3AF")} title="No history yet" sub="Completed tasks will automatically move here" />
                     </div>
                 ) : (
                     <div className="space-y-4">
