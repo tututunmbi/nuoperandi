@@ -1145,11 +1145,32 @@ const NuOperandi = () => {
         return upcoming[0];
     }, [incomeStreams]);
 
-    const toggleTask = (id) => {
+    const notifyDelegatorOnCompletion = async (task) => {
+    if (!task.delegatedFrom || !supabase || !userProfile) return;
+    try {
+      const { data: delegator } = await supabase.from('profiles').select('id').eq('full_name', task.delegatedFrom).single();
+      if (!delegator) {
+        const { data: d2 } = await supabase.from('profiles').select('id').eq('username', task.delegatedFrom).single();
+        if (d2) {
+          await supabase.from('notifications').insert({ user_id: d2.id, title: 'Task completed!', message: (userProfile.name || userProfile.username) + ' completed: ' + (task.task || task.task_text || ''), sender_name: userProfile.name || userProfile.username, is_read: false });
+        }
+      } else {
+        await supabase.from('notifications').insert({ user_id: delegator.id, title: 'Task completed!', message: (userProfile.name || userProfile.username) + ' completed: ' + (task.task || task.task_text || ''), sender_name: userProfile.name || userProfile.username, is_read: false });
+      }
+    } catch (e) { console.log('Completion notify error:', e); }
+  };
+
+  const toggleProjectCollapse = (pid) => {
+    setCollapsedProjects(prev => ({ ...prev, [pid]: !prev[pid] }));
+  };
+
+  const toggleTask = (id) => {
     const wasCompleted = completedTasks[id];
     setCompletedTasks(p => ({ ...p, [id]: !p[id] }));
     if (!wasCompleted) {
       setTimeout(() => {
+        const completedTask = quickTasks.find(t => t.id === id);
+        if (completedTask && completedTask.delegatedFrom) notifyDelegatorOnCompletion(completedTask);
         setQuickTasks(prev => {
           const task = prev.find(t => t.id === id);
           if (!task) return prev;
@@ -1205,6 +1226,8 @@ const NuOperandi = () => {
     setCompletedWeekly(p => ({ ...p, [id]: !p[id] }));
     if (!wasCompleted) {
       setTimeout(() => {
+        const completedWeeklyTask = weeklyPlan.find(t => t.id === id);
+        if (completedWeeklyTask && completedWeeklyTask.delegatedFrom) notifyDelegatorOnCompletion(completedWeeklyTask);
         setWeeklyPlan(prev => {
           const task = prev.find(t => t.id === id);
           if (!task) return prev;
