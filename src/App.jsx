@@ -293,6 +293,7 @@ const DelegateLaunchpad = ({ supabase, supaUser, userProfile, onDelegate, I }) =
       await onDelegate({
         task_text: taskText.trim(),
         delegated_to: selectedUser.id,
+        recipient_username: selectedUser.username,
         recipient_name: selectedUser.full_name || selectedUser.username,
         priority: priority,
         task_type: taskType,
@@ -1036,6 +1037,21 @@ const NuOperandi = () => {
                 deadline: taskInfo.deadline || null,
                 delegator_name: userProfile.name
             });
+            // Create notification for recipient
+            let recipientId = taskInfo.delegated_to;
+            if (!recipientId && taskInfo.recipient_username) {
+              const { data: rUser } = await supabase.from('profiles').select('id').eq('username', taskInfo.recipient_username).single();
+              if (rUser) recipientId = rUser.id;
+            }
+            if (recipientId) {
+              await supabase.from('notifications').insert({
+                user_id: recipientId,
+                title: 'New task delegated to you',
+                message: userProfile.name + ' assigned you: ' + taskInfo.task_text,
+                sender_name: userProfile.name,
+                is_read: false
+              });
+            }
         } catch (e) { console.log('Delegation sync error:', e); }
     };
 
