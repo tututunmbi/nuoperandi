@@ -1028,6 +1028,7 @@ const NuOperandi = () => {
     const handleDelegate = async (taskInfo) => {
         if (!supaUser || !userProfile) return;
         try {
+            console.log('handleDelegate called with:', JSON.stringify(taskInfo));
             await supabase.from('delegated_tasks').insert({
                 delegator_id: supaUser.id,
                 recipient_username: taskInfo.recipient_username,
@@ -1039,18 +1040,20 @@ const NuOperandi = () => {
             });
             // Create notification for recipient
             let recipientId = taskInfo.delegated_to;
+            console.log('recipientId from delegated_to:', recipientId, 'username:', taskInfo.recipient_username);
             if (!recipientId && taskInfo.recipient_username) {
               const { data: rUser } = await supabase.from('profiles').select('id').eq('username', taskInfo.recipient_username).single();
               if (rUser) recipientId = rUser.id;
             }
             if (recipientId) {
-              await supabase.from('notifications').insert({
+              const notifResult = await supabase.from('notifications').insert({
                 user_id: recipientId,
                 title: 'New task delegated to you',
                 message: userProfile.name + ' assigned you: ' + taskInfo.task_text,
                 sender_name: userProfile.name,
                 is_read: false
               });
+              console.log('Notification insert result:', JSON.stringify(notifResult));
             }
         } catch (e) { console.log('Delegation sync error:', e); }
     };
