@@ -223,6 +223,105 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
 
 const AcceptTaskModal = ({ task, onChooseDaily, onChooseWeekly, onCancel }) => {
   const priorityColors = { high: 'bg-red-100 text-red-600', medium: 'bg-amber-100 text-amber-600', low: 'bg-green-100 text-green-600' };
+
+const DelegateLaunchpad = ({ supabase, supaUser, userProfile, onDelegate, I }) => {
+  const [taskText, setTaskText] = useState('');
+  const [recipient, setRecipient] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [priority, setPriority] = useState('medium');
+  const [taskType, setTaskType] = useState('quick');
+  const [deadline, setDeadline] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const searchUsers = async (q) => {
+    if (!q || q.length < 2) { setSuggestions([]); return; }
+    const clean = q.replace('@', '').toLowerCase();
+    const { data } = await supabase.from('profiles').select('username, full_name').ilike('username', clean + '%').limit(5);
+    if (data) setSuggestions(data.filter(d => d.username !== (userProfile && userProfile.username)));
+  };
+
+  const selectUser = (u) => {
+    setSelectedUser(u);
+    setRecipient('@' + u.username);
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  const launch = async () => {
+    if (!taskText.trim() || !selectedUser) return;
+    setSending(true);
+    try {
+      await onDelegate({
+        task_text: taskText.trim(),
+        task_type: taskType,
+        recipient_username: selectedUser.username,
+        priority: priority,
+        deadline: deadline || null
+      });
+      setSent(true);
+      setTimeout(() => {
+        setTaskText(''); setRecipient(''); setSelectedUser(null);
+        setPriority('medium'); setTaskType('quick'); setDeadline('');
+        setSending(false); setSent(false);
+      }, 1500);
+    } catch (e) { console.log('Delegate error:', e); setSending(false); }
+  };
+
+  const prColors = { high: 'border-red-300 bg-red-50 text-red-600', medium: 'border-amber-300 bg-amber-50 text-amber-600', low: 'border-green-300 bg-green-50 text-green-600' };
+
+  if (!supaUser || !userProfile) return null;
+
+  return (
+    <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-xl border border-purple-200 card-shadow overflow-hidden">
+      <div className="px-5 py-4 border-b border-purple-100 flex items-center gap-2">
+        <span className="text-lg">&#128640;</span>
+        <h3 className="text-sm font-semibold text-gray-900">Delegate Launchpad</h3>
+        <span className="text-xs text-purple-500 ml-auto">Fire off tasks to your team</span>
+      </div>
+      <div className="px-5 py-4 space-y-3">
+        <div>
+          <textarea value={taskText} onChange={e => setTaskText(e.target.value)} placeholder="What needs to be done?" rows={2} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent resize-none bg-white" />
+        </div>
+        <div className="flex gap-2">
+          <div className="flex-1 relative">
+            <input value={recipient} onChange={e => { setRecipient(e.target.value); setSelectedUser(null); searchUsers(e.target.value); setShowSuggestions(true); }} placeholder="@username" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent bg-white" />
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
+                {suggestions.map(u => (
+                  <div key={u.username} onClick={() => selectUser(u)} className="px-3 py-2 text-sm hover:bg-purple-50 cursor-pointer flex items-center gap-2 transition">
+                    <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center"><span className="text-xs font-bold text-purple-600">{u.full_name.split(' ').map(w => w[0]).join('').substring(0,2)}</span></div>
+                    <span className="font-medium text-gray-900">@{u.username}</span>
+                    <span className="text-gray-400 text-xs">{u.full_name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <select value={taskType} onChange={e => setTaskType(e.target.value)} className="px-2 py-2 text-xs border border-gray-200 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300">
+            <option value="quick">Daily</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1">
+            {['high','medium','low'].map(p => (
+              <button key={p} onClick={() => setPriority(p)} className={"text-xs px-2 py-1 rounded-full border transition " + (priority === p ? prColors[p] + ' font-medium' : 'border-gray-200 text-gray-400 hover:border-gray-300')}>{p}</button>
+            ))}
+          </div>
+          {taskType === 'weekly' && (
+            <input type="date" value={deadline} onChange={e => setDeadline(e.target.value)} className="text-xs px-2 py-1 border border-gray-200 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300" />
+          )}
+          <button onClick={launch} disabled={!taskText.trim() || !selectedUser || sending} className={"ml-auto flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition " + (sent ? 'bg-green-500 text-white' : (!taskText.trim() || !selectedUser || sending) ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-purple-600 text-white hover:bg-purple-700 shadow-md hover:shadow-lg')}>
+            {sent ? (<><span>&#10003;</span> Sent!</>) : sending ? 'Sending...' : (<><span>&#128640;</span> Launch</>)}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
   return (
     <div className="fixed inset-0 modal-overlay z-50 flex items-center justify-center p-4" onClick={onCancel}>
       <div className="bg-white rounded-2xl w-full max-w-md card-shadow p-0 overflow-hidden" onClick={e => e.stopPropagation()}>
@@ -1471,7 +1570,8 @@ const NuOperandi = () => {
                             </div>
                         </div>
                     )}
-                    {delegatedToMe.filter(t => t.status === 'pending').length > 0 && (
+                    <DelegateLaunchpad supabase={supabase} supaUser={supaUser} userProfile={userProfile} onDelegate={handleDelegate} I={I} />
+          {delegatedToMe.filter(t => t.status === 'pending').length > 0 && (
                         <div className="bg-white rounded-xl border border-purple-200 card-shadow overflow-hidden">
                             <div className="px-5 py-4 border-b border-purple-50 flex items-center justify-between bg-purple-50/30">
                                 <div className="flex items-center gap-2.5">
