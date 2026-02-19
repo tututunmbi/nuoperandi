@@ -945,6 +945,39 @@ const NuOperandi = () => {
     const [briefing, setBriefing] = useState(() => load('briefing', embeddedBriefing));
     const [nationBriefing, setNationBriefing] = useState(() => load('nationBriefing', embeddedNation));
     const [taskHistory, setTaskHistory] = useState(() => load('taskHistory', []));
+    const [stateLoaded, setStateLoaded] = useState(false);
+
+    // Load persisted state from localStorage
+    useEffect(() => {
+      try {
+        const wp = localStorage.getItem('nuop_weeklyPlan');
+        const th = localStorage.getItem('nuop_taskHistory');
+        const qt = localStorage.getItem('nuop_quickTasks');
+        if (wp) setWeeklyPlan(JSON.parse(wp));
+        if (th) setTaskHistory(JSON.parse(th));
+        if (qt) setQuickTasks(JSON.parse(qt));
+      } catch(e) { console.log('Load state error:', e); }
+      setStateLoaded(true);
+    }, []);
+
+    // Persist weeklyPlan to localStorage
+    useEffect(() => {
+      if (!stateLoaded) return;
+      localStorage.setItem('nuop_weeklyPlan', JSON.stringify(weeklyPlan));
+    }, [weeklyPlan, stateLoaded]);
+
+    // Persist taskHistory to localStorage
+    useEffect(() => {
+      if (!stateLoaded) return;
+      localStorage.setItem('nuop_taskHistory', JSON.stringify(taskHistory));
+    }, [taskHistory, stateLoaded]);
+
+    // Persist quickTasks to localStorage
+    useEffect(() => {
+      if (!stateLoaded) return;
+      localStorage.setItem('nuop_quickTasks', JSON.stringify(quickTasks));
+    }, [quickTasks, stateLoaded]);
+
 
     /* -- Auto-save all data -- */
     useEffect(() => { save('income', incomeStreams); }, [incomeStreams]);
@@ -1243,6 +1276,12 @@ const NuOperandi = () => {
         setCompletedWeekly(p => { const next = { ...p }; delete next[id]; return next; });
       }, 1500);
     }
+  };
+  const toggleSubtask = (taskId, subtaskId) => {
+    setWeeklyPlan(prev => prev.map(w => {
+      if (w.id !== taskId) return w;
+      return { ...w, subtasks: (w.subtasks || []).map(s => s.id === subtaskId ? { ...s, done: !s.done } : s) };
+    }));
   };
   const archiveCompleted = () => {
         const today = new Date().toISOString().split('T')[0];
