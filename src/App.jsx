@@ -2102,35 +2102,52 @@ const NuOperandi = () => {
 
     const BoardroomModule = () => {
     const taskHistory = JSON.parse(localStorage.getItem('nuop_taskHistory') || '[]');
-    const delegatedMembers = {};
-    weeklyPlan.forEach(w => {
-      if (w.delegatedTo) {
-        const name = w.delegatedTo.replace('@','').toLowerCase();
-        if (!delegatedMembers[name]) delegatedMembers[name] = { assigned: 0, completed: 0, pending: [], name: w.delegatedTo };
-        delegatedMembers[name].assigned++;
-        if (completedTasks[w.id]) delegatedMembers[name].completed++;
-        else delegatedMembers[name].pending.push(w);
-      }
+    
+    // Use delegatedByMe from Supabase (the full list of tasks YOU delegated)
+    const allDelegated = delegatedByMe || [];
+    
+    // Build per-member stats from Supabase data
+    const memberMap = {};
+    allDelegated.forEach(d => {
+      const name = d.recipient_username || 'Unknown';
+      const key = name.toLowerCase();
+      if (!memberMap[key]) memberMap[key] = { name, assigned: 0, completed: 0, accepted: 0, pending: [], key };
+      memberMap[key].assigned++;
+      if (d.status === 'completed') memberMap[key].completed++;
+      else if (d.status === 'accepted') memberMap[key].accepted++;
+      else memberMap[key].pending.push(d);
     });
-    quickTasks.forEach(t => {
-      if (t.delegatedTo) {
-        const name = t.delegatedTo.replace('@','').toLowerCase();
-        if (!delegatedMembers[name]) delegatedMembers[name] = { assigned: 0, completed: 0, pending: [], name: t.delegatedTo };
-        delegatedMembers[name].assigned++;
-        if (completedTasks[t.id]) delegatedMembers[name].completed++;
-        else delegatedMembers[name].pending.push(t);
-      }
-    });
-    const memberList = Object.entries(delegatedMembers).map(([key, val]) => ({
-      key, ...val,
-      completionRate: val.assigned > 0 ? Math.round((val.completed / val.assigned) * 100) : 0
+    
+    const memberList = Object.values(memberMap).map(m => ({
+      ...m,
+      completionRate: m.assigned > 0 ? Math.round((m.completed / m.assigned) * 100) : 0
     })).sort((a, b) => b.completed - a.completed);
-    const totalAssigned = memberList.reduce((s, m) => s + m.assigned, 0);
-    const totalCompleted = memberList.reduce((s, m) => s + m.completed, 0);
+    
+    const totalAssigned = allDelegated.length;
+    const totalCompleted = allDelegated.filter(d => d.status === 'completed').length;
+    const totalAccepted = allDelegated.filter(d => d.status === 'accepted').length;
+    const totalPending = allDelegated.filter(d => d.status === 'pending').length;
     const avgRate = totalAssigned > 0 ? Math.round((totalCompleted / totalAssigned) * 100) : 0;
-    const topContributor = memberList.length > 0 ? memberList[0] : null;
-    const allPending = memberList.flatMap(m => m.pending.map(p => ({ ...p, assignee: m.name })));
+    const topContributor = memberList.find(m => m.completed > 0) || (memberList.length > 0 ? memberList[0] : null);
+    
+    // All pending tasks sorted by deadline (nearest first)
+    const allPendingTasks = allDelegated
+      .filter(d => d.status === 'pending' || d.status === 'accepted')
+      .sort((a, b) => {
+        if (!a.deadline && !b.deadline) return 0;
+        if (!a.deadline) return 1;
+        if (!b.deadline) return -1;
+        return new Date(a.deadline) - new Date(b.deadline);
+      });
+    
     const maxAssigned = Math.max(...memberList.map(m => m.assigned), 1);
+    
+    // Unique team members count (combine registered team + delegated-to people)
+    const uniqueMembers = new Set();
+    teamMembers.forEach(tm => uniqueMembers.add(tm.name.trim().toLowerCase()));
+    memberList.forEach(m => uniqueMembers.add(m.key));
+    
+    // Activity heatmap: last 12 weeks
     const weeks = [];
     const now = new Date();
     for (let w = 11; w >= 0; w--) {
@@ -2146,6 +2163,7 @@ const NuOperandi = () => {
       weeks.push({ label: weekLabel, count });
     }
     const maxWeekCount = Math.max(...weeks.map(w => w.count), 1);
+
     return (<div className="space-y-6 max-w-5xl">
         <div className="flex items-center justify-between">
           <div><h1 className="text-xl font-bold text-gray-900">Boardroom</h1>
@@ -2153,14 +2171,15 @@ const NuOperandi = () => {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
             <div className="flex items-center gap-2 mb-2">{I.user("#6366F1")}<p className="text-xs text-gray-500">Team Members</p></div>
-            <p className="text-2xl font-bold text-gray-900">{teamMembers.length + memberList.filter(m => !teamMembers.find(tm => tm.name.toLowerCase().includes(m.key))).length}</p></div>
+            <p className="text-2xl font-bold text-gray-900">{uniqueMembers.size}</p></div>
           <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
             <div className="flex items-center gap-2 mb-2">{I.trending("#F59E0B")}<p className="text-xs text-gray-500">Top Contributor</p></div>
             <p className="text-lg font-bold text-gray-900 truncate">{topContributor ? topContributor.name : '-'}</p>
-            {topContributor && <p className="text-xs text-gray-400">{topContributor.completed} tasks done</p>}</div>
+            {topContributor && <p className="text-xs text-gray-400">{topContributor.completed} completed</p>}</div>
           <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
-            <div className="flex items-center gap-2 mb-2">{I.clipboard("#3B82F6")}<p className="text-xs text-gray-500">Assigned Tasks</p></div>
-            <p className="text-2xl font-bold text-gray-900">{totalAssigned}</p></div>
+            <div className="flex items-center gap-2 mb-2">{I.clipboard("#3B82F6")}<p className="text-xs text-gray-500">Total Delegated</p></div>
+            <p className="text-2xl font-bold text-gray-900">{totalAssigned}</p>
+            <p className="text-xs text-gray-400">{totalPending} pending, {totalAccepted} accepted, {totalCompleted} done</p></div>
           <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
             <div className="flex items-center gap-2 mb-2">{I.check("#10B981")}<p className="text-xs text-gray-500">Avg Completion Rate</p></div>
             <p className="text-2xl font-bold text-gray-900">{avgRate}%</p></div>
@@ -2172,35 +2191,44 @@ const NuOperandi = () => {
                   <th className="text-left px-5 py-3 font-medium">Member</th>
                   <th className="text-center px-3 py-3 font-medium">Assigned</th>
                   <th className="text-center px-3 py-3 font-medium">Completed</th>
+                  <th className="text-center px-3 py-3 font-medium">Accepted</th>
                   <th className="text-center px-3 py-3 font-medium">Pending</th>
                   <th className="text-left px-3 py-3 font-medium">Completion Rate</th></tr></thead>
               <tbody>{memberList.map((m, i) => (<tr key={m.key} className={i % 2 === 0 ? 'bg-gray-50/50' : ''}>
                     <td className="px-5 py-3"><div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-semibold text-sm">{m.name.charAt(0).toUpperCase()}</div>
-                        <span className="text-sm font-medium text-gray-800 capitalize">{m.name}</span></div></td>
+                        <span className="text-sm font-medium text-gray-800">{m.name}</span></div></td>
                     <td className="text-center px-3 py-3 text-sm text-gray-600">{m.assigned}</td>
                     <td className="text-center px-3 py-3 text-sm text-emerald-600 font-medium">{m.completed}</td>
-                    <td className="text-center px-3 py-3 text-sm text-amber-600 font-medium">{m.assigned - m.completed}</td>
+                    <td className="text-center px-3 py-3 text-sm text-blue-600 font-medium">{m.accepted}</td>
+                    <td className="text-center px-3 py-3 text-sm text-amber-600 font-medium">{m.pending.length}</td>
                     <td className="px-3 py-3"><div className="flex items-center gap-2">
                         <div className="flex-1 bg-gray-100 rounded-full h-2 max-w-[100px]">
-                          <div className="h-2 rounded-full" style={{width: m.completionRate + '%', backgroundColor: m.completionRate >= 70 ? '#10B981' : m.completionRate >= 40 ? '#F59E0B' : '#EF4444'}}></div></div>
+                          <div className="h-2 rounded-full" style={{width: Math.max(m.completionRate, 2) + '%', backgroundColor: m.completionRate >= 70 ? '#10B981' : m.completionRate >= 40 ? '#F59E0B' : '#EF4444'}}></div></div>
                         <span className="text-xs text-gray-500 w-8">{m.completionRate}%</span></div></td></tr>))}</tbody></table>)}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="bg-white rounded-xl border border-gray-100 card-shadow">
-            <div className="px-5 py-4 border-b border-gray-100"><h2 className="text-base font-semibold text-gray-900">Pending Tasks</h2></div>
-            <div className="divide-y divide-gray-50 max-h-64 overflow-y-auto">
-              {allPending.length === 0 ? (<div className="p-6 text-center"><p className="text-sm text-gray-400">All caught up!</p></div>
-              ) : allPending.slice(0, 8).map((p, i) => (<div key={i} className="px-5 py-3 flex items-center justify-between gap-2">
-                  <div className="flex-1 min-w-0"><p className="text-sm text-gray-800 truncate">{p.task || p.task_text}</p>
-                    <p className="text-xs text-gray-400 capitalize">Assigned to {p.assignee}</p></div>
-                  <button onClick={() => { navigator.clipboard.writeText('Hi ' + p.assignee + ', reminder about: ' + (p.task || p.task_text)); setAlertMessage('Reminder copied!'); setTimeout(() => setAlertMessage(''), 2000); }} className="text-xs px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium whitespace-nowrap">Send Reminder</button></div>))}
-              {allPending.length > 8 && <div className="px-5 py-2 text-center"><p className="text-xs text-gray-400">+ {allPending.length - 8} more</p></div>}</div></div>
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-gray-900">Pending Tasks</h2>
+              <span className="text-xs text-gray-400">sorted by deadline</span></div>
+            <div className="divide-y divide-gray-50 max-h-80 overflow-y-auto">
+              {allPendingTasks.length === 0 ? (<div className="p-6 text-center"><p className="text-sm text-gray-400">All tasks completed!</p></div>
+              ) : allPendingTasks.slice(0, 12).map((d, i) => (<div key={d.id || i} className="px-5 py-3 flex items-center justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-800 truncate">{d.task_text}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <p className="text-xs text-gray-400">To: {d.recipient_username}</p>
+                      {d.deadline && <p className="text-xs text-gray-400">Due: {new Date(d.deadline).toLocaleDateString()}</p>}
+                      <span className={"text-xs px-1.5 py-0.5 rounded font-medium " + (d.status === 'accepted' ? "bg-green-50 text-green-600" : "bg-purple-50 text-purple-600")}>{d.status}</span>
+                    </div></div>
+                  <button onClick={() => { navigator.clipboard.writeText('Hi ' + d.recipient_username + ', reminder about: ' + d.task_text); setAlertMessage('Reminder copied!'); setTimeout(() => setAlertMessage(''), 2000); }} className="text-xs px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium whitespace-nowrap">Remind</button></div>))}
+              {allPendingTasks.length > 12 && <div className="px-5 py-2 text-center"><p className="text-xs text-gray-400">+ {allPendingTasks.length - 12} more tasks</p></div>}</div></div>
           <div className="bg-white rounded-xl border border-gray-100 card-shadow">
             <div className="px-5 py-4 border-b border-gray-100"><h2 className="text-base font-semibold text-gray-900">Assigned vs Completed</h2></div>
             <div className="p-5">{memberList.length === 0 ? (<div className="text-center py-6"><p className="text-sm text-gray-400">No data yet</p></div>
               ) : (<div className="space-y-3">{memberList.map(m => (<div key={m.key} className="space-y-1">
-                      <p className="text-xs text-gray-600 capitalize">{m.name}</p>
+                      <p className="text-xs text-gray-600">{m.name}</p>
                       <div className="flex items-center gap-2"><div className="flex-1 flex gap-1">
                           <div className="h-5 rounded-l bg-blue-400 flex items-center justify-center" style={{width: Math.max((m.assigned / maxAssigned) * 100, 8) + '%'}}><span className="text-[10px] text-white font-medium">{m.assigned}</span></div>
                           <div className="h-5 rounded-r bg-emerald-400 flex items-center justify-center" style={{width: Math.max((m.completed / maxAssigned) * 100, 8) + '%'}}><span className="text-[10px] text-white font-medium">{m.completed}</span></div></div></div></div>))}
