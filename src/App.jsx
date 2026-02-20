@@ -1949,6 +1949,7 @@ const NuOperandi = () => {
                                     </div>
                                 </div>
                             </div>
+                                                    </div>
                         
                         {s.payments && s.payments.length > 0 && (
                             <div className="mt-3 pt-3 border-t border-gray-100">
@@ -1957,17 +1958,17 @@ const NuOperandi = () => {
                                     <span className="text-xs text-gray-500">{s.payments.filter(p => p.paid).length}/{s.payments.length} paid</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-1.5 mb-2">
-                                    <div className="bg-green-500 h-1.5 rounded-full transition-all" style={{width: (s.payments.filter(p => p.paid).length / s.payments.length * 100) + '%'}}></div>
+                                    <div className="bg-green-500 h-1.5 rounded-full transition-all" style={{width: Math.round(s.payments.filter(p => p.paid).length / s.payments.length * 100) + '%'}}></div>
                                 </div>
                                 <div className="space-y-1">
                                     {s.payments.map(pm => (
                                         <div key={pm.id} className={"flex items-center justify-between text-xs px-2 py-1 rounded " + (pm.paid ? "text-green-700 bg-green-50" : "text-gray-600 bg-gray-50")}>
                                             <div className="flex items-center gap-2">
-                                                <span className={pm.paid ? "text-green-500" : "text-gray-400"}>{pm.paid ? "\u2713" : "\u25CB"}</span>
+                                                <span>{pm.paid ? "\u2713" : "\u25CB"}</span>
                                                 <span className={pm.paid ? "line-through" : ""}>{pm.label || 'Payment'}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <span className="font-medium">{pm.amount ? fmtNaira(pm.amount) : ''}</span>
+                                                {pm.amount > 0 && <span className="font-medium">{fmtNaira(pm.amount)}</span>}
                                                 {pm.dueDate && !pm.paid && <span className="text-amber-600">Due {new Date(pm.dueDate).toLocaleDateString('en-US', {month:'short', day:'numeric'})}</span>}
                                                 {pm.paid && pm.paidDate && <span className="text-green-600">Paid {new Date(pm.paidDate).toLocaleDateString('en-US', {month:'short', day:'numeric'})}</span>}
                                             </div>
@@ -1981,6 +1982,7 @@ const NuOperandi = () => {
                                 )}
                             </div>
                         )}
+)}
 ))}
                     </div>
                 )}
