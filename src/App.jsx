@@ -2810,8 +2810,8 @@ const NuOperandi = () => {
                     {activeModule === 'income' && <IncomeModule />}
                     {activeModule === 'briefing' && <BriefingModule />}
                     {activeModule === 'planner' && <PlannerModule />}
-                    {activeModule === 'history' && <HistoryModule />
-              {activeModule === 'boardroom' && <BoardroomModule />}}
+                    {activeModule === 'history' && <HistoryModule />}
+              {activeModule === 'boardroom' && <BoardroomModule />}
                 </main>
             </div>
 
