@@ -174,10 +174,23 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
     const [status, setStatus] = useState(item ? item.status : 'On Track');
     const [nextPayment, setNextPayment] = useState(item ? (item.nextPayment || '') : '');
     const [paymentCycle, setPaymentCycle] = useState(item ? (item.paymentCycle || 'Monthly') : 'Monthly');
+    const [payments, setPayments] = useState(item && item.payments ? item.payments : []);
+    const addPaymentMilestone = () => {
+        setPayments(prev => [...prev, { id: Date.now(), label: '', amount: '', dueDate: '', paid: false, paidDate: null }]);
+    };
+    const updateMilestone = (mId, field, value) => {
+        setPayments(prev => prev.map(p => p.id === mId ? { ...p, [field]: value } : p));
+    };
+    const removeMilestone = (mId) => {
+        setPayments(prev => prev.filter(p => p.id !== mId));
+    };
+    const toggleMilestonePaid = (mId) => {
+        setPayments(prev => prev.map(p => p.id === mId ? { ...p, paid: !p.paid, paidDate: !p.paid ? new Date().toISOString().split('T')[0] : null } : p));
+    };
     const submit = () => {
         if (!name || !monthly) return;
         const val = Number(monthly.replace(/[^0-9.]/g, ''));
-        const data = { name, role, company, type, monthly: val, status, nextPayment, paymentCycle };
+        const data = { name, role, company, type, monthly: val, status, nextPayment, paymentCycle, payments: payments.map(p => ({ ...p, amount: Number(String(p.amount).replace(/[^0-9.]/g, '')) || 0 })) };
         if (item) {
             setIncomeStreams(prev => prev.map(s => s.id === item.id ? { ...s, ...data } : s));
         } else {
@@ -213,6 +226,30 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
                     <option value="On Track">On Track</option><option value="Growing">Growing</option><option value="At Risk">At Risk</option>
                 </select>
             </Field>
+            {/* Payment Milestones */}
+            <div className="mt-4 border-t border-gray-100 pt-4">
+                <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Payment Milestones</span>
+                    <button type="button" onClick={addPaymentMilestone} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1"><I size={12} name="plus"/>+ Add Milestone</button>
+                </div>
+                {payments.length === 0 && <p className="text-xs text-gray-400 italic mb-2">No milestones yet. Add milestones to track deposits and balance payments.</p>}
+                {payments.map((pm, pmIdx) => (
+                    <div key={pm.id} className={"mb-2 p-3 rounded-lg border text-sm " + (pm.paid ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200")}>
+                        <div className="flex items-center gap-2 mb-2">
+                            <button type="button" onClick={() => toggleMilestonePaid(pm.id)} className={"w-5 h-5 rounded border-2 flex items-center justify-center text-xs " + (pm.paid ? "bg-green-500 border-green-500 text-white" : "border-gray-300 hover:border-blue-400")}>
+                                {pm.paid && "\u2713"}
+                            </button>
+                            <input className="flex-1 bg-transparent border-b border-gray-200 focus:border-blue-400 outline-none text-sm px-1 py-0.5" placeholder={"Milestone " + (pmIdx + 1) + " (e.g. Deposit, Balance)"} value={pm.label} onChange={e => updateMilestone(pm.id, 'label', e.target.value)}/>
+                            <button type="button" onClick={() => removeMilestone(pm.id)} className="text-red-400 hover:text-red-600 text-xs">Remove</button>
+                        </div>
+                        <div className="flex gap-2 ml-7">
+                            <input className="w-28 bg-white border border-gray-200 rounded px-2 py-1 text-xs focus:border-blue-400 outline-none" placeholder="Amount" value={pm.amount} onChange={e => updateMilestone(pm.id, 'amount', e.target.value)}/>
+                            <input type="date" className="flex-1 bg-white border border-gray-200 rounded px-2 py-1 text-xs focus:border-blue-400 outline-none" value={pm.dueDate || ''} onChange={e => updateMilestone(pm.id, 'dueDate', e.target.value)}/>
+                        </div>
+                        {pm.paid && pm.paidDate && <p className="text-xs text-green-600 ml-7 mt-1">Paid on {pm.paidDate}</p>}
+                    </div>
+                ))}
+            </div>
             <div className="flex gap-2 mt-6">
                 {item && <button className={btnDanger} onClick={() => { setIncomeStreams(prev => prev.filter(s => s.id !== item.id)); onClose(); }}>Delete</button>}
                 <button className={btnPrimary} onClick={submit}>{item ? 'Save Changes' : 'Add Income Stream'}</button>
@@ -1912,7 +1949,39 @@ const NuOperandi = () => {
                                     </div>
                                 </div>
                             </div>
-                        ))}
+                        
+                        {s.payments && s.payments.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-gray-100">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-xs font-semibold text-gray-500 uppercase">Payment Progress</span>
+                                    <span className="text-xs text-gray-500">{s.payments.filter(p => p.paid).length}/{s.payments.length} paid</span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-1.5 mb-2">
+                                    <div className="bg-green-500 h-1.5 rounded-full transition-all" style={{width: (s.payments.filter(p => p.paid).length / s.payments.length * 100) + '%'}}></div>
+                                </div>
+                                <div className="space-y-1">
+                                    {s.payments.map(pm => (
+                                        <div key={pm.id} className={"flex items-center justify-between text-xs px-2 py-1 rounded " + (pm.paid ? "text-green-700 bg-green-50" : "text-gray-600 bg-gray-50")}>
+                                            <div className="flex items-center gap-2">
+                                                <span className={pm.paid ? "text-green-500" : "text-gray-400"}>{pm.paid ? "\u2713" : "\u25CB"}</span>
+                                                <span className={pm.paid ? "line-through" : ""}>{pm.label || 'Payment'}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-medium">{pm.amount ? fmtNaira(pm.amount) : ''}</span>
+                                                {pm.dueDate && !pm.paid && <span className="text-amber-600">Due {new Date(pm.dueDate).toLocaleDateString('en-US', {month:'short', day:'numeric'})}</span>}
+                                                {pm.paid && pm.paidDate && <span className="text-green-600">Paid {new Date(pm.paidDate).toLocaleDateString('en-US', {month:'short', day:'numeric'})}</span>}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                {s.payments.some(p => !p.paid) && (
+                                    <div className="mt-2 text-xs font-medium text-amber-600 bg-amber-50 rounded px-2 py-1">
+                                        Balance remaining: {fmtNaira(s.payments.filter(p => !p.paid).reduce((t, p) => t + (p.amount || 0), 0))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+))}
                     </div>
                 )}
             </div>
