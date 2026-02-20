@@ -1650,6 +1650,7 @@ const NuOperandi = () => {
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm text-gray-900 truncate">{t.task}</p>
                                             {proj && <p className="text-xs text-gray-400 truncate">{proj.name}</p>}
+                                            {t.delegatedFrom && <span className="text-xs px-1.5 py-0.5 rounded bg-purple-100 text-purple-600 font-medium">from {t.delegatedFrom}</span>}
                                         </div>
                                         {t.priority === 'high' && <span className="text-xs px-1.5 py-0.5 rounded bg-red-50 text-red-500 font-medium flex-shrink-0">High</span>}
                                         {t.due && <span className="text-xs text-gray-400 flex-shrink-0">{t.due}</span>}
@@ -2196,6 +2197,7 @@ const NuOperandi = () => {
                             <p className={'text-sm ' + (completedWeekly[w.id] ? 'line-through text-gray-400' : 'text-gray-900')}>{w.task}</p>
                             <div className="flex items-center gap-2 mt-0.5">
                                 {sp && <p className="text-xs text-gray-400">{sp.done}/{sp.total} sub-goals done</p>}
+                                {w.delegatedFrom && <span className="text-xs px-1.5 py-0.5 rounded bg-purple-100 text-purple-600 font-medium">from {w.delegatedFrom}</span>}
                                 {w.deadline && <span className={'text-xs px-1.5 py-0.5 rounded ' + (new Date(w.deadline) < new Date() ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-600')}>{new Date(w.deadline + 'T00:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric'})}</span>}
                                 {w.delegatedTo && <span className="text-xs px-1.5 py-0.5 rounded bg-purple-50 text-purple-500 flex items-center gap-1">{I.user("#8B5CF6")} {w.delegatedTo}</span>}
                       {w.delegatedFrom && <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600">from {w.delegatedFrom}</span>}
