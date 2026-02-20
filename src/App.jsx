@@ -926,6 +926,7 @@ const NuOperandi = () => {
     const [notifications, setNotifications] = useState([]);
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [delegatedToMe, setDelegatedToMe] = useState([]);
+    const [delegatedByMe, setDelegatedByMe] = useState([]);
   const [acceptingTask, setAcceptingTask] = useState(null);
 
     /* -- Editable Data State -- */
@@ -1041,6 +1042,11 @@ const NuOperandi = () => {
             if (data) setDelegatedToMe(data);
         };
         fetchDelegated();
+        const fetchDelegatedByMe = async () => {
+            const { data } = await supabase.from('delegated_tasks').select('*').eq('delegator_id', supaUser.id).order('created_at', { ascending: false });
+            if (data) setDelegatedByMe(data);
+        };
+        fetchDelegatedByMe();
         const channel = supabase.channel('delegated-' + userProfile.username).on('postgres_changes', { event: '*', schema: 'public', table: 'delegated_tasks', filter: 'recipient_username=eq.' + userProfile.username }, () => { fetchDelegated(); }).subscribe();
         return () => { supabase.removeChannel(channel); };
     }, [supaUser, userProfile]);
@@ -1488,6 +1494,7 @@ const NuOperandi = () => {
         const todayTasksTotal = quickTasks.length;
         const todayTasksDone = quickTasks.filter(t => completedTasks[t.id]).length;
         const todayRemaining = todayTasksTotal - todayTasksDone;
+        const delegatedActiveCount = delegatedByMe.filter(d => d.status === 'pending' || d.status === 'accepted').length;
         return (
         <div className="bg-white/80 backdrop-blur-md border-b border-gray-100 px-8 py-5 flex items-center justify-between sticky top-0 z-10">
             <div className="flex-1 min-w-0">
@@ -1502,6 +1509,7 @@ const NuOperandi = () => {
                     {todayRemaining > 0 && <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600">{todayRemaining}</span>}
                     {todayRemaining === 0 && todayTasksTotal > 0 && <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-600">Done</span>}
                 </button>
+              {delegatedActiveCount > 0 && <span className="ml-2 px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600 text-xs font-semibold">{delegatedActiveCount} delegated</span>}
                 <span className="text-sm text-gray-400 font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
                 <button onClick={() => setNotificationsOpen(!notificationsOpen)} className="relative text-gray-400 hover:text-gray-600 transition">{I.bell("#9CA3AF")}{unreadCount > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center animate-pulse">{unreadCount}</span>}</button>
                 <div onClick={() => setModal('settings')} className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm cursor-pointer hover:bg-blue-600 transition">{userProfile ? userProfile.initials : 'U'}</div>
@@ -1557,7 +1565,7 @@ const NuOperandi = () => {
                             </div>
                         ) : (
                             <div className="divide-y divide-gray-50">
-                                {timeBlocks.map(b => (
+                                {timeBlocks.filter(b => !completedTimeBlocks[b.id]).map(b => (
                                     <div key={b.id} className={'px-5 py-3 flex items-center gap-4 group transition ' + (completedTimeBlocks[b.id] ? 'opacity-40 bg-gray-50/50' : 'hover:bg-gray-50/30')}>
                                         <span className="cursor-pointer flex-shrink-0" onClick={() => toggleBlock(b.id)}>
                                             {completedTimeBlocks[b.id] ? I.check("#10B981") : I.circle("#D1D5DB")}
@@ -2386,7 +2394,27 @@ const NuOperandi = () => {
                             </div>
                         )}
                     </div>
+                
+                {/* Delegated by You */}
+                <div className="mt-6">
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Delegated by You</h3>
+                    {delegatedByMe.length === 0 ? (
+                        <p className="text-sm text-gray-400 italic">No delegated tasks yet. Use the Delegate Launchpad to assign tasks.</p>
+                    ) : (
+                        <div className="space-y-2">
+                            {delegatedByMe.map(d => (
+                                <div key={d.id} className={"flex items-center justify-between p-3 rounded-lg border transition " + (d.status === 'completed' ? "bg-gray-50 border-gray-200 opacity-60" : d.status === 'accepted' ? "bg-green-50 border-green-200" : "bg-purple-50 border-purple-200")}>
+                                    <div className="flex-1 min-w-0">
+                                        <p className={"text-sm font-medium " + (d.status === 'completed' ? "text-gray-400 line-through" : "text-gray-800")}>{d.task_text}</p>
+                                        <p className="text-xs text-gray-500 mt-0.5">To: <span className="font-medium">{d.recipient_username}</span> {d.deadline && <span className="ml-2">Due: {new Date(d.deadline).toLocaleDateString()}</span>}</p>
+                                    </div>
+                                    <span className={"px-2 py-0.5 rounded-full text-xs font-medium " + (d.status === 'completed' ? "bg-gray-200 text-gray-600" : d.status === 'accepted' ? "bg-green-200 text-green-700" : "bg-yellow-200 text-yellow-700")}>{d.status}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
+</div>
             )}
 
             {plannerTab === 'schedule' && (
