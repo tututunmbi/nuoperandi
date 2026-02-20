@@ -228,27 +228,27 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
             </Field>
             {/* Payment Milestones */}
             <div className="mt-4 border-t border-gray-100 pt-4">
-                <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Payment Milestones</span>
-                    <button type="button" onClick={addPaymentMilestone} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1"><I size={12} name="plus"/>+ Add Milestone</button>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Payment Milestones</span>
+                <button type="button" onClick={addPaymentMilestone} className="text-xs text-blue-500 hover:text-blue-600 font-medium">+ Add Milestone</button>
+              </div>
+              {payments.length === 0 && <p className="text-xs text-gray-400 italic mb-2">No milestones yet. Add deposit/balance tracking.</p>}
+              {payments.map((pm, pmIdx) => (
+                <div key={pm.id} className={"mb-2 p-3 rounded-lg border text-sm " + (pm.paid ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200")}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <button type="button" onClick={() => toggleMilestonePaid(pm.id)} className={"w-5 h-5 rounded border-2 flex items-center justify-center text-xs " + (pm.paid ? "bg-green-500 border-green-500 text-white" : "border-gray-300 hover:border-blue-400")}>
+                      {pm.paid && "\u2713"}
+                    </button>
+                    <input className="flex-1 bg-transparent border-b border-gray-200 focus:border-blue-400 outline-none text-sm px-1 py-0.5" placeholder={"Milestone " + (pmIdx + 1) + " (e.g. Deposit, Balance)"} value={pm.label} onChange={e => updateMilestone(pm.id, 'label', e.target.value)}/>
+                    <button type="button" onClick={() => removeMilestone(pm.id)} className="text-red-400 hover:text-red-600 text-xs">Remove</button>
+                  </div>
+                  <div className="flex gap-2 ml-7">
+                    <input className="w-28 bg-white border border-gray-200 rounded px-2 py-1 text-xs focus:border-blue-400 outline-none" placeholder="Amount" value={pm.amount} onChange={e => updateMilestone(pm.id, 'amount', e.target.value)}/>
+                    <input type="date" className="flex-1 bg-white border border-gray-200 rounded px-2 py-1 text-xs focus:border-blue-400 outline-none" value={pm.dueDate || ''} onChange={e => updateMilestone(pm.id, 'dueDate', e.target.value)}/>
+                  </div>
+                  {pm.paid && pm.paidDate && <p className="text-xs text-green-600 ml-7 mt-1">{"Paid on " + pm.paidDate}</p>}
                 </div>
-                {payments.length === 0 && <p className="text-xs text-gray-400 italic mb-2">No milestones yet. Add milestones to track deposits and balance payments.</p>}
-                {payments.map((pm, pmIdx) => (
-                    <div key={pm.id} className={"mb-2 p-3 rounded-lg border text-sm " + (pm.paid ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200")}>
-                        <div className="flex items-center gap-2 mb-2">
-                            <button type="button" onClick={() => toggleMilestonePaid(pm.id)} className={"w-5 h-5 rounded border-2 flex items-center justify-center text-xs " + (pm.paid ? "bg-green-500 border-green-500 text-white" : "border-gray-300 hover:border-blue-400")}>
-                                {pm.paid && "\u2713"}
-                            </button>
-                            <input className="flex-1 bg-transparent border-b border-gray-200 focus:border-blue-400 outline-none text-sm px-1 py-0.5" placeholder={"Milestone " + (pmIdx + 1) + " (e.g. Deposit, Balance)"} value={pm.label} onChange={e => updateMilestone(pm.id, 'label', e.target.value)}/>
-                            <button type="button" onClick={() => removeMilestone(pm.id)} className="text-red-400 hover:text-red-600 text-xs">Remove</button>
-                        </div>
-                        <div className="flex gap-2 ml-7">
-                            <input className="w-28 bg-white border border-gray-200 rounded px-2 py-1 text-xs focus:border-blue-400 outline-none" placeholder="Amount" value={pm.amount} onChange={e => updateMilestone(pm.id, 'amount', e.target.value)}/>
-                            <input type="date" className="flex-1 bg-white border border-gray-200 rounded px-2 py-1 text-xs focus:border-blue-400 outline-none" value={pm.dueDate || ''} onChange={e => updateMilestone(pm.id, 'dueDate', e.target.value)}/>
-                        </div>
-                        {pm.paid && pm.paidDate && <p className="text-xs text-green-600 ml-7 mt-1">Paid on {pm.paidDate}</p>}
-                    </div>
-                ))}
+              ))}
             </div>
             <div className="flex gap-2 mt-6">
                 {item && <button className={btnDanger} onClick={() => { setIncomeStreams(prev => prev.filter(s => s.id !== item.id)); onClose(); }}>Delete</button>}
