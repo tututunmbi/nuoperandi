@@ -2101,6 +2101,8 @@ const NuOperandi = () => {
     };
 
     const BoardroomModule = () => {
+    const [reminderMsg, setReminderMsg] = useState(null);
+
     const taskHistory = JSON.parse(localStorage.getItem('nuop_taskHistory') || '[]');
     
     // Use delegatedByMe from Supabase (the full list of tasks YOU delegated)
@@ -2165,6 +2167,8 @@ const NuOperandi = () => {
     const maxWeekCount = Math.max(...weeks.map(w => w.count), 1);
 
     return (<div className="space-y-6 max-w-5xl">
+        {reminderMsg && <div style={{position:'fixed',top:20,right:20,zIndex:9999,background:'#10b981',color:'white',padding:'12px 24px',borderRadius:8,boxShadow:'0 4px 12px rgba(0,0,0,0.15)',fontWeight:500,fontSize:14,animation:'fadeIn 0.3s'}}>{reminderMsg}</div>}
+
         <div className="flex items-center justify-between">
           <div><h1 className="text-xl font-bold text-gray-900">Boardroom</h1>
             <p className="text-sm text-gray-500 mt-1">Team productivity overview</p></div></div>
@@ -2233,15 +2237,15 @@ const NuOperandi = () => {
                                   sender_name: userProfile.name,
                                   is_read: false
                                 });
-                                setAlertMessage('Reminder sent to ' + d.recipient_username + '!');
+                                setReminderMsg('Reminder sent to ' + d.recipient_username + '!');
                               } else {
-                                setAlertMessage('Could not find user ' + d.recipient_username);
+                                setReminderMsg('Could not find user ' + d.recipient_username);
                               }
                             } catch (err) {
                               console.log('Reminder error:', err);
-                              setAlertMessage('Failed to send reminder');
+                              setReminderMsg('Failed to send reminder');
                             }
-                            setTimeout(() => setAlertMessage(''), 3000);
+                            setTimeout(() => setReminderMsg(''), 3000);
                           }} className="text-xs px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium whitespace-nowrap">Remind</button></div>))}
               {allPendingTasks.length > 12 && <div className="px-5 py-2 text-center"><p className="text-xs text-gray-400">+ {allPendingTasks.length - 12} more tasks</p></div>}</div></div>
           <div className="bg-white rounded-xl border border-gray-100 card-shadow">
