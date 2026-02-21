@@ -2222,7 +2222,27 @@ const NuOperandi = () => {
                       {d.deadline && <p className="text-xs text-gray-400">Due: {new Date(d.deadline).toLocaleDateString()}</p>}
                       <span className={"text-xs px-1.5 py-0.5 rounded font-medium " + (d.status === 'accepted' ? "bg-green-50 text-green-600" : "bg-purple-50 text-purple-600")}>{d.status}</span>
                     </div></div>
-                  <button onClick={() => { navigator.clipboard.writeText('Hi ' + d.recipient_username + ', reminder about: ' + d.task_text); setAlertMessage('Reminder copied!'); setTimeout(() => setAlertMessage(''), 2000); }} className="text-xs px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium whitespace-nowrap">Remind</button></div>))}
+                  <button onClick={async () => {
+                            try {
+                              const { data: rUser } = await supabase.from('profiles').select('id').eq('username', d.recipient_username).single();
+                              if (rUser) {
+                                await supabase.from('notifications').insert({
+                                  user_id: rUser.id,
+                                  title: 'Task Reminder',
+                                  message: userProfile.name + ' reminded you about: ' + d.task_text,
+                                  sender_name: userProfile.name,
+                                  is_read: false
+                                });
+                                setAlertMessage('Reminder sent to ' + d.recipient_username + '!');
+                              } else {
+                                setAlertMessage('Could not find user ' + d.recipient_username);
+                              }
+                            } catch (err) {
+                              console.log('Reminder error:', err);
+                              setAlertMessage('Failed to send reminder');
+                            }
+                            setTimeout(() => setAlertMessage(''), 3000);
+                          }} className="text-xs px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium whitespace-nowrap">Remind</button></div>))}
               {allPendingTasks.length > 12 && <div className="px-5 py-2 text-center"><p className="text-xs text-gray-400">+ {allPendingTasks.length - 12} more tasks</p></div>}</div></div>
           <div className="bg-white rounded-xl border border-gray-100 card-shadow">
             <div className="px-5 py-4 border-b border-gray-100"><h2 className="text-base font-semibold text-gray-900">Assigned vs Completed</h2></div>
