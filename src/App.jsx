@@ -1,4 +1,4 @@
-/* build: 1771863976249 */
+/* build: 1771864607717 */
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -171,7 +171,7 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
     const [role, setRole] = useState(item ? (item.role || '') : '');
     const [company, setCompany] = useState(item ? (item.company || '') : '');
     const [type, setType] = useState(item ? item.type : 'Active');
-    const [monthly, setMonthly] = useState(item ? String(item.monthly) : '');
+    const [monthly, setMonthly] = useState(item ? Number(item.monthly).toLocaleString('en-US') : '');
     const [status, setStatus] = useState(item ? item.status : 'On Track');
     const [nextPayment, setNextPayment] = useState(item ? (item.nextPayment || '') : '');
     const [paymentCycle, setPaymentCycle] = useState(item ? (item.paymentCycle || 'Monthly') : 'Monthly');
@@ -212,7 +212,7 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
                         <option value="Active">Active</option><option value="Passive">Passive</option>
                     </select>
                 </Field>
-                <Field label="Monthly Amount (₦)"><input className={inputCls} value={monthly} onChange={e => setMonthly(e.target.value)} placeholder="e.g. 1000000" type="number" /></Field>
+                <Field label="Monthly Amount (₦)"><input className={inputCls} value={monthly} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setMonthly(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setMonthly(parts.join('.')); }} placeholder="e.g. 1,000,000" type="text" inputMode="numeric" /></Field>
             </div>
             <div className="grid grid-cols-2 gap-3">
                 <Field label="Next Payment Due"><input className={inputCls} type="date" value={nextPayment} onChange={e => setNextPayment(e.target.value)} /></Field>
@@ -933,7 +933,7 @@ const AddMenu = ({ onClose, activeModule, setModal }) => {
 
 const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams }) => {
     const [name, setName] = useState(item ? item.name : '');
-    const [amount, setAmount] = useState(item ? String(item.amount) : '');
+    const [amount, setAmount] = useState(item ? Number(item.amount).toLocaleString('en-US') : '');
     const [category, setCategory] = useState(item ? item.category : 'Salary');
     const [frequency, setFrequency] = useState(item ? item.frequency : 'Monthly');
     const [linkedStreamId, setLinkedStreamId] = useState(item ? (item.linkedStreamId || '') : '');
@@ -955,7 +955,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams }) => {
         <Modal title={item ? 'Edit Expense' : 'Add Expense'} onClose={onClose}>
             <Field label="Expense Name"><input className={inputCls} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Staff Salaries, Office Rent" /></Field>
             <div className="grid grid-cols-2 gap-3">
-                <Field label="Amount (₦)"><input className={inputCls} value={amount} onChange={e => setAmount(e.target.value)} placeholder="e.g. 200000" type="number" /></Field>
+                <Field label="Amount (₦)"><input className={inputCls} value={amount} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setAmount(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setAmount(parts.join('.')); }} placeholder="e.g. 200,000" type="text" inputMode="numeric" /></Field>
                 <Field label="Frequency">
                     <select className={inputCls} value={frequency} onChange={e => setFrequency(e.target.value)}>
                         <option value="Monthly">Monthly</option><option value="Weekly">Weekly</option><option value="Quarterly">Quarterly</option><option value="Annual">Annual</option><option value="One-time">One-time</option>
