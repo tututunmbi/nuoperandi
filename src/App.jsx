@@ -1,4 +1,4 @@
-/* build: 1771844848385 */
+/* build: 1771846950421 */
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -2903,7 +2903,12 @@ const NuOperandi = () => {
                                 <h2 className="text-base font-semibold text-gray-900">This Week</h2>
                                 <p className="text-xs text-gray-400 mt-0.5">{weeklyDone} of {weeklyTotal} tasks completed</p>
                             </div>
-                            <button onClick={() => setModal('addWeekly')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add Task</button>
+                            <div className="flex items-center gap-2">
+                                    {weeklyPlan.some(w => completedWeekly[w.id]) && (
+                                        <button onClick={() => { setWeeklyPlan(prev => prev.filter(w => !completedWeekly[w.id])); setCompletedWeekly({}); }} className="text-xs text-gray-400 hover:text-gray-600 font-medium flex items-center gap-1">{I.history("#9CA3AF")} Clear done</button>
+                                    )}
+                                    <button onClick={() => setModal('addWeekly')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add Task</button>
+                                </div>
                         </div>
                         {weeklyTotal > 0 && (
                             <div className="w-full h-2 bg-gray-100 rounded-full">
@@ -2945,7 +2950,7 @@ const NuOperandi = () => {
                                             )}
                                         </div>
                                         {!collapsedProjects[pid] && <div className="divide-y divide-gray-50">
-                                            {tasks.map(w => <WeeklyTaskRow key={w.id} w={w} />)}
+                                            {tasks.filter(w => !completedWeekly[w.id]).map(w => <WeeklyTaskRow key={w.id} w={w} />)}
                                         </div>}
                                     </div>
                                 );
@@ -2962,7 +2967,7 @@ const NuOperandi = () => {
                                         </div>
                                     </div>
                                     {!collapsedProjects['general'] && <div className="divide-y divide-gray-50">
-                                        {weeklyByProject.unlinked.map(w => <WeeklyTaskRow key={w.id} w={w} />)}
+                                        {weeklyByProject.unlinked.filter(w => !completedWeekly[w.id]).map(w => <WeeklyTaskRow key={w.id} w={w} />)}
                                     </div>}
                                 </div>
                             )}
