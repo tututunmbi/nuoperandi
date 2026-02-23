@@ -1,4 +1,4 @@
-/* build: 1771863521217 */
+/* build: 1771863976249 */
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -2504,6 +2504,7 @@ const NuOperandi = () => {
     const totalAssigned = allDelegated.length;
     const totalCompleted = allDelegated.filter(d => d.status === 'completed').length;
     const totalPending = allDelegated.filter(d => d.status !== 'completed').length;
+    const totalAccepted = allDelegated.filter(d => d.status === 'accepted').length;
     const avgRate = totalAssigned > 0 ? Math.round((totalCompleted / totalAssigned) * 100) : 0;
     const topContributor = memberList.find(m => m.completed > 0) || (memberList.length > 0 ? memberList[0] : null);
     
