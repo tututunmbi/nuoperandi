@@ -1,4 +1,4 @@
-/* build: 1771860719184 */
+/* build: 1771861809988 */
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -2856,10 +2856,6 @@ const NuOperandi = () => {
 
   const BriefingModule = () => (
         <div className="space-y-8 max-w-6xl">
-            <div className="bg-blue-50 rounded-xl border border-blue-100 p-5">
-                <p className="text-sm text-blue-800 font-medium">Your morning intelligence briefing document is generated separately.</p>
-                <p className="text-xs text-blue-600 mt-1">Say "morning briefing" in Cowork to generate today's document with live market data.</p>
-            </div>
 
             <div>
                 <div className="flex items-center justify-between mb-4">
