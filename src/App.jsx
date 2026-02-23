@@ -1038,7 +1038,100 @@ const NuOperandi = () => {
     useEffect(() => { if (userProfile) save('profile', userProfile); }, [userProfile]);
 
     
-    /* -- Supabase Sync: Projects & Tasks to Cloud -- */
+    
+
+  /* -- Supabase Cloud Load: Seed local state from cloud on login -- */
+  useEffect(() => {
+    if (!supaUser) return;
+    const loadFromCloud = async () => {
+      try {
+        // Check if user has local data already
+        const hasLocalData = incomeStreams.length > 0 || projects.length > 0 || quickTasks.length > 0;
+        if (hasLocalData) return; // Owner already has data locally
+
+        // No local data - this is a team member or fresh device. Load from cloud.
+        const { data: cloudIncome } = await supabase.from('income_streams').select('*');
+        if (cloudIncome && cloudIncome.length > 0) {
+          const mapped = cloudIncome.map(s => ({ id: s.local_id, name: s.name, type: s.type, monthly: s.monthly, status: s.status, note: s.note }));
+          setIncomeStreams(mapped);
+        }
+
+        const { data: cloudExpenses } = await supabase.from('expenses').select('*');
+        if (cloudExpenses && cloudExpenses.length > 0) {
+          const mapped = cloudExpenses.map(e => ({ id: e.local_id, name: e.name, amount: e.amount, category: e.category, frequency: e.frequency, linkedStreamId: e.linked_stream_id, note: e.note, dueDate: e.due_date }));
+          setExpenses(mapped);
+        }
+
+        const { data: cloudTasks } = await supabase.from('daily_tasks').select('*');
+        if (cloudTasks && cloudTasks.length > 0) {
+          const mapped = cloudTasks.map(tk => ({ id: tk.local_id, task: tk.task_text, priority: tk.priority, due: tk.due, projectId: tk.project_id, weeklySourceId: tk.weekly_source_id }));
+          setQuickTasks(mapped);
+          const comp = {};
+          cloudTasks.forEach(tk => { if (tk.completed) comp[tk.local_id] = true; });
+          setCompletedTasks(comp);
+        }
+
+        const { data: cloudBlocks } = await supabase.from('time_blocks').select('*');
+        if (cloudBlocks && cloudBlocks.length > 0) {
+          const mapped = cloudBlocks.map(b => ({ id: b.local_id, task: b.task_text, time: b.start_time, end: b.end_time, cat: b.category }));
+          setTimeBlocks(mapped);
+        }
+
+        const { data: cloudIdeas } = await supabase.from('ideas').select('*');
+        if (cloudIdeas && cloudIdeas.length > 0) {
+          const mapped = cloudIdeas.map(i => ({ id: i.local_id, text: i.text_content }));
+          setIdeas(mapped);
+        }
+
+        const { data: cloudTeam } = await supabase.from('team_members').select('*');
+        if (cloudTeam && cloudTeam.length > 0) {
+          const mapped = cloudTeam.map(m => ({ id: m.local_id, name: m.name, initials: m.initials, status: m.status }));
+          setTeamMembers(mapped);
+        }
+
+        const { data: cloudBriefing } = await supabase.from('briefings').select('*').eq('type', 'morning').order('date', { ascending: false }).limit(1);
+        if (cloudBriefing && cloudBriefing.length > 0) {
+          setBriefing(cloudBriefing[0].content);
+        }
+
+        const { data: cloudNation } = await supabase.from('briefings').select('*').eq('type', 'nation').order('date', { ascending: false }).limit(1);
+        if (cloudNation && cloudNation.length > 0) {
+          setNationBriefing(cloudNation[0].content);
+        }
+
+        const { data: cloudHistory } = await supabase.from('task_history').select('*');
+        if (cloudHistory && cloudHistory.length > 0) {
+          const mapped = cloudHistory.map(h => ({ date: h.date, tasks: h.tasks }));
+          setTaskHistory(mapped);
+        }
+
+        const { data: cloudProjects } = await supabase.from('projects').select('*');
+        if (cloudProjects && cloudProjects.length > 0) {
+          const mapped = cloudProjects.map(p => ({ id: p.local_id, name: p.name, desc: p.description, progress: p.progress, status: p.status, start: p.start_date, launch: p.launch_date, team: p.team_size, next: p.next_step }));
+          setProjects(mapped);
+        }
+
+        const { data: cloudWeekly } = await supabase.from('weekly_tasks').select('*');
+        if (cloudWeekly && cloudWeekly.length > 0) {
+          const mapped = cloudWeekly.map(tk => ({ id: tk.local_id, task: tk.task_text, projectId: tk.project_local_id, subtasks: tk.subtasks || [], deadline: tk.deadline, delegatedTo: tk.delegated_to }));
+          setWeeklyPlan(mapped);
+          const comp = {};
+          cloudWeekly.forEach(tk => { if (tk.completed) comp[tk.local_id] = true; });
+          setCompletedWeekly(comp);
+        }
+
+        const { data: cloudSettings } = await supabase.from('user_settings').select('*');
+        if (cloudSettings && cloudSettings.length > 0 && cloudSettings[0].profile_data) {
+          setProfile(cloudSettings[0].profile_data);
+        }
+
+      } catch(err) { console.log('Cloud load error:', err); }
+    };
+    loadFromCloud();
+  }, [supaUser]);
+
+
+  /* -- Supabase Sync: Projects & Tasks to Cloud -- */
     useEffect(() => {
       if (!supaUser) return;
       const timer = setTimeout(async () => {
@@ -1090,6 +1183,175 @@ const NuOperandi = () => {
       }, 2000);
       return () => clearTimeout(timer);
     }, [weeklyPlan, completedWeekly, supaUser]);
+
+  /* -- Supabase Sync: Income Streams -- */
+  useEffect(() => {
+    if (!supaUser) return;
+    const timer = setTimeout(async () => {
+      try {
+        await supabase.from('income_streams').delete().eq('owner_id', supaUser.id);
+        const rows = incomeStreams.map(s => ({
+          local_id: s.id, owner_id: supaUser.id, name: s.name,
+          type: s.type || 'Active', monthly: s.monthly || 0,
+          status: s.status || 'active', note: s.note || ''
+        }));
+        if (rows.length > 0) await supabase.from('income_streams').insert(rows);
+      } catch(err) { console.log('Income sync error:', err); }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [incomeStreams, supaUser]);
+
+  /* -- Supabase Sync: Expenses -- */
+  useEffect(() => {
+    if (!supaUser) return;
+    const timer = setTimeout(async () => {
+      try {
+        await supabase.from('expenses').delete().eq('owner_id', supaUser.id);
+        const rows = expenses.map(e => ({
+          local_id: e.id, owner_id: supaUser.id, name: e.name,
+          amount: e.amount || 0, category: e.category || '',
+          frequency: e.frequency || 'Monthly',
+          linked_stream_id: e.linkedStreamId || null,
+          note: e.note || '', due_date: e.dueDate || null
+        }));
+        if (rows.length > 0) await supabase.from('expenses').insert(rows);
+      } catch(err) { console.log('Expenses sync error:', err); }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [expenses, supaUser]);
+
+  /* -- Supabase Sync: Daily Tasks -- */
+  useEffect(() => {
+    if (!supaUser) return;
+    const timer = setTimeout(async () => {
+      try {
+        await supabase.from('daily_tasks').delete().eq('owner_id', supaUser.id);
+        const rows = quickTasks.map(tk => ({
+          local_id: tk.id, owner_id: supaUser.id,
+          task_text: tk.task, priority: tk.priority || 'medium',
+          due: tk.due || 'Today', project_id: tk.projectId || null,
+          weekly_source_id: tk.weeklySourceId || null,
+          completed: !!completedTasks[tk.id],
+          completed_at: completedTasks[tk.id] ? new Date().toISOString() : null
+        }));
+        if (rows.length > 0) await supabase.from('daily_tasks').insert(rows);
+      } catch(err) { console.log('Daily tasks sync error:', err); }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [quickTasks, completedTasks, supaUser]);
+
+  /* -- Supabase Sync: Time Blocks -- */
+  useEffect(() => {
+    if (!supaUser) return;
+    const timer = setTimeout(async () => {
+      try {
+        await supabase.from('time_blocks').delete().eq('owner_id', supaUser.id);
+        const rows = timeBlocks.map(b => ({
+          local_id: b.id, owner_id: supaUser.id,
+          task_text: b.task, start_time: b.time || '',
+          end_time: b.end || '', category: b.cat || ''
+        }));
+        if (rows.length > 0) await supabase.from('time_blocks').insert(rows);
+      } catch(err) { console.log('Time blocks sync error:', err); }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [timeBlocks, supaUser]);
+
+  /* -- Supabase Sync: Ideas -- */
+  useEffect(() => {
+    if (!supaUser) return;
+    const timer = setTimeout(async () => {
+      try {
+        await supabase.from('ideas').delete().eq('owner_id', supaUser.id);
+        const rows = ideas.map(i => ({
+          local_id: i.id, owner_id: supaUser.id,
+          text_content: i.text || ''
+        }));
+        if (rows.length > 0) await supabase.from('ideas').insert(rows);
+      } catch(err) { console.log('Ideas sync error:', err); }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [ideas, supaUser]);
+
+  /* -- Supabase Sync: Team Members -- */
+  useEffect(() => {
+    if (!supaUser) return;
+    const timer = setTimeout(async () => {
+      try {
+        await supabase.from('team_members').delete().eq('owner_id', supaUser.id);
+        const rows = teamMembers.map(m => ({
+          local_id: m.id, owner_id: supaUser.id,
+          name: m.name, initials: m.initials || '',
+          status: m.status || 'available'
+        }));
+        if (rows.length > 0) await supabase.from('team_members').insert(rows);
+      } catch(err) { console.log('Team sync error:', err); }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [teamMembers, supaUser]);
+
+  /* -- Supabase Sync: Briefings -- */
+  useEffect(() => {
+    if (!supaUser || !briefing || !briefing.date) return;
+    const timer = setTimeout(async () => {
+      try {
+        await supabase.from('briefings').delete().eq('owner_id', supaUser.id).eq('type', 'morning');
+        await supabase.from('briefings').insert({
+          owner_id: supaUser.id, type: 'morning',
+          date: briefing.date, generated_at: briefing.generatedAt || null,
+          content: briefing
+        });
+      } catch(err) { console.log('Briefing sync error:', err); }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [briefing, supaUser]);
+
+  useEffect(() => {
+    if (!supaUser || !nationBriefing || !nationBriefing.date) return;
+    const timer = setTimeout(async () => {
+      try {
+        await supabase.from('briefings').delete().eq('owner_id', supaUser.id).eq('type', 'nation');
+        await supabase.from('briefings').insert({
+          owner_id: supaUser.id, type: 'nation',
+          date: nationBriefing.date, generated_at: nationBriefing.generatedAt || null,
+          content: nationBriefing
+        });
+      } catch(err) { console.log('Nation briefing sync error:', err); }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [nationBriefing, supaUser]);
+
+  /* -- Supabase Sync: Task History -- */
+  useEffect(() => {
+    if (!supaUser) return;
+    const timer = setTimeout(async () => {
+      try {
+        await supabase.from('task_history').delete().eq('owner_id', supaUser.id);
+        const rows = taskHistory.map(h => ({
+          owner_id: supaUser.id, date: h.date, tasks: h.tasks || []
+        }));
+        if (rows.length > 0) await supabase.from('task_history').insert(rows);
+      } catch(err) { console.log('Task history sync error:', err); }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [taskHistory, supaUser]);
+
+  /* -- Supabase Sync: User Settings -- */
+  useEffect(() => {
+    if (!supaUser) return;
+    const timer = setTimeout(async () => {
+      try {
+        await supabase.from('user_settings').upsert({
+          owner_id: supaUser.id,
+          profile_data: profile || {},
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'owner_id' });
+      } catch(err) { console.log('Settings sync error:', err); }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [profile, supaUser]);
+
+
 
 /* -- Supabase Auth -- */
     useEffect(() => {
