@@ -2273,6 +2273,95 @@ const NuOperandi = () => {
       </div>);
   };
 
+  
+  const ProjectStatusBoard = () => {
+    const [expandedProject, setExpandedProject] = useState(null);
+    const [addedTasks, setAddedTasks] = useState({});
+    
+    const addToMyPlan = (task) => {
+      const newTask = {
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        task: task.task,
+        projectId: task.projectId,
+        deadline: task.deadline || null,
+        subtasks: task.subtasks ? task.subtasks.map(s => ({...s, id: Date.now() + Math.floor(Math.random() * 10000)})) : []
+      };
+      setWeeklyPlan(prev => [...prev, newTask]);
+      setAddedTasks(prev => ({...prev, [task.id]: true}));
+    };
+    
+    const projectStatusData = projects.map(p => {
+      const pTasks = weeklyPlan.filter(w => w.projectId === p.id);
+      const completedCount = pTasks.filter(w => completedWeekly[w.id]).length;
+      const delegatedTasks = pTasks.filter(w => w.delegatedTo);
+      const pendingTasks = pTasks.filter(w => !completedWeekly[w.id]);
+      return { ...p, tasks: pTasks, completedCount, totalTasks: pTasks.length, delegatedTasks, pendingTasks, progressPct: pTasks.length > 0 ? Math.round((completedCount / pTasks.length) * 100) : 0 };
+    }).filter(p => p.totalTasks > 0 || p.status === 'In Progress');
+    
+    if (projectStatusData.length === 0) return null;
+    
+    return (
+      <div>
+        <h2 className="text-base font-semibold text-gray-900 mb-4">Project Status Board</h2>
+        <div className="space-y-3">
+          {projectStatusData.map(p => (
+            <div key={p.id} className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+              <div className="px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => setExpandedProject(expandedProject === p.id ? null : p.id)}>
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className={"w-2 h-2 rounded-full flex-shrink-0 " + (p.status === 'In Progress' ? "bg-blue-500" : p.status === 'Planning' ? "bg-amber-400" : "bg-green-500")} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{p.name}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className={"text-xs px-1.5 py-0.5 rounded font-medium " + (p.status === 'In Progress' ? "bg-blue-50 text-blue-600" : "bg-amber-50 text-amber-600")}>{p.status}</span>
+                      <span className="text-xs text-gray-400">{p.completedCount}/{p.totalTasks} tasks done</span>
+                      {p.delegatedTasks.length > 0 && <span className="text-xs text-purple-500">{p.delegatedTasks.length} delegated</span>}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-500 rounded-full transition-all" style={{width: p.progressPct + '%'}} />
+                  </div>
+                  <span className="text-xs font-medium text-gray-500 w-8 text-right">{p.progressPct}%</span>
+                  <svg className={"w-4 h-4 text-gray-400 transition-transform " + (expandedProject === p.id ? "rotate-180" : "")} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+              {expandedProject === p.id && (
+                <div className="border-t border-gray-100">
+                  {p.tasks.length === 0 ? (
+                    <div className="px-5 py-4 text-center"><p className="text-sm text-gray-400">No tasks added yet</p></div>
+                  ) : (
+                    <div className="divide-y divide-gray-50">
+                      {p.tasks.map(t => (
+                        <div key={t.id} className={"px-5 py-3 flex items-center gap-3 " + (completedWeekly[t.id] ? "opacity-50" : "")}>
+                          <div className={"w-4 h-4 rounded-full border-2 flex-shrink-0 " + (completedWeekly[t.id] ? "bg-green-500 border-green-500" : "border-gray-300")} />
+                          <div className="flex-1 min-w-0">
+                            <p className={"text-sm " + (completedWeekly[t.id] ? "line-through text-gray-400" : "text-gray-800")}>{t.task}</p>
+                            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                              {t.delegatedTo && <span className="text-xs px-1.5 py-0.5 rounded bg-purple-50 text-purple-600 font-medium">@{t.delegatedTo}</span>}
+                              {t.deadline && <span className={"text-xs px-1.5 py-0.5 rounded " + (new Date(t.deadline) < new Date() ? "bg-red-50 text-red-500" : "bg-gray-100 text-gray-500")}>{new Date(t.deadline).toLocaleDateString('en-US', {month:'short', day:'numeric'})}</span>}
+                              {t.subtasks && t.subtasks.length > 0 && <span className="text-xs text-gray-400">{t.subtasks.filter(s => s.done).length}/{t.subtasks.length} subtasks</span>}
+                            </div>
+                          </div>
+                          {!completedWeekly[t.id] && !addedTasks[t.id] && (
+                            <button onClick={(e) => { e.stopPropagation(); addToMyPlan(t); }} className="text-xs px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium whitespace-nowrap">+ Add to Plan</button>
+                          )}
+                          {addedTasks[t.id] && (
+                            <span className="text-xs px-2.5 py-1 rounded-lg bg-green-50 text-green-600 font-medium">Added!</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   const BriefingModule = () => (
         <div className="space-y-8 max-w-6xl">
             <div className="bg-blue-50 rounded-xl border border-blue-100 p-5">
@@ -2308,7 +2397,9 @@ const NuOperandi = () => {
             </div>
 
             <div>
-                <h2 className="text-base font-semibold text-gray-900 mb-4">Quick Snapshot</h2>
+                          <ProjectStatusBoard />
+
+          <h2 className="text-base font-semibold text-gray-900 mb-4">Quick Snapshot</h2>
                 <div className="grid grid-cols-3 gap-4">
                     <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow text-center">
                         <p className="text-2xl font-semibold text-gray-900">{incomeStreams.length}</p>
