@@ -1,4 +1,4 @@
-/* build: 1771846950421 */
+/* build: 1771847954857 */
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -995,7 +995,7 @@ const NuOperandi = () => {
     const [expandedProject, setExpandedProject] = useState(null);
     const [expandedIncome, setExpandedIncome] = useState(null);
     const [expandedIdeas, setExpandedIdeas] = useState(false);
-    const [plannerTab, setPlannerTab] = useState('weekly');
+    const [plannerTab, setPlannerTab] = useState('goals');
     const [collapsedProjects, setCollapsedProjects] = useState(() => load('collapsedProjects', {}));
     const [userProfile, setUserProfile] = useState(() => load('profile', null));
     const [supaUser, setSupaUser] = useState(null);
@@ -1153,7 +1153,7 @@ const NuOperandi = () => {
 
         const { data: cloudWeekly } = await supabase.from('weekly_tasks').select('*');
         if (cloudWeekly && cloudWeekly.length > 0) {
-          const mapped = cloudWeekly.map(tk => ({ id: tk.local_id, task: tk.task_text, projectId: tk.project_local_id, subtasks: tk.subtasks || [], deadline: tk.deadline, delegatedTo: tk.delegated_to }));
+          const mapped = cloudWeekly.map(tk => ({ id: tk.local_id, task: tk.task_text, projectId: tk.project_local_id, subtasks: tk.subtasks || [], deadline: tk.deadline, delegatedTo: tk.delegated_to, thisWeek: !!tk.this_week }));
           setWeeklyPlan(mapped);
           const comp = {};
           cloudWeekly.forEach(tk => { if (tk.completed) comp[tk.local_id] = true; });
@@ -1216,6 +1216,7 @@ const NuOperandi = () => {
             subtasks: tk.subtasks || [],
             deadline: tk.deadline || null,
             delegated_to: tk.delegatedTo ? tk.delegatedTo.replace(/^@/, '').toLowerCase() : null,
+                    this_week: !!tk.thisWeek,
             completed: !!completedWeekly[tk.id]
           }));
           if (rows.length > 0) await supabase.from('weekly_tasks').insert(rows);
@@ -2804,10 +2805,10 @@ const NuOperandi = () => {
     );
 
     const PlannerModule = () => {
-        const weeklyByProject = useMemo(() => {
+        const groupTasksByProject = (tasks) => {
             const grouped = {};
             const unlinked = [];
-            weeklyPlan.forEach(w => {
+            tasks.forEach(w => {
                 if (w.projectId) {
                     if (!grouped[w.projectId]) grouped[w.projectId] = [];
                     grouped[w.projectId].push(w);
@@ -2816,7 +2817,11 @@ const NuOperandi = () => {
                 }
             });
             return { grouped, unlinked };
-        }, [weeklyPlan]);
+        };
+        const goalsOnly = useMemo(() => weeklyPlan.filter(w => !w.thisWeek), [weeklyPlan]);
+        const thisWeekOnly = useMemo(() => weeklyPlan.filter(w => w.thisWeek), [weeklyPlan]);
+        const weeklyByProject = useMemo(() => groupTasksByProject(goalsOnly), [goalsOnly]);
+        const thisWeekByProject = useMemo(() => groupTasksByProject(thisWeekOnly), [thisWeekOnly]);
 
         const { weeklyDone, weeklyTotal } = useMemo(() => {
             let done = 0, total = 0;
@@ -2834,7 +2839,7 @@ const NuOperandi = () => {
         const dailyDone = quickTasks.filter(t => completedTasks[t.id]).length;
         const dailyTotal = quickTasks.length;
 
-        const WeeklyTaskRow = ({ w, showProject }) => {
+        const WeeklyTaskRow = ({ w, showProject, context }) => {
             const alreadyPushed = quickTasks.some(t => t.weeklySourceId === w.id);
             const sp = getSubProgress(w);
             return (
@@ -2854,9 +2859,19 @@ const NuOperandi = () => {
                             </div>
                         </div>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
-                            {!completedWeekly[w.id] && !alreadyPushed && (
-                                <button onClick={() => pushToDaily(w)} className="p-1.5 rounded-lg hover:bg-blue-50 transition text-blue-500" title="Push to today">
+                            {!completedWeekly[w.id] && context === 'goals' && (
+                                <button onClick={() => setWeeklyPlan(prev => prev.map(t => t.id === w.id ? {...t, thisWeek: true} : t))} className="p-1.5 rounded-lg hover:bg-amber-50 transition text-amber-500" title="Move to This Week">
+                                    {I.arrowRight("#F59E0B")}
+                                </button>
+                            )}
+                            {!completedWeekly[w.id] && context === 'thisWeek' && !alreadyPushed && (
+                                <button onClick={() => pushToDaily(w)} className="p-1.5 rounded-lg hover:bg-blue-50 transition text-blue-500" title="Push to Today">
                                     {I.arrowRight("#3B82F6")}
+                                </button>
+                            )}
+                            {!completedWeekly[w.id] && context === 'thisWeek' && (
+                                <button onClick={() => setWeeklyPlan(prev => prev.map(t => t.id === w.id ? {...t, thisWeek: false} : t))} className="p-1.5 rounded-lg hover:bg-gray-100 transition text-gray-400" title="Back to Goals">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
                                 </button>
                             )}
                             {alreadyPushed && <span className="text-xs text-emerald-500 px-2">In today</span>}
@@ -2883,7 +2898,8 @@ const NuOperandi = () => {
         <div className="space-y-8 max-w-6xl">
             <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1 w-fit">
                 {[
-                    { id: 'weekly', label: 'Weekly Plan', count: weeklyTotal - weeklyDone },
+                    { id: 'goals', label: 'Goals & Intentions', count: weeklyPlan.filter(w => !w.thisWeek && !completedWeekly[w.id]).length },
+                    { id: 'weekly', label: 'This Week', count: weeklyPlan.filter(w => w.thisWeek && !completedWeekly[w.id]).length },
                     { id: 'daily', label: 'Today', count: dailyTotal - dailyDone },
                     { id: 'schedule', label: 'Schedule', count: timeBlocks.filter(b => !completedTimeBlocks[b.id]).length },
                 ].map(tab => (
@@ -2895,19 +2911,19 @@ const NuOperandi = () => {
                 ))}
             </div>
 
-            {plannerTab === 'weekly' && (
+            {plannerTab === 'goals' && (
                 <div className="space-y-6">
                     <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow">
                         <div className="flex items-center justify-between mb-3">
                             <div>
-                                <h2 className="text-base font-semibold text-gray-900">This Week</h2>
-                                <p className="text-xs text-gray-400 mt-0.5">{weeklyDone} of {weeklyTotal} tasks completed</p>
+                                <h2 className="text-base font-semibold text-gray-900">Goals & Intentions</h2>
+                                <p className="text-xs text-gray-400 mt-0.5">Your master plan — move tasks to This Week when ready</p>
                             </div>
                             <div className="flex items-center gap-2">
                                     {weeklyPlan.some(w => completedWeekly[w.id]) && (
                                         <button onClick={() => { setWeeklyPlan(prev => prev.filter(w => !completedWeekly[w.id])); setCompletedWeekly({}); }} className="text-xs text-gray-400 hover:text-gray-600 font-medium flex items-center gap-1">{I.history("#9CA3AF")} Clear done</button>
                                     )}
-                                    <button onClick={() => setModal('addWeekly')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add Task</button>
+                                    <button onClick={() => setModal('addWeekly')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add Goal</button>
                                 </div>
                         </div>
                         {weeklyTotal > 0 && (
@@ -2950,7 +2966,7 @@ const NuOperandi = () => {
                                             )}
                                         </div>
                                         {!collapsedProjects[pid] && <div className="divide-y divide-gray-50">
-                                            {tasks.filter(w => !completedWeekly[w.id]).map(w => <WeeklyTaskRow key={w.id} w={w} />)}
+                                            {tasks.filter(w => !completedWeekly[w.id]).map(w => <WeeklyTaskRow key={w.id} w={w} context="goals" />)}
                                         </div>}
                                     </div>
                                 );
@@ -2967,7 +2983,7 @@ const NuOperandi = () => {
                                         </div>
                                     </div>
                                     {!collapsedProjects['general'] && <div className="divide-y divide-gray-50">
-                                        {weeklyByProject.unlinked.filter(w => !completedWeekly[w.id]).map(w => <WeeklyTaskRow key={w.id} w={w} />)}
+                                        {weeklyByProject.unlinked.filter(w => !completedWeekly[w.id]).map(w => <WeeklyTaskRow key={w.id} w={w} context="goals" />)}
                                     </div>}
                                 </div>
                             )}
@@ -2976,7 +2992,70 @@ const NuOperandi = () => {
                 </div>
             )}
 
-            {plannerTab === 'daily' && (
+            {plannerTab === 'weekly' && (
+                <div className="space-y-6">
+                    <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow">
+                        <div className="flex items-center justify-between mb-3">
+                            <div>
+                                <h2 className="text-base font-semibold text-gray-900">This Week</h2>
+                                <p className="text-xs text-gray-400 mt-0.5">{thisWeekOnly.filter(w => completedWeekly[w.id]).length} of {thisWeekOnly.length} tasks done this week</p>
+                            </div>
+                        </div>
+                        {thisWeekOnly.length > 0 && (
+                            <div className="w-full h-2 bg-gray-100 rounded-full">
+                                <div className="h-full bg-emerald-500 rounded-full transition-all" style={{width: (() => { const t = thisWeekOnly.length; const d = thisWeekOnly.filter(w => completedWeekly[w.id]).length; return t > 0 ? (d / t) * 100 : 0; })() + '%'}}></div>
+                            </div>
+                        )}
+                    </div>
+
+                    {thisWeekOnly.length === 0 ? (
+                        <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                            <Empty icon={I.clipboard("#9CA3AF")} title="No tasks for this week yet" sub="Move tasks from Goals & Intentions to focus on them this week" />
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            {Object.keys(thisWeekByProject.grouped).map(pid => {
+                                const proj = projects.find(p => p.id === Number(pid));
+                                const tasks = thisWeekByProject.grouped[pid];
+                                const activeTasks = tasks.filter(w => !completedWeekly[w.id]);
+                                const doneTasks = tasks.filter(w => completedWeekly[w.id]);
+                                return (
+                                    <div key={pid} className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                                        <div className="px-5 py-3.5 bg-emerald-50/50 border-b border-emerald-100/50 flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-2 h-8 rounded-full bg-emerald-400"></div>
+                                                <div>
+                                                    <p className="text-sm font-semibold text-gray-900">{proj ? proj.name : 'Unknown Project'}</p>
+                                                    <p className="text-xs text-gray-400">{doneTasks.length}/{tasks.length} done</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="divide-y divide-gray-50">
+                                            {activeTasks.map(w => <WeeklyTaskRow key={w.id} w={w} context="thisWeek" />)}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+
+                            {thisWeekByProject.unlinked.filter(w => !completedWeekly[w.id]).length > 0 && (
+                                <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                                    <div className="px-5 py-3.5 bg-gray-50/50 border-b border-gray-100 flex items-center gap-3">
+                                        <div className="w-2 h-8 rounded-full bg-gray-300"></div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-gray-900">General Tasks</p>
+                                        </div>
+                                    </div>
+                                    <div className="divide-y divide-gray-50">
+                                        {thisWeekByProject.unlinked.filter(w => !completedWeekly[w.id]).map(w => <WeeklyTaskRow key={w.id} w={w} context="thisWeek" />)}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
+
+                        {plannerTab === 'daily' && (
                 <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-6">
                         <div>
