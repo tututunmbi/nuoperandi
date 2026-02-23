@@ -1,4 +1,4 @@
-/* build: 1771855276807 */
+/* build: 1771858435638 */
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -1005,6 +1005,7 @@ const NuOperandi = () => {
     const [delegatedToMe, setDelegatedToMe] = useState([]);
     const [delegatedByMe, setDelegatedByMe] = useState([]);
   const [acceptingTask, setAcceptingTask] = useState(null);
+  const [allProfiles, setAllProfiles] = useState([]);
 
     /* -- Editable Data State -- */
     const [incomeStreams, setIncomeStreams] = useState(() => load('income', defaultIncome));
