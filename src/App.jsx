@@ -1,4 +1,4 @@
-/* build: 1771861809988 */
+/* build: 1771863301850 */
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -2480,48 +2480,47 @@ const NuOperandi = () => {
     // Use delegatedByMe from Supabase (the full list of tasks YOU delegated)
     const allDelegated = delegatedByMe || [];
     
-    // Build per-member stats from Supabase data
-    const memberMap = {};
-    allDelegated.forEach(d => {
-      const name = d.recipient_username || 'Unknown';
-      const key = name.toLowerCase();
-      if (!memberMap[key]) memberMap[key] = { name, assigned: 0, completed: 0, accepted: 0, pending: [], key };
-      memberMap[key].assigned++;
-      if (d.status === 'completed') memberMap[key].completed++;
-      else if (d.status === 'accepted') memberMap[key].accepted++;
-      else memberMap[key].pending.push(d);
-    });
-    
-    const memberList = Object.values(memberMap).map(m => ({
-      ...m,
-      completionRate: m.assigned > 0 ? Math.round((m.completed / m.assigned) * 100) : 0
-    })).sort((a, b) => b.completed - a.completed);
+    // Build memberList from ALL profiles (auto-populated from Supabase)
+    const memberList = allProfiles.map(prof => {
+      const key = prof.username.toLowerCase();
+      const memberTasks = allDelegated.filter(d => (d.recipient_username || '').toLowerCase() === key);
+      const assigned = memberTasks.length;
+      const completed = memberTasks.filter(d => d.status === 'completed').length;
+      const accepted = memberTasks.filter(d => d.status === 'accepted').length;
+      const pending = memberTasks.filter(d => d.status === 'pending');
+      const memberProjects = projects.filter(p => Array.isArray(p.team_members) && p.team_members.includes(prof.username));
+      return {
+        name: prof.full_name || prof.username,
+        key,
+        assigned,
+        completed,
+        accepted,
+        pending,
+        projectCount: memberProjects.length,
+        completionRate: assigned > 0 ? Math.round((completed / assigned) * 100) : 0
+      };
+    }).sort((a, b) => b.completed - a.completed || b.assigned - a.assigned);
     
     const totalAssigned = allDelegated.length;
     const totalCompleted = allDelegated.filter(d => d.status === 'completed').length;
-    const totalAccepted = allDelegated.filter(d => d.status === 'accepted').length;
-    const totalPending = allDelegated.filter(d => d.status === 'pending').length;
     const avgRate = totalAssigned > 0 ? Math.round((totalCompleted / totalAssigned) * 100) : 0;
     const topContributor = memberList.find(m => m.completed > 0) || (memberList.length > 0 ? memberList[0] : null);
     
     // All pending tasks sorted by deadline (nearest first)
-    const allPendingTasks = allDelegated
-      .filter(d => d.status === 'pending' || d.status === 'accepted')
-      .sort((a, b) => {
-        if (!a.deadline && !b.deadline) return 0;
-        if (!a.deadline) return 1;
-        if (!b.deadline) return -1;
-        return new Date(a.deadline) - new Date(b.deadline);
-      });
+    const allPendingTasks = allDelegated.filter(d => d.status !== 'completed').sort((a, b) => {
+      if (!a.deadline && !b.deadline) return 0;
+      if (!a.deadline) return 1;
+      if (!b.deadline) return -1;
+      return new Date(a.deadline) - new Date(b.deadline);
+    });
     
     const maxAssigned = Math.max(...memberList.map(m => m.assigned), 1);
     
-    // Unique team members count (combine registered team + delegated-to people)
+    // Unique team members count - use allProfiles directly
     const uniqueMembers = new Set();
     allProfiles.forEach(p => uniqueMembers.add(p.username));
     teamMembers.forEach(tm => uniqueMembers.add(tm.name.trim().toLowerCase()));
     memberList.forEach(m => uniqueMembers.add(m.key));
-    
     // Activity heatmap: last 12 weeks
     const weeks = [];
     const now = new Date();
