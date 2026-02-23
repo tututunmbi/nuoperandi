@@ -1122,7 +1122,7 @@ const NuOperandi = () => {
 
         const { data: cloudSettings } = await supabase.from('user_settings').select('*');
         if (cloudSettings && cloudSettings.length > 0 && cloudSettings[0].profile_data) {
-          setProfile(cloudSettings[0].profile_data);
+          setUserProfile(cloudSettings[0].profile_data);
         }
 
       } catch(err) { console.log('Cloud load error:', err); }
@@ -1343,13 +1343,13 @@ const NuOperandi = () => {
       try {
         await supabase.from('user_settings').upsert({
           owner_id: supaUser.id,
-          profile_data: profile || {},
+          profile_data: userProfile || {},
           updated_at: new Date().toISOString()
         }, { onConflict: 'owner_id' });
       } catch(err) { console.log('Settings sync error:', err); }
     }, 2000);
     return () => clearTimeout(timer);
-  }, [profile, supaUser]);
+  }, [userProfile, supaUser]);
 
 
 
