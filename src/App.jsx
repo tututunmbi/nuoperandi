@@ -1,3 +1,4 @@
+/* build: 1771844848385 */
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -393,13 +394,24 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress }) => {
     const [launch, setLaunch] = useState(item ? item.launch : '');
     const [team, setTeam] = useState(item ? String(item.team) : '1');
     const [next, setNext] = useState(item ? item.next : '');
+    const [selectedMembers, setSelectedMembers] = useState(item && item.teamMembers ? item.teamMembers : []);
+    const [memberSearch, setMemberSearch] = useState('');
+    const [memberSuggestions, setMemberSuggestions] = useState([]);
+    const searchMembers = async (q) => {
+        if (!q || q.length < 1) { setMemberSuggestions([]); return; }
+        const clean = q.replace('@', '').toLowerCase();
+        const { data } = await supabase.from('profiles').select('username, full_name').ilike('username', clean + '%').limit(5);
+        setMemberSuggestions((data || []).filter(u => !selectedMembers.includes(u.username)));
+    };
+    const addMember = (username) => { setSelectedMembers(prev => [...prev, username]); setMemberSearch(''); setMemberSuggestions([]); };
+    const removeMember = (username) => { setSelectedMembers(prev => prev.filter(u => u !== username)); };
     const autoProgress = item ? getProjectProgress(item.id) : null;
     const submit = () => {
         if (!name) return;
         if (item) {
-            setProjects(prev => prev.map(p => p.id === item.id ? { ...p, name, desc, status, launch, team: Number(team), next } : p));
+            setProjects(prev => prev.map(p => p.id === item.id ? { ...p, name, desc, status, launch, team: Number(team), next, teamMembers: selectedMembers } : p));
         } else {
-            setProjects(prev => [...prev, { id: newId(), name, desc, progress: 0, status, start: new Date().toISOString().split('T')[0], launch, team: Number(team), next }]);
+            setProjects(prev => [...prev, { id: newId(), name, desc, progress: 0, status, start: new Date().toISOString().split('T')[0], launch, team: Number(team), next, teamMembers: selectedMembers }]);
         }
         onClose();
     };
@@ -420,6 +432,34 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress }) => {
                 </Field>
                 <Field label="Team Size"><input className={inputCls} type="number" min="1" value={team} onChange={e => setTeam(e.target.value)} /></Field>
             </div>
+            <Field label="Team Members">
+                <div className="space-y-2">
+                    {selectedMembers.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                            {selectedMembers.map(u => (
+                                <span key={u} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                                    @{u}
+                                    <button type="button" onClick={() => removeMember(u)} className="ml-0.5 hover:text-purple-900">×</button>
+                                </span>
+                            ))}
+                        </div>
+                    )}
+                    <div className="relative">
+                        <input className={inputCls} value={memberSearch} onChange={e => { setMemberSearch(e.target.value); searchMembers(e.target.value); }} placeholder="Search by username..." />
+                        {memberSuggestions.length > 0 && (
+                            <div className="absolute z-50 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                                {memberSuggestions.map(u => (
+                                    <button key={u.username} type="button" onClick={() => addMember(u.username)} className="w-full text-left px-3 py-2 text-sm hover:bg-purple-50 flex items-center gap-2">
+                                        <span className="w-6 h-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold">{u.username[0].toUpperCase()}</span>
+                                        <span className="font-medium">{u.full_name || u.username}</span>
+                                        <span className="text-gray-400 text-xs">@{u.username}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </Field>
             <Field label="Target Launch Date"><input className={inputCls} type="date" value={launch} onChange={e => setLaunch(e.target.value)} /></Field>
             <Field label="Next Action"><input className={inputCls} value={next} onChange={e => setNext(e.target.value)} placeholder="What's the next step?" /></Field>
             <div className="flex gap-2 mt-6">
@@ -1107,7 +1147,7 @@ const NuOperandi = () => {
 
         const { data: cloudProjects } = await supabase.from('projects').select('*');
         if (cloudProjects && cloudProjects.length > 0) {
-          const mapped = cloudProjects.map(p => ({ id: p.local_id, name: p.name, desc: p.description, progress: p.progress, status: p.status, start: p.start_date, launch: p.launch_date, team: p.team_size, next: p.next_step }));
+          const mapped = cloudProjects.map(p => ({ id: p.local_id, name: p.name, desc: p.description, progress: p.progress, status: p.status, start: p.start_date, launch: p.launch_date, team: p.team_size, next: p.next_step, teamMembers: p.team_members || [] }));
           setProjects(mapped);
         }
 
@@ -1154,7 +1194,7 @@ const NuOperandi = () => {
             start_date: p.start || null,
             launch_date: p.launch || null,
             team_size: typeof p.team === 'number' ? p.team : 0,
-            team_members: teamMap[p.id] ? Array.from(teamMap[p.id]) : [],
+            team_members: Array.from(new Set([...(p.teamMembers || []), ...(teamMap[p.id] ? Array.from(teamMap[p.id]) : [])])),
             next_step: p.next || ''
           }));
           if (rows.length > 0) await supabase.from('projects').insert(rows);
