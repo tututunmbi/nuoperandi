@@ -1047,7 +1047,7 @@ const NuOperandi = () => {
           weeklyPlan.forEach(tk => {
             if (tk.projectId && tk.delegatedTo) {
               if (!teamMap[tk.projectId]) teamMap[tk.projectId] = new Set();
-              teamMap[tk.projectId].add(tk.delegatedTo);
+              teamMap[tk.projectId].add(tk.delegatedTo.replace(/^@/, '').toLowerCase());
             }
           });
           await supabase.from('projects').delete().eq('owner_id', supaUser.id);
@@ -1082,7 +1082,7 @@ const NuOperandi = () => {
             task_text: tk.task,
             subtasks: tk.subtasks || [],
             deadline: tk.deadline || null,
-            delegated_to: tk.delegatedTo || null,
+            delegated_to: tk.delegatedTo ? tk.delegatedTo.replace(/^@/, '').toLowerCase() : null,
             completed: !!completedWeekly[tk.id]
           }));
           if (rows.length > 0) await supabase.from('weekly_tasks').insert(rows);
