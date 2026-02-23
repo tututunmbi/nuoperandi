@@ -1,4 +1,4 @@
-/* build: 1771850983097 */
+/* build: 1771852194819 */
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -137,9 +137,9 @@ const defaultWeeklyPlan = [];
 const defaultExpenses = [];
 
 /* ====== EMBEDDED BRIEFING DATA ====== */
-const embeddedBriefing = {"date":"2026-02-11","generatedAt":"2026-02-11T06:00:00.000Z","headline":"Revenue on track. Two active projects need attention. Four tasks pending today.","sections":[{"title":"Financial Snapshot","items":["Monthly gross income stands at â¦2.0M across 2 active streams.","Monthly expenses total â¦700K, leaving net income at â¦1.3M â healthy position.","Annual projected income: â¦24.0M gross, â¦15.6M net.","Next incoming payment: Feb 28 â Principal Consultant, Ginger Technologies Limited."]},{"title":"Today's Priorities","items":["Review and advance Ginger Technologies February Strategy Campaign Rollout.","Follow up on Social Media Manager/Coordinator onboarding â agreement, NWBS, and deposit still pending.","MNoB Planners: finalize edits, prepare prototype for print test.","Identify and confirm backup printer for MNoB Notebooks."]},{"title":"Project Status","items":["Ginger Technologies Campaign: 0/3 tasks complete â onboarding is the critical path. Push for signed agreement today.","MNoB Planners: 0/4 tasks complete â planner edits and prototype print are the next milestones."]},{"title":"Strategic Notes","items":["Separate business expenses from personal expenses â this remains non-negotiable for scaling.","Two income streams is a solid foundation. Begin scoping a third stream to diversify revenue risk.","Consider scheduling a quarterly review to assess income growth trajectory against the â¦24M annual target."]}]};
+const embeddedBriefing = {"date":"2026-02-11","generatedAt":"2026-02-11T06:00:00.000Z","headline":"Revenue on track. Two active projects need attention. Four tasks pending today.","sections":[{"title":"Financial Snapshot","items":["Monthly gross income stands at ₦2.0M across 2 active streams.","Monthly expenses total ₦700K, leaving net income at ₦1.3M â healthy position.","Annual projected income: ₦24.0M gross, ₦15.6M net.","Next incoming payment: Feb 28 â Principal Consultant, Ginger Technologies Limited."]},{"title":"Today's Priorities","items":["Review and advance Ginger Technologies February Strategy Campaign Rollout.","Follow up on Social Media Manager/Coordinator onboarding â agreement, NWBS, and deposit still pending.","MNoB Planners: finalize edits, prepare prototype for print test.","Identify and confirm backup printer for MNoB Notebooks."]},{"title":"Project Status","items":["Ginger Technologies Campaign: 0/3 tasks complete â onboarding is the critical path. Push for signed agreement today.","MNoB Planners: 0/4 tasks complete â planner edits and prototype print are the next milestones."]},{"title":"Strategic Notes","items":["Separate business expenses from personal expenses â this remains non-negotiable for scaling.","Two income streams is a solid foundation. Begin scoping a third stream to diversify revenue risk.","Consider scheduling a quarterly review to assess income growth trajectory against the ₦24M annual target."]}]};
 
-const embeddedNation = {"date":"2026-02-11","generatedAt":"2026-02-11T09:00:00.000Z","docxFile":"Morning Intelligence Briefing - Feb 9 2026.docx","indicators":[{"label":"USD/NGN","value":"â¦1,363.84","trend":"up","note":"Parallel: â¦1,455"},{"label":"Brent Crude","value":"$68.18/bbl","trend":"flat","note":"+0.20%"},{"label":"Inflation","value":"15.15%","trend":"up","note":"Dec 2025 â¢ â from 17.33%"},{"label":"NGX ASI","value":"171,727","trend":"up","note":"YTD +10.36%"}],"headlines":["Naira appreciated 4.24% over the past month; FDC fair value at â¦1,256.79 per PPP.","NGX market cap reached â¦110.2T â best weekly performance of 2026 at +3.84%.","Gold hit $5,031/oz, up 72.45% YoY as safe haven demand persists.","91% of Nigerian CEOs expect economic growth in 2026 (PwC).","MPC meeting scheduled Feb 23-24 â rate easing expected."],"sections":[{"title":"Foreign Exchange","emoji":"ð±","items":["CBN official (NFEM): â¦1,365.72/USD â appreciated ~6% from â¦1,449 early Feb","Parallel market: â¦1,455/USD â spread narrowing, positive confidence signal","CBN injected â¦1.7T liquidity through cumulative repayments","FDC fair value at â¦1,256.79 per PPP model â Naira still undervalued"]},{"title":"Commodities","emoji":"ð","items":["Brent Crude $68.05 â below $75 budget benchmark, fiscal pressure risk","Gold record $4,931/oz â +25% since 2025, safe haven demand persists","Copper $5.88/lb â +28% YoY, AI data centers need 10x traditional power loads","Cocoa $4,197/t â Nigeria output down 11% YoY to 305,000 MT","Wheat $5.38/bu â Nigeria imports 97% of consumption; price moves hit food costs"]},{"title":"Geopolitical Risk","emoji":"ð","items":["US-China: 34.7-47.5% tariffs in fragile 1-year truce; China signed $700B+ African contracts","Nigeria-China upgraded to Comprehensive Strategic Partnership; $24.6B BRI investments","Ukraine-Russia: 450 drones + 71 missiles in largest aerial assault of year","35M Nigerians projected to face severe food insecurity in 2026 lean season","US-Iran: Nuclear talks in Oman; IRGC seized two tankers near Farsi Island"]},{"title":"Government Policy","emoji":"ðï¸","items":["2026 Budget: â¦58.18T â Defence â¦5.41T | Infrastructure â¦3.56T | Education â¦3.52T | Health â¦2.48T","Tax Reform: 4 new acts effective Jan 1; FIRS transitioning to NRS with AI compliance","Manufacturers can now recover input VAT on ALL purchases including services","Nigeria First procurement mandate; concrete roads replacing asphalt (cement play)","WTO Trade Policy Review reinforces modern investment framework commitment"]},{"title":"Stock Watchlist","emoji":"ð","items":["Tier 1: ZENITHBANK (â¦72, +14.89%), TRANSPOWER (~â¦1.8T cap), DANGCEM, SEPLAT ($3B plan), MTNN (+13.50%)","Tier 2: GTCO (â¦99), BUACEMENT (+640.8% Q3), ARADEL (+16.42%), BUAFOODS, UBA (â¦45.20)","Tier 3: GEREGU (~â¦2T cap), AIRTELAFRI (~â¦8.5T), NESTLE (turnaround â¦72.5B profit), OANDO","Allocation: 40% Financial | 30% Energy/Infra | 20% Consumer/Defensive | 10% Digital/Growth"]},{"title":"AI & Technology","emoji":"ð¤","items":["Nigeria ranked #1 globally for AI adoption and optimism","AI market growing 27.08% annually; projected to add $15B to GDP by 2030","17 data centers + 9 under construction; Kasi Cloud Lekki $250M hyperscale nearing completion","Digital economy projected $18.3B revenue in 2026; 5 unicorns","Global AI capex: Amazon, Google, Meta, Microsoft combined ~$650B for 2026"]},{"title":"NGX Market Review","emoji":"ðï¸","items":["Close: 171,727.49 | Daily: +1.01% | Weekly: +3.84% | YTD: +10.36%","Market Cap: â¦110.234T (+â¦1.1T this week) | Breadth: 60 gainers vs 19 losers","Sector leaders: Oil & Gas +2.47% | Insurance +2.16% | Industrial +1.70%","NGX could reach â¦262T in 2026 through Dangote Refinery & NNPC mega-listings","Rate easing cycle expected to trigger asset reallocation from fixed income to equities"]}]};
+const embeddedNation = {"date":"2026-02-11","generatedAt":"2026-02-11T09:00:00.000Z","docxFile":"Morning Intelligence Briefing - Feb 9 2026.docx","indicators":[{"label":"USD/NGN","value":"₦1,363.84","trend":"up","note":"Parallel: ₦1,455"},{"label":"Brent Crude","value":"$68.18/bbl","trend":"flat","note":"+0.20%"},{"label":"Inflation","value":"15.15%","trend":"up","note":"Dec 2025 â¢ â from 17.33%"},{"label":"NGX ASI","value":"171,727","trend":"up","note":"YTD +10.36%"}],"headlines":["Naira appreciated 4.24% over the past month; FDC fair value at ₦1,256.79 per PPP.","NGX market cap reached ₦110.2T â best weekly performance of 2026 at +3.84%.","Gold hit $5,031/oz, up 72.45% YoY as safe haven demand persists.","91% of Nigerian CEOs expect economic growth in 2026 (PwC).","MPC meeting scheduled Feb 23-24 â rate easing expected."],"sections":[{"title":"Foreign Exchange","emoji":"ð±","items":["CBN official (NFEM): ₦1,365.72/USD â appreciated ~6% from ₦1,449 early Feb","Parallel market: ₦1,455/USD â spread narrowing, positive confidence signal","CBN injected ₦1.7T liquidity through cumulative repayments","FDC fair value at ₦1,256.79 per PPP model â Naira still undervalued"]},{"title":"Commodities","emoji":"ð","items":["Brent Crude $68.05 â below $75 budget benchmark, fiscal pressure risk","Gold record $4,931/oz â +25% since 2025, safe haven demand persists","Copper $5.88/lb â +28% YoY, AI data centers need 10x traditional power loads","Cocoa $4,197/t â Nigeria output down 11% YoY to 305,000 MT","Wheat $5.38/bu â Nigeria imports 97% of consumption; price moves hit food costs"]},{"title":"Geopolitical Risk","emoji":"ð","items":["US-China: 34.7-47.5% tariffs in fragile 1-year truce; China signed $700B+ African contracts","Nigeria-China upgraded to Comprehensive Strategic Partnership; $24.6B BRI investments","Ukraine-Russia: 450 drones + 71 missiles in largest aerial assault of year","35M Nigerians projected to face severe food insecurity in 2026 lean season","US-Iran: Nuclear talks in Oman; IRGC seized two tankers near Farsi Island"]},{"title":"Government Policy","emoji":"ðï¸","items":["2026 Budget: ₦58.18T â Defence ₦5.41T | Infrastructure ₦3.56T | Education ₦3.52T | Health ₦2.48T","Tax Reform: 4 new acts effective Jan 1; FIRS transitioning to NRS with AI compliance","Manufacturers can now recover input VAT on ALL purchases including services","Nigeria First procurement mandate; concrete roads replacing asphalt (cement play)","WTO Trade Policy Review reinforces modern investment framework commitment"]},{"title":"Stock Watchlist","emoji":"ð","items":["Tier 1: ZENITHBANK (₦72, +14.89%), TRANSPOWER (~₦1.8T cap), DANGCEM, SEPLAT ($3B plan), MTNN (+13.50%)","Tier 2: GTCO (₦99), BUACEMENT (+640.8% Q3), ARADEL (+16.42%), BUAFOODS, UBA (₦45.20)","Tier 3: GEREGU (~₦2T cap), AIRTELAFRI (~₦8.5T), NESTLE (turnaround ₦72.5B profit), OANDO","Allocation: 40% Financial | 30% Energy/Infra | 20% Consumer/Defensive | 10% Digital/Growth"]},{"title":"AI & Technology","emoji":"ð¤","items":["Nigeria ranked #1 globally for AI adoption and optimism","AI market growing 27.08% annually; projected to add $15B to GDP by 2030","17 data centers + 9 under construction; Kasi Cloud Lekki $250M hyperscale nearing completion","Digital economy projected $18.3B revenue in 2026; 5 unicorns","Global AI capex: Amazon, Google, Meta, Microsoft combined ~$650B for 2026"]},{"title":"NGX Market Review","emoji":"ðï¸","items":["Close: 171,727.49 | Daily: +1.01% | Weekly: +3.84% | YTD: +10.36%","Market Cap: ₦110.234T (+₦1.1T this week) | Breadth: 60 gainers vs 19 losers","Sector leaders: Oil & Gas +2.47% | Insurance +2.16% | Industrial +1.70%","NGX could reach ₦262T in 2026 through Dangote Refinery & NNPC mega-listings","Rate easing cycle expected to trigger asset reallocation from fixed income to equities"]}]};
 
 /* ====== MODAL COMPONENT ====== */
 const Modal = ({ title, onClose, children }) => (
@@ -212,7 +212,7 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
                         <option value="Active">Active</option><option value="Passive">Passive</option>
                     </select>
                 </Field>
-                <Field label="Monthly Amount (â¦)"><input className={inputCls} value={monthly} onChange={e => setMonthly(e.target.value)} placeholder="e.g. 1000000" type="number" /></Field>
+                <Field label="Monthly Amount (₦)"><input className={inputCls} value={monthly} onChange={e => setMonthly(e.target.value)} placeholder="e.g. 1000000" type="number" /></Field>
             </div>
             <div className="grid grid-cols-2 gap-3">
                 <Field label="Next Payment Due"><input className={inputCls} type="date" value={nextPayment} onChange={e => setNextPayment(e.target.value)} /></Field>
@@ -955,7 +955,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams }) => {
         <Modal title={item ? 'Edit Expense' : 'Add Expense'} onClose={onClose}>
             <Field label="Expense Name"><input className={inputCls} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Staff Salaries, Office Rent" /></Field>
             <div className="grid grid-cols-2 gap-3">
-                <Field label="Amount (â¦)"><input className={inputCls} value={amount} onChange={e => setAmount(e.target.value)} placeholder="e.g. 200000" type="number" /></Field>
+                <Field label="Amount (₦)"><input className={inputCls} value={amount} onChange={e => setAmount(e.target.value)} placeholder="e.g. 200000" type="number" /></Field>
                 <Field label="Frequency">
                     <select className={inputCls} value={frequency} onChange={e => setFrequency(e.target.value)}>
                         <option value="Monthly">Monthly</option><option value="Weekly">Weekly</option><option value="Quarterly">Quarterly</option><option value="Annual">Annual</option><option value="One-time">One-time</option>
@@ -1568,7 +1568,7 @@ const NuOperandi = () => {
 
     const greeting = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; };
     const fmtDate = (d) => new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).format(d);
-    const fmtNaira = (v) => 'â¦' + (Number(v) >= 1000000 ? (Number(v) / 1000000).toFixed(1) + 'M' : Number(v) >= 1000 ? (Number(v) / 1000).toFixed(0) + 'K' : Number(v).toLocaleString());
+    const fmtNaira = (v) => String.fromCharCode(8358) + (Number(v) >= 1000000 ? (Number(v) / 1000000).toFixed(1) + 'M' : Number(v) >= 1000 ? (Number(v) / 1000).toFixed(0) + 'K' : Number(v).toLocaleString());
     const totalMonthly = incomeStreams.reduce((s, i) => s + Number(i.monthly || 0), 0);
     const totalExpenses = expenses.reduce((s, e) => {
         const amt = Number(e.amount || 0);
@@ -1815,7 +1815,7 @@ const NuOperandi = () => {
                         ...prev,
                         indicators: prev.indicators.map(ind =>
                             ind.label === 'USD/NGN'
-                                ? { ...ind, value: 'â¦' + rate.toFixed(2), note: 'Live â¢ ' + timeStr, trend: 'up' }
+                                ? { ...ind, value: '₦' + rate.toFixed(2), note: 'Live â¢ ' + timeStr, trend: 'up' }
                                 : ind
                         ),
                         lastLiveUpdate: new Date().toISOString()
@@ -2530,6 +2530,95 @@ const NuOperandi = () => {
     }
     const maxWeekCount = Math.max(...weeks.map(w => w.count), 1);
 
+
+    // Determine if current user is admin (has local projects) or team member
+    const isAdmin = projects.length > 0;
+    
+    // Team member view: personal dashboard
+    if (!isAdmin) {
+        const myTasks = delegatedToMe || [];
+        const myPending = myTasks.filter(t => t.status === 'pending');
+        const myAccepted = myTasks.filter(t => t.status === 'accepted');
+        const myCompleted = myTasks.filter(t => t.status === 'completed');
+        const myTotal = myTasks.length;
+        const myRate = myTotal > 0 ? Math.round((myCompleted.length / myTotal) * 100) : 0;
+        
+        return (<div className="space-y-6 max-w-5xl">
+            <div className="flex items-center justify-between">
+                <div><h1 className="text-xl font-bold text-gray-900">My Dashboard</h1>
+                <p className="text-sm text-gray-500 mt-1">Your personal productivity overview</p></div></div>
+            
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+                    <div className="flex items-center gap-2 mb-2">{I.clipboard("#3B82F6")}<p className="text-xs text-gray-500">Total Assigned</p></div>
+                    <p className="text-2xl font-bold text-gray-900">{myTotal}</p>
+                    <p className="text-xs text-gray-400">{myPending.length} pending, {myAccepted.length} active</p></div>
+                <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+                    <div className="flex items-center gap-2 mb-2">{I.check("#10B981")}<p className="text-xs text-gray-500">Completed</p></div>
+                    <p className="text-2xl font-bold text-emerald-600">{myCompleted.length}</p></div>
+                <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+                    <div className="flex items-center gap-2 mb-2">{I.trending("#F59E0B")}<p className="text-xs text-gray-500">Completion Rate</p></div>
+                    <p className="text-2xl font-bold text-gray-900">{myRate}%</p>
+                    <div className="w-full bg-gray-100 rounded-full h-2 mt-2"><div className="bg-emerald-500 h-2 rounded-full transition-all" style={{width: myRate + '%'}}></div></div></div>
+                <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+                    <div className="flex items-center gap-2 mb-2">{I.clock("#8B5CF6")}<p className="text-xs text-gray-500">Active Tasks</p></div>
+                    <p className="text-2xl font-bold text-purple-600">{myAccepted.length}</p></div>
+            </div>
+            
+            {myAccepted.length > 0 && (
+            <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                <div className="px-5 py-4 border-b border-gray-100"><h2 className="text-base font-semibold text-gray-900">Active Tasks</h2>
+                <p className="text-xs text-gray-400 mt-0.5">Tasks you have accepted and are working on</p></div>
+                <div className="divide-y divide-gray-50">{myAccepted.map((d, i) => (
+                    <div key={d.id || i} className="px-5 py-3 flex items-center justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-800">{d.task_text}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                                <span className="text-xs text-gray-400">From: {d.delegator_name}</span>
+                                {d.deadline && <span className="text-xs text-gray-400">Due: {new Date(d.deadline).toLocaleDateString()}</span>}
+                            </div>
+                        </div>
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">accepted</span>
+                    </div>
+                ))}</div>
+            </div>)}
+            
+            {myPending.length > 0 && (
+            <div className="bg-white rounded-xl border border-purple-200 card-shadow overflow-hidden">
+                <div className="px-5 py-4 border-b border-purple-50 bg-purple-50/30"><h2 className="text-base font-semibold text-purple-900">Pending Acceptance</h2>
+                <p className="text-xs text-purple-400 mt-0.5">Tasks waiting for you to accept</p></div>
+                <div className="divide-y divide-purple-50">{myPending.map((d, i) => (
+                    <div key={d.id || i} className="px-5 py-3 flex items-center justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-800">{d.task_text}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                                <span className="text-xs text-gray-400">From: {d.delegator_name}</span>
+                                {d.deadline && <span className="text-xs text-gray-400">Due: {new Date(d.deadline).toLocaleDateString()}</span>}
+                            </div>
+                        </div>
+                        <button onClick={() => setAcceptingTask(d)} className="text-xs px-2.5 py-1 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 font-medium">Accept</button>
+                    </div>
+                ))}</div>
+            </div>)}
+            
+            {myCompleted.length > 0 && (
+            <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                <div className="px-5 py-4 border-b border-gray-100"><h2 className="text-base font-semibold text-gray-900">Completed</h2>
+                <p className="text-xs text-gray-400 mt-0.5">Tasks you have finished</p></div>
+                <div className="divide-y divide-gray-50">{myCompleted.slice(0, 10).map((d, i) => (
+                    <div key={d.id || i} className="px-5 py-3 flex items-center gap-3 opacity-70">
+                        {I.check("#10B981")}
+                        <div className="flex-1 min-w-0">
+                            <p className="text-sm text-gray-500 line-through">{d.task_text}</p>
+                            <span className="text-xs text-gray-400">From: {d.delegator_name}</span>
+                        </div>
+                    </div>
+                ))}</div>
+            </div>)}
+        </div>);
+    }
+    
+    // Admin view below
     return (<div className="space-y-6 max-w-5xl">
         {reminderMsg && <div style={{position:'fixed',top:20,right:20,zIndex:9999,background:'#10b981',color:'white',padding:'12px 24px',borderRadius:8,boxShadow:'0 4px 12px rgba(0,0,0,0.15)',fontWeight:500,fontSize:14,animation:'fadeIn 0.3s'}}>{reminderMsg}</div>}
 
