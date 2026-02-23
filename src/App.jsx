@@ -1,4 +1,4 @@
-/* build: 1771852194819 */
+/* build: 1771855276807 */
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -1441,6 +1441,13 @@ const NuOperandi = () => {
             if (data) setDelegatedByMe(data);
         };
         fetchDelegatedByMe();
+    // Fetch all profiles for Team section (excluding current admin user)
+    const fetchAllProfiles = async () => {
+      if (!supaUser) return;
+      const { data } = await supabase.from('profiles').select('id, username, full_name, initials').neq('id', supaUser.id).order('created_at', { ascending: true });
+      if (data) setAllProfiles(data);
+    };
+    fetchAllProfiles();
         const channel = supabase.channel('delegated-' + userProfile.username).on('postgres_changes', { event: '*', schema: 'public', table: 'delegated_tasks', filter: 'recipient_username=eq.' + userProfile.username }, () => { fetchDelegated(); }).subscribe();
         return () => { supabase.removeChannel(channel); };
     }, [supaUser, userProfile]);
@@ -2510,6 +2517,7 @@ const NuOperandi = () => {
     
     // Unique team members count (combine registered team + delegated-to people)
     const uniqueMembers = new Set();
+    allProfiles.forEach(p => uniqueMembers.add(p.username));
     teamMembers.forEach(tm => uniqueMembers.add(tm.name.trim().toLowerCase()));
     memberList.forEach(m => uniqueMembers.add(m.key));
     
@@ -2854,30 +2862,50 @@ const NuOperandi = () => {
 
             <div>
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-base font-semibold text-gray-900">Team</h2>
-                    <button onClick={() => setModal('addTeam')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
+                <h2 className="text-base font-semibold text-gray-900">Team</h2>
+                <span className="text-xs text-gray-400">{allProfiles.length} member{allProfiles.length !== 1 ? 's' : ''} on NuOperandi</span>
                 </div>
-                {teamMembers.length === 0 ? (
-                    <div className="bg-white rounded-xl border border-gray-100 card-shadow">
-                        <Empty icon={I.calendar("#9CA3AF")} title="No team members yet" sub="Add your team to track availability" action={() => setModal('addTeam')} actionLabel="Add Team Member" />
-                    </div>
+                {allProfiles.length === 0 ? (
+                <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                <Empty icon={I.user("#9CA3AF")} title="No team members yet" sub="Team members will appear here automatically when they create their NuOperandi account" />
+                </div>
                 ) : (
-                    <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow flex flex-wrap items-center gap-6">
-                        {teamMembers.map((m, i) => (
-                            <div key={m.id || i} className="flex items-center gap-3 group cursor-pointer" onClick={() => { setEditItem(m); setModal('editTeam'); }}>
-                                <div className="relative">
-                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-sm">{m.initials}</div>
-                                    <div className={'absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ' + (m.status === 'available' ? 'bg-emerald-400' : m.status === 'meeting' ? 'bg-amber-400' : 'bg-gray-300')}></div>
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-gray-900">{m.name}</p>
-                                    <p className="text-xs text-gray-400 capitalize">{m.status}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                <div className="space-y-3">
+                {allProfiles.map((prof) => {
+                const memberProjects = projects.filter(p => Array.isArray(p.team_members) && p.team_members.includes(prof.username));
+                const memberDelegated = (delegatedByMe || []).filter(d => d.recipient_username === prof.username);
+                const memberActive = memberDelegated.filter(d => d.status === 'accepted').length;
+                const memberPending = memberDelegated.filter(d => d.status === 'pending').length;
+                const memberDone = memberDelegated.filter(d => d.status === 'completed').length;
+                const memberTotal = memberDelegated.length;
+                const initials = prof.initials || (prof.full_name || prof.username).split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+                return (
+                <div key={prof.id} className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+                <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-sm flex-shrink-0">{initials}</div>
+                <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900">{prof.full_name || prof.username}</p>
+                <p className="text-xs text-gray-400">@{prof.username}</p>
+                </div>
+                <div className="flex items-center gap-3 text-xs">
+                {memberProjects.length > 0 && <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-600 font-medium">{memberProjects.length} project{memberProjects.length !== 1 ? 's' : ''}</span>}
+                {memberActive > 0 && <span className="px-2 py-1 rounded-full bg-green-50 text-green-600 font-medium">{memberActive} active</span>}
+                {memberPending > 0 && <span className="px-2 py-1 rounded-full bg-amber-50 text-amber-600 font-medium">{memberPending} pending</span>}
+                {memberDone > 0 && <span className="px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 font-medium">{memberDone} done</span>}
+                {memberTotal === 0 && memberProjects.length === 0 && <span className="px-2 py-1 rounded-full bg-gray-50 text-gray-400 font-medium">No tasks yet</span>}
+                </div>
+                </div>
+                {memberProjects.length > 0 && (
+                <div className="mt-2 ml-13 flex flex-wrap gap-1.5">
+                {memberProjects.map(p => <span key={p.id} className="text-xs px-2 py-0.5 rounded bg-gray-50 text-gray-500">{p.name}</span>)}
+                </div>
                 )}
-            </div>
+                </div>
+                );
+                })}
+                </div>
+                )}
+                </div>
 
             <div>
                           <ProjectStatusBoard />
