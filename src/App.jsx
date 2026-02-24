@@ -1453,7 +1453,9 @@ const NuOperandi = () => {
     };
     fetchAllProfiles();
         const channel = supabase.channel('delegated-' + userProfile.username).on('postgres_changes', { event: '*', schema: 'public', table: 'delegated_tasks', filter: 'recipient_username=eq.' + userProfile.username }, () => { fetchDelegated(); }).subscribe();
-        return () => { supabase.removeChannel(channel); };
+        // Also subscribe to changes on tasks delegated BY me (so boardroom auto-updates)
+        const delegatorChannel = supabase.channel('delegator-' + supaUser.id).on('postgres_changes', { event: '*', schema: 'public', table: 'delegated_tasks', filter: 'delegator_id=eq.' + supaUser.id }, () => { fetchDelegatedByMe(); }).subscribe();
+        return () => { supabase.removeChannel(channel); supabase.removeChannel(delegatorChannel); };
     }, [supaUser, userProfile]);
 
     const markNotifRead = async (id) => {
@@ -1599,6 +1601,11 @@ const NuOperandi = () => {
     const notifyDelegatorOnCompletion = async (task) => {
     if (!task.delegatedFrom || !supabase || !userProfile) return;
     try {
+      // Auto-update delegated_tasks status to completed in Supabase
+      const { data: matchedTasks } = await supabase.from('delegated_tasks').select('id').eq('task_text', task.task || task.task_text).eq('recipient_username', userProfile.username).neq('status', 'completed').limit(1);
+      if (matchedTasks && matchedTasks.length > 0) {
+        await supabase.from('delegated_tasks').update({ status: 'completed' }).eq('id', matchedTasks[0].id);
+      }
       const { data: delegator } = await supabase.from('profiles').select('id').eq('full_name', task.delegatedFrom).single();
       if (!delegator) {
         const { data: d2 } = await supabase.from('profiles').select('id').eq('username', task.delegatedFrom).single();
