@@ -706,7 +706,7 @@ const AuthFlow = ({ onAuth }) => {
         const { data: authData, error: authErr } = await supabase.auth.signUp({ email, password });
         if (authErr) { setError(authErr.message); setLoading(false); return; }
         if (authData.user) {
-            const profile = { name: name.trim(), username: username.trim().toLowerCase().replace(/\s+/g, ''), initials: autoInitials };
+            const profile = { name: name.trim(), username: username.trim().toLowerCase().replace(/\s+/g, ''), initials: autoInitials, avatar_url: avatarUrl || '' };
             const { error: profErr } = await supabase.from('profiles').insert({
                 id: authData.user.id, username: profile.username, full_name: profile.name, initials: profile.initials, email
             });
@@ -724,7 +724,7 @@ const AuthFlow = ({ onAuth }) => {
         if (data.user) {
             const { data: prof } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
             if (prof) {
-                onAuth(data.user, { name: prof.full_name, username: prof.username, initials: prof.initials });
+                onAuth(data.user, { name: prof.full_name, username: prof.username, initials: prof.initials, avatar_url: prof.avatar_url || '' });
             }
         }
         setLoading(false);
@@ -772,15 +772,33 @@ const ProfileEditModal = ({ userProfile, setUserProfile, supaUser, onClose }) =>
     const [name, setName] = useState(userProfile ? userProfile.name : '');
     const [username, setUsername] = useState(userProfile ? userProfile.username : '');
     const [saving, setSaving] = useState(false);
+    const [avatarUrl, setAvatarUrl] = useState(userProfile ? userProfile.avatar_url : '');
+    const [uploading, setUploading] = useState(false);
+    const handleAvatarUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file || !supaUser) return;
+        setUploading(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const filePath = supaUser.id + '/avatar.' + fileExt;
+            const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
+            if (uploadError) throw uploadError;
+            const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath);
+            const url = publicUrl + '?t=' + Date.now();
+            setAvatarUrl(url);
+            await supabase.from('profiles').update({ avatar_url: url }).eq('id', supaUser.id);
+        } catch (err) { console.error('Avatar upload error:', err); }
+        setUploading(false);
+    };
     const autoInitials = name.trim() ? name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '';
     const handleSignOut = async () => { await supabase.auth.signOut(); window.location.reload(); };
     const submit = async () => {
         if (!name.trim() || !username.trim()) return;
         setSaving(true);
-        const profile = { name: name.trim(), username: username.trim().toLowerCase().replace(/\s+/g, ''), initials: autoInitials };
+        const profile = { name: name.trim(), username: username.trim().toLowerCase().replace(/\s+/g, ''), initials: autoInitials, avatar_url: avatarUrl || '' };
         setUserProfile(profile);
         if (supaUser) {
-            await supabase.from('profiles').update({ full_name: profile.name, username: profile.username, initials: profile.initials }).eq('id', supaUser.id);
+            await supabase.from('profiles').update({ full_name: profile.name, username: profile.username, initials: profile.initials, avatar_url: profile.avatar_url || '' }).eq('id', supaUser.id);
         }
         setSaving(false);
         onClose();
@@ -792,12 +810,25 @@ const ProfileEditModal = ({ userProfile, setUserProfile, supaUser, onClose }) =>
                 <input className={inputCls} value={username} onChange={e => setUsername(e.target.value.replace(/\s+/g, ''))} placeholder="e.g. tutu" />
                 <p className="text-xs text-gray-400 mt-1">Others can delegate tasks to you using @{username.trim().toLowerCase().replace(/\s+/g, '') || 'username'}</p>
             </Field>
-            {autoInitials && (
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg mb-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm">{autoInitials}</div>
-                    <div><p className="text-sm font-medium text-gray-700">{name.trim()}</p><p className="text-xs text-gray-400">@{username.trim().toLowerCase().replace(/\s+/g, '')}</p></div>
+            <div className="flex flex-col items-center gap-3 p-4 bg-gray-50 rounded-lg mb-4">
+                <div className="relative cursor-pointer group" onClick={() => document.getElementById('avatar-upload').click()}>
+                    {avatarUrl ? (
+                        <img src={avatarUrl} alt="Profile" className="w-20 h-20 rounded-full object-cover border-2 border-gray-200 group-hover:border-blue-400 transition" />
+                    ) : (
+                        <div className="w-20 h-20 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-2xl group-hover:bg-blue-600 transition">{autoInitials || 'U'}</div>
+                    )}
+                    <div className="absolute bottom-0 right-0 w-7 h-7 bg-white rounded-full shadow-md flex items-center justify-center border border-gray-200 group-hover:bg-blue-50 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </div>
+                    {uploading && <div className="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center"><div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div></div>}
                 </div>
-            )}
+                <input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+                <div className="text-center">
+                    <p className="text-sm font-medium text-gray-700">{name.trim() || 'Your Name'}</p>
+                    <p className="text-xs text-gray-400">@{username.trim().toLowerCase().replace(/\s+/g, '') || 'username'}</p>
+                    <p className="text-xs text-blue-500 mt-1 cursor-pointer hover:underline" onClick={() => document.getElementById('avatar-upload').click()}>{uploading ? 'Uploading...' : 'Change photo'}</p>
+                </div>
+            </div>
             <button className={btnPrimary + ' w-full'} onClick={submit} disabled={saving}>{saving ? 'Saving...' : 'Save Profile'}</button>
             <button onClick={handleSignOut} className="w-full mt-3 py-2.5 text-sm text-red-500 hover:bg-red-50 rounded-lg transition">Sign Out</button>
         </Modal>
@@ -1511,7 +1542,7 @@ const NuOperandi = () => {
                 if (session?.user) {
                     setSupaUser(session.user);
                     const { data: prof } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
-                    if (prof) setUserProfile({ name: prof.full_name, username: prof.username, initials: prof.initials });
+                    if (prof) setUserProfile({ name: prof.full_name, username: prof.username, initials: prof.initials, avatar_url: prof.avatar_url || '' });
                 }
             } catch (e) { console.log('Auth init:', e); }
             setAuthLoading(false);
@@ -2129,7 +2160,7 @@ const NuOperandi = () => {
               {delegatedActiveCount > 0 && <span className="ml-2 px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600 text-xs font-semibold">{delegatedActiveCount} delegated</span>}
                 <span className="text-sm text-gray-400 font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
                 <button onClick={() => setNotificationsOpen(!notificationsOpen)} className="relative text-gray-400 hover:text-gray-600 transition">{I.bell("#9CA3AF")}{unreadCount > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center animate-pulse">{unreadCount}</span>}</button>
-                <div onClick={() => setModal('settings')} className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm cursor-pointer hover:bg-blue-600 transition">{userProfile ? userProfile.initials : 'U'}</div>
+                <div onClick={() => setModal('settings')} className="w-9 h-9 rounded-full cursor-pointer hover:ring-2 hover:ring-blue-400 transition overflow-hidden">{userProfile && userProfile.avatar_url ? <img src={userProfile.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover" /> : <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm">{userProfile ? userProfile.initials : 'U'}</div>}</div>
             </div>
         </div>
         );
