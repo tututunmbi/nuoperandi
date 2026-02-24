@@ -144,7 +144,7 @@ const embeddedNation = {"date":"2026-02-11","generatedAt":"2026-02-11T09:00:00.0
 /* ====== MODAL COMPONENT ====== */
 const Modal = ({ title, onClose, children }) => (
     <div className="fixed inset-0 modal-overlay z-50 flex items-center justify-center p-4" onClick={onClose}>
-        <div className="bg-white rounded-2xl w-full max-w-lg card-shadow p-0 max-h-[85vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="bg-white rounded-2xl w-full max-w-lg card-shadow p-0 max-h-[85vh] overflow-y-auto flex flex-col" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                 <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
                 <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-50 transition">{I.x("#9CA3AF")}</button>
@@ -1036,7 +1036,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
                 <Field label="Note (optional)"><input className={inputCls} value={note} onChange={e => setNote(e.target.value)} placeholder="e.g. 2 staff members" /></Field>
             </div>
             {/* Tag Team Members Section */}
-            <div className="mt-4 border border-blue-100 rounded-lg overflow-hidden">
+            <div className="mt-4 border border-blue-100 rounded-lg">
                 <button onClick={() => setShowTagSection(!showTagSection)} className="w-full flex items-center justify-between px-4 py-3 bg-blue-50/50 hover:bg-blue-50 transition text-left">
                     <div className="flex items-center gap-2">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -1067,7 +1067,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
                     </div>)}
                     <div className="relative">
                         <input className={inputCls + " !text-xs"} placeholder="Search @username to add..." value={tagSearch} onChange={e => { setTagSearch(e.target.value); searchTagUser(e.target.value); }} />
-                        {tagSuggestions.length > 0 && <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                        {tagSuggestions.length > 0 && <div className="mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
                             {tagSuggestions.map(u => <button key={u.username} onClick={() => addTaggedMember(u)} className="w-full text-left px-3 py-2 hover:bg-blue-50 flex items-center gap-2 transition">
                                 <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-600">{(u.full_name || u.username).charAt(0).toUpperCase()}</div>
                                 <div><p className="text-sm text-gray-900">{u.full_name || u.username}</p><p className="text-xs text-gray-400">@{u.username}</p></div>
