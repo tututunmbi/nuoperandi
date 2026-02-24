@@ -1511,6 +1511,24 @@ const NuOperandi = () => {
         } catch (e) { console.log('Mark done error:', e); }
     };
 
+    // Recipient marks their accepted task as completed (auto-flows to delegator's boardroom)
+    const markReceivedTaskComplete = async (task) => {
+      try {
+        await supabase.from('delegated_tasks').update({ status: 'completed' }).eq('id', task.id);
+        setDelegatedToMe(prev => prev.map(d => d.id === task.id ? { ...d, status: 'completed' } : d));
+        // Notify the delegator
+        if (task.delegator_id) {
+          await supabase.from('notifications').insert({
+            user_id: task.delegator_id,
+            title: 'Task completed!',
+            message: (userProfile.name || userProfile.full_name || userProfile.username) + ' completed: ' + task.task_text,
+            sender_name: userProfile.name || userProfile.full_name || userProfile.username,
+            is_read: false
+          });
+        }
+      } catch (e) { console.log('Mark received task complete error:', e); }
+    };
+
     useEffect(() => {
         const liveBriefing = generateLiveBriefing();
         setBriefing(liveBriefing);
@@ -2098,7 +2116,30 @@ const NuOperandi = () => {
                     )}
                 </div>
 
-                <div className="col-span-2 space-y-6">
+                {delegatedToMe.filter(t => t.status === 'accepted').length > 0 && (
+    <div className="bg-white rounded-xl border border-emerald-200 card-shadow overflow-hidden">
+    <div className="px-5 py-4 border-b border-emerald-50 flex items-center justify-between bg-emerald-50/30">
+    <div className="flex items-center gap-2.5">
+    {I.checkCircle ? I.checkCircle("#10B981") : I.check("#10B981")}
+    <h3 className="text-sm font-semibold text-emerald-900">Active Tasks</h3>
+    <span className="text-xs px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-600">{delegatedToMe.filter(t => t.status === 'accepted').length}</span>
+    </div>
+    </div>
+    <div className="divide-y divide-emerald-50">
+    {delegatedToMe.filter(t => t.status === 'accepted').slice(0, 8).map(t => (
+    <div key={t.id} className="px-5 py-3 flex items-center gap-3">
+    <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-semibold text-xs flex-shrink-0">{(t.delegator_name || '?')[0]}</div>
+    <div className="flex-1 min-w-0">
+    <p className="text-sm text-gray-900 truncate">{t.task_text}</p>
+    <p className="text-xs text-emerald-500">from {t.delegator_name}{t.deadline ? ' • Due ' + t.deadline : ''}</p>
+    </div>
+    <button onClick={() => markReceivedTaskComplete(t)} className="text-xs px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 font-medium whitespace-nowrap transition">Mark Done</button>
+    </div>
+    ))}
+    </div>
+    </div>
+    )}
+    <div className="col-span-2 space-y-6">
                     <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden group hover:shadow-md transition-all">
                         <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 text-white overflow-hidden">
                             <div className="absolute inset-0 opacity-5" style={{backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 11px, rgba(255,255,255,0.3) 11px, rgba(255,255,255,0.3) 12px)'}}></div>
