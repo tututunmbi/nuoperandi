@@ -1512,12 +1512,12 @@ const NuOperandi = () => {
     };
 
     // Recipient marks their accepted task as completed (auto-flows to delegator's boardroom)
-    const markReceivedTaskComplete = async (task) => {
+    const toggleReceivedTask = async (task) => {
       try {
         await supabase.from('delegated_tasks').update({ status: 'completed' }).eq('id', task.id);
         setDelegatedToMe(prev => prev.map(d => d.id === task.id ? { ...d, status: 'completed' } : d));
         // Notify the delegator
-        if (task.delegator_id) {
+        if (newStatus === 'completed' && task.delegator_id) {
           await supabase.from('notifications').insert({
             user_id: task.delegator_id,
             title: 'Task completed!',
@@ -1526,7 +1526,7 @@ const NuOperandi = () => {
             is_read: false
           });
         }
-      } catch (e) { console.log('Mark received task complete error:', e); }
+      } catch (e) { console.log('Toggle received task error:', e); }
     };
 
     useEffect(() => {
@@ -2116,30 +2116,34 @@ const NuOperandi = () => {
                     )}
                 </div>
 
-                {delegatedToMe.filter(t => t.status === 'accepted').length > 0 && (
+                
+    <div className="col-span-2 space-y-6">
+                {delegatedToMe.filter(t => t.status === 'accepted' || t.status === 'completed').length > 0 && (
     <div className="bg-white rounded-xl border border-emerald-200 card-shadow overflow-hidden">
     <div className="px-5 py-4 border-b border-emerald-50 flex items-center justify-between bg-emerald-50/30">
     <div className="flex items-center gap-2.5">
     {I.checkCircle ? I.checkCircle("#10B981") : I.check("#10B981")}
     <h3 className="text-sm font-semibold text-emerald-900">Active Tasks</h3>
-    <span className="text-xs px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-600">{delegatedToMe.filter(t => t.status === 'accepted').length}</span>
+    <span className="text-xs px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-600">{delegatedToMe.filter(t => t.status === 'accepted').length} active</span>
+    {delegatedToMe.filter(t => t.status === 'completed').length > 0 && <span className="text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">{delegatedToMe.filter(t => t.status === 'completed').length} done</span>}
     </div>
     </div>
     <div className="divide-y divide-emerald-50">
-    {delegatedToMe.filter(t => t.status === 'accepted').slice(0, 8).map(t => (
-    <div key={t.id} className="px-5 py-3 flex items-center gap-3">
-    <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-semibold text-xs flex-shrink-0">{(t.delegator_name || '?')[0]}</div>
+    {delegatedToMe.filter(t => t.status === 'accepted' || t.status === 'completed').slice(0, 10).map(t => (
+    <div key={t.id} className={"px-5 py-3 flex items-center gap-3" + (t.status === 'completed' ? " opacity-60" : "")}>
+    <button onClick={() => toggleReceivedTask(t)} className={"w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition " + (t.status === 'completed' ? "border-emerald-500 bg-emerald-500 text-white" : "border-gray-300 hover:border-emerald-400")}>
+    {t.status === 'completed' && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+    </button>
     <div className="flex-1 min-w-0">
-    <p className="text-sm text-gray-900 truncate">{t.task_text}</p>
-    <p className="text-xs text-emerald-500">from {t.delegator_name}{t.deadline ? ' • Due ' + t.deadline : ''}</p>
+    <p className={"text-sm truncate " + (t.status === 'completed' ? "text-gray-400 line-through" : "text-gray-900")}>{t.task_text}</p>
+    <p className="text-xs text-emerald-500">from {t.delegator_name}{t.deadline ? ' \u2022 Due ' + t.deadline : ''}</p>
     </div>
-    <button onClick={() => markReceivedTaskComplete(t)} className="text-xs px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 font-medium whitespace-nowrap transition">Mark Done</button>
     </div>
     ))}
     </div>
     </div>
     )}
-    <div className="col-span-2 space-y-6">
+
                     <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden group hover:shadow-md transition-all">
                         <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 text-white overflow-hidden">
                             <div className="absolute inset-0 opacity-5" style={{backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 11px, rgba(255,255,255,0.3) 11px, rgba(255,255,255,0.3) 12px)'}}></div>
