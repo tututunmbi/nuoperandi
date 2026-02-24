@@ -1084,6 +1084,8 @@ const NuOperandi = () => {
   /* -- Supabase Cloud Load: Seed local state from cloud on login -- */
   useEffect(() => {
     if (!supaUser) return;
+    /* Dedup helper to prevent cloud sync duplicates */
+    const dedupByKey = (arr, key) => { const s = new Set(); return arr.filter(i => { const k = i[key]; if (s.has(k)) return false; s.add(k); return true; }); };
     const loadFromCloud = async () => {
       try {
         // Check if user has local data already
@@ -1091,10 +1093,10 @@ const NuOperandi = () => {
         if (hasLocalData) return; // Owner already has data locally
 
         // No local data - this is a team member or fresh device. Load from cloud.
-        const { data: cloudIncome } = await supabase.from('income_streams').select('*');
+        const { data: cloudIncome } = await supabase.from('income_streams').select('*').eq('owner_id', supaUser.id);
         if (cloudIncome && cloudIncome.length > 0) {
-          const mapped = cloudIncome.map(s => ({ id: s.local_id, name: s.name, type: s.type, monthly: s.monthly, status: s.status, note: s.note }));
-          setIncomeStreams(mapped);
+          const mapped = cloudIncome.map(s => ({ id: s.local_id, name: s.name, type: s.type, monthly: s.monthly, status: s.status, note: s.note, ...(s.extra_data || {}) }));
+          setIncomeStreams(dedupByKey(mapped, 'id'));
         }
 
         const { data: cloudExpenses } = await supabase.from('expenses').select('*');
@@ -1235,7 +1237,8 @@ const NuOperandi = () => {
         const rows = incomeStreams.map(s => ({
           local_id: s.id, owner_id: supaUser.id, name: s.name,
           type: s.type || 'Active', monthly: s.monthly || 0,
-          status: s.status || 'active', note: s.note || ''
+          status: s.status || 'active', note: s.note || '',
+          extra_data: { nextPayment: s.nextPayment || '', paymentCycle: s.paymentCycle || '', payments: s.payments || [], role: s.role || '', company: s.company || '' }
         }));
         if (rows.length > 0) await supabase.from('income_streams').insert(rows);
       } catch(err) { console.log('Income sync error:', err); }
