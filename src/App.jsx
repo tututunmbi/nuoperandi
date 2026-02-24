@@ -931,7 +931,7 @@ const AddMenu = ({ onClose, activeModule, setModal }) => {
     );
 };
 
-const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams }) => {
+const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, userProfile, paymentTags, setPaymentTags }) => {
     const [name, setName] = useState(item ? item.name : '');
     const [amount, setAmount] = useState(item ? Number(item.amount).toLocaleString('en-US') : '');
     const [category, setCategory] = useState(item ? item.category : 'Salary');
@@ -939,15 +939,73 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams }) => {
     const [linkedStreamId, setLinkedStreamId] = useState(item ? (item.linkedStreamId || '') : '');
     const [note, setNote] = useState(item ? (item.note || '') : '');
     const [dueDate, setDueDate] = useState(item ? (item.dueDate || '') : '');
-    const submit = () => {
+    const [taggedMembers, setTaggedMembers] = useState([]);
+    const [showTagSection, setShowTagSection] = useState(false);
+    const [tagSearch, setTagSearch] = useState('');
+    const [tagSuggestions, setTagSuggestions] = useState([]);
+    const searchTagUser = async (query) => {
+        if (!query || query.length < 2 || !supabase) { setTagSuggestions([]); return; }
+        const clean = query.replace('@', '').toLowerCase();
+        const { data } = await supabase.from('profiles').select('username, full_name').ilike('username', clean + '%').limit(5);
+        setTagSuggestions((data || []).filter(u => !taggedMembers.find(t => t.username === u.username) && u.username !== (userProfile ? userProfile.username : '')));
+    };
+    const addTaggedMember = (user) => {
+        setTaggedMembers(prev => [...prev, { username: user.username, fullName: user.full_name, paymentType: 'Salary', amount: '', percentage: '' }]);
+        setTagSearch(''); setTagSuggestions([]);
+    };
+    const updateTaggedMember = (idx, field, value) => {
+        setTaggedMembers(prev => prev.map((m, i) => i === idx ? { ...m, [field]: value } : m));
+    };
+    const removeTaggedMember = (idx) => {
+        setTaggedMembers(prev => prev.filter((_, i) => i !== idx));
+    };
+    const linkedStream = linkedStreamId ? incomeStreams.find(s => s.id == linkedStreamId) : null;
+    const submit = async () => {
         if (!name || !amount) return;
         const val = Number(amount.replace(/[^0-9.]/g, ''));
         const lsid = linkedStreamId ? Number(linkedStreamId) : null;
         const data = { name, amount: val, category, frequency, linkedStreamId: lsid, note, dueDate: dueDate || null };
+        let expenseId;
         if (item) {
             setExpenses(prev => prev.map(e => e.id === item.id ? { ...e, ...data } : e));
+            expenseId = item.id;
         } else {
-            setExpenses(prev => [...prev, { id: newId(), ...data }]);
+            expenseId = newId();
+            setExpenses(prev => [...prev, { id: expenseId, ...data }]);
+        }
+        if (taggedMembers.length > 0 && supabase && supaUser) {
+            const senderName = userProfile ? (userProfile.name || userProfile.full_name || userProfile.username) : 'Unknown';
+            const companyName = linkedStream ? (linkedStream.company || linkedStream.name) : name;
+            for (const member of taggedMembers) {
+                const memberAmount = member.paymentType === 'Percentage' && linkedStream ? (Number(member.percentage) / 100) * Number(linkedStream.monthly) : Number(String(member.amount).replace(/[^0-9.]/g, ''));
+                if (memberAmount > 0) {
+                    await supabase.from('payment_tags').insert({
+                        expense_id: String(expenseId),
+                        sender_id: supaUser.id,
+                        sender_name: senderName,
+                        recipient_username: member.username,
+                        company_name: companyName,
+                        amount: memberAmount,
+                        payment_type: member.paymentType.toLowerCase(),
+                        percentage: member.paymentType === 'Percentage' ? Number(member.percentage) : null,
+                        frequency: frequency,
+                        note: note || null,
+                        status: 'pending'
+                    });
+                    await supabase.from('notifications').insert({
+                        user_id: supaUser.id,
+                        title: 'Payment Tagged',
+                        message: senderName + ' tagged @' + member.username + ' in a ' + memberAmount.toLocaleString() + ' ' + member.paymentType + ' payment from ' + companyName,
+                        sender_name: senderName,
+                        is_read: false,
+                        recipient_username: member.username
+                    });
+                }
+            }
+            if (setPaymentTags) {
+                const { data: tags } = await supabase.from('payment_tags').select('*').eq('sender_id', supaUser.id);
+                if (tags) setPaymentTags(tags);
+            }
         }
         onClose();
     };
@@ -977,6 +1035,51 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams }) => {
                 <Field label="Due Date (optional)"><input className={inputCls} type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} /></Field>
                 <Field label="Note (optional)"><input className={inputCls} value={note} onChange={e => setNote(e.target.value)} placeholder="e.g. 2 staff members" /></Field>
             </div>
+            {/* Tag Team Members Section */}
+            <div className="mt-4 border border-blue-100 rounded-lg overflow-hidden">
+                <button onClick={() => setShowTagSection(!showTagSection)} className="w-full flex items-center justify-between px-4 py-3 bg-blue-50/50 hover:bg-blue-50 transition text-left">
+                    <div className="flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span className="text-sm font-medium text-blue-700">Tag Team Members</span>
+                        {taggedMembers.length > 0 && <span className="text-xs px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600">{taggedMembers.length}</span>}
+                    </div>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" className={"transition " + (showTagSection ? "rotate-180" : "")}><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                {showTagSection && <div className="px-4 py-3 space-y-3">
+                    {taggedMembers.map((member, idx) => <div key={idx} className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg">
+                        <div className="flex-1 space-y-2">
+                            <div className="flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-600">{(member.fullName || member.username).charAt(0).toUpperCase()}</div>
+                                <div><p className="text-sm font-medium text-gray-900">{member.fullName || member.username}</p><p className="text-xs text-gray-400">@{member.username}</p></div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                <select className={inputCls + " !text-xs !py-1.5"} value={member.paymentType} onChange={e => updateTaggedMember(idx, 'paymentType', e.target.value)}>
+                                    <option value="Salary">Salary</option><option value="Bonus">Bonus</option><option value="Commission">Commission</option><option value="One-time">One-time</option><option value="Recurring">Recurring</option><option value="Percentage">Percentage</option>
+                                </select>
+                                {member.paymentType === 'Percentage' ? <div className="flex gap-1 items-center">
+                                    <input className={inputCls + " !text-xs !py-1.5 w-16"} type="number" placeholder="%" value={member.percentage} onChange={e => updateTaggedMember(idx, 'percentage', e.target.value)} />
+                                    <span className="text-xs text-gray-400">%</span>
+                                    {linkedStream && member.percentage && <span className="text-xs text-emerald-600 font-medium ml-1">{String.fromCharCode(8358)}{(Number(member.percentage) / 100 * Number(linkedStream.monthly)).toLocaleString()}</span>}
+                                </div> : <input className={inputCls + " !text-xs !py-1.5"} placeholder={"Amount (" + String.fromCharCode(8358) + ")"} value={member.amount} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { updateTaggedMember(idx, 'amount', ''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); updateTaggedMember(idx, 'amount', parts.join('.')); }} />}
+                            </div>
+                        </div>
+                        <button onClick={() => removeTaggedMember(idx)} className="text-gray-300 hover:text-red-400 mt-1 transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                    </div>)}
+                    <div className="relative">
+                        <input className={inputCls + " !text-xs"} placeholder="Search @username to add..." value={tagSearch} onChange={e => { setTagSearch(e.target.value); searchTagUser(e.target.value); }} />
+                        {tagSuggestions.length > 0 && <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                            {tagSuggestions.map(u => <button key={u.username} onClick={() => addTaggedMember(u)} className="w-full text-left px-3 py-2 hover:bg-blue-50 flex items-center gap-2 transition">
+                                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-600">{(u.full_name || u.username).charAt(0).toUpperCase()}</div>
+                                <div><p className="text-sm text-gray-900">{u.full_name || u.username}</p><p className="text-xs text-gray-400">@{u.username}</p></div>
+                            </button>)}
+                        </div>}
+                    </div>
+                    {taggedMembers.length > 0 && <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                        <span className="text-xs text-gray-400">Tagged: {taggedMembers.length} {taggedMembers.length === 1 ? 'person' : 'people'}</span>
+                        <span className="text-xs font-medium text-blue-600">{String.fromCharCode(8358)}{taggedMembers.reduce((sum, m) => sum + (m.paymentType === 'Percentage' && linkedStream ? (Number(m.percentage || 0) / 100) * Number(linkedStream.monthly) : Number(String(m.amount || '0').replace(/[^0-9.]/g, ''))), 0).toLocaleString()} allocated</span>
+                    </div>}
+                </div>}
+            </div>
             <div className="flex gap-2 mt-6">
                 {item && <button className={btnDanger} onClick={() => { setExpenses(prev => prev.filter(e => e.id !== item.id)); onClose(); }}>Delete</button>}
                 <button className={btnPrimary} onClick={submit}>{item ? 'Save Changes' : 'Add Expense'}</button>
@@ -1003,6 +1106,8 @@ const NuOperandi = () => {
     const [notifications, setNotifications] = useState([]);
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [delegatedToMe, setDelegatedToMe] = useState([]);
+  const [paymentTags, setPaymentTags] = useState([]);
+  const [incomingPayments, setIncomingPayments] = useState([]);
     const [delegatedByMe, setDelegatedByMe] = useState([]);
   const [acceptingTask, setAcceptingTask] = useState(null);
   const [allProfiles, setAllProfiles] = useState([]);
@@ -1455,7 +1560,22 @@ const NuOperandi = () => {
         const channel = supabase.channel('delegated-' + userProfile.username).on('postgres_changes', { event: '*', schema: 'public', table: 'delegated_tasks', filter: 'recipient_username=eq.' + userProfile.username }, () => { fetchDelegated(); }).subscribe();
         // Also subscribe to changes on tasks delegated BY me (so boardroom auto-updates)
         const delegatorChannel = supabase.channel('delegator-' + supaUser.id).on('postgres_changes', { event: '*', schema: 'public', table: 'delegated_tasks', filter: 'delegator_id=eq.' + supaUser.id }, () => { fetchDelegatedByMe(); }).subscribe();
-        return () => { supabase.removeChannel(channel); supabase.removeChannel(delegatorChannel); };
+
+      const fetchPaymentTags = async () => {
+        const { data } = await supabase.from('payment_tags').select('*').eq('sender_id', supaUser.id);
+        if (data) setPaymentTags(data);
+      };
+      const fetchIncomingPayments = async () => {
+        const { data } = await supabase.from('payment_tags').select('*').eq('recipient_username', userProfile.username);
+        if (data) setIncomingPayments(data);
+      };
+      fetchPaymentTags();
+      fetchIncomingPayments();
+        
+      const paymentSenderChannel = supabase.channel('payment-sender-' + supaUser.id).on('postgres_changes', { event: '*', schema: 'public', table: 'payment_tags', filter: 'sender_id=eq.' + supaUser.id }, () => { fetchPaymentTags(); }).subscribe();
+      const paymentRecipientChannel = supabase.channel('payment-recipient-' + userProfile.username).on('postgres_changes', { event: '*', schema: 'public', table: 'payment_tags', filter: 'recipient_username=eq.' + userProfile.username }, () => { fetchIncomingPayments(); }).subscribe();
+
+      return () => { supabase.removeChannel(channel); supabase.removeChannel(delegatorChannel); supabase.removeChannel(paymentSenderChannel); supabase.removeChannel(paymentRecipientChannel); };
     }, [supaUser, userProfile]);
 
     const markNotifRead = async (id) => {
@@ -1528,6 +1648,65 @@ const NuOperandi = () => {
         }
       } catch (e) { console.log('Toggle received task error:', e); }
     };
+
+  const acceptPaymentTag = async (tag) => {
+    try {
+      const newId = 'inc_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+      const newStream = {
+        id: newId,
+        name: tag.company_name || tag.sender_name,
+        type: tag.payment_type,
+        monthly: Number(tag.amount),
+        status: 'active',
+        note: 'Tagged by ' + tag.sender_name,
+        company: tag.company_name || '',
+        role: tag.payment_type,
+        paymentCycle: tag.frequency,
+        nextPayment: '',
+        lastPayment: '',
+        payments: [],
+        trend: 0
+      };
+      setIncomeStreams(prev => [...prev, newStream]);
+      if (supabase) {
+        await supabase.from('income_streams').insert({
+          local_id: newId,
+          owner_id: (await supabase.auth.getUser()).data.user.id,
+          name: newStream.name,
+          type: newStream.type,
+          monthly: newStream.monthly,
+          status: 'active',
+          note: newStream.note,
+          extra_data: { company: newStream.company, role: newStream.role, paymentCycle: newStream.paymentCycle, tagged_by: tag.sender_name, payment_tag_id: tag.id }
+        });
+        await supabase.from('payment_tags').update({ status: 'accepted' }).eq('id', tag.id);
+        await supabase.from('notifications').insert({
+          user_id: tag.sender_id,
+          title: 'Payment accepted!',
+          message: (userProfile.name || userProfile.full_name || userProfile.username) + ' accepted your ' + Number(tag.amount).toLocaleString() + ' ' + tag.payment_type + ' tag',
+          sender_name: userProfile.name || userProfile.full_name || userProfile.username,
+          is_read: false
+        });
+      }
+      setIncomingPayments(prev => prev.map(p => p.id === tag.id ? { ...p, status: 'accepted' } : p));
+    } catch (e) { console.log('Accept payment tag error:', e); }
+  };
+
+  const declinePaymentTag = async (tag) => {
+    try {
+      if (supabase) {
+        await supabase.from('payment_tags').update({ status: 'declined' }).eq('id', tag.id);
+        await supabase.from('notifications').insert({
+          user_id: tag.sender_id,
+          title: 'Payment declined',
+          message: (userProfile.name || userProfile.full_name || userProfile.username) + ' declined your ' + Number(tag.amount).toLocaleString() + ' ' + tag.payment_type + ' tag',
+          sender_name: userProfile.name || userProfile.full_name || userProfile.username,
+          is_read: false
+        });
+      }
+      setIncomingPayments(prev => prev.map(p => p.id === tag.id ? { ...p, status: 'declined' } : p));
+    } catch (e) { console.log('Decline payment tag error:', e); }
+  };
 
     useEffect(() => {
         const liveBriefing = generateLiveBriefing();
@@ -2144,6 +2323,31 @@ const NuOperandi = () => {
     </div>
     )}
 
+    {/* Incoming Payments Card */}
+    {incomingPayments.filter(p => p.status === 'pending').length > 0 && (
+    <div className="bg-white rounded-xl border border-amber-200 card-shadow overflow-hidden">
+    <div className="px-5 py-4 border-b border-amber-50 flex items-center justify-between bg-amber-50/30">
+    <div className="flex items-center gap-2.5">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    <h3 className="text-sm font-semibold text-amber-900">Incoming Payments</h3>
+    <span className="text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600">{incomingPayments.filter(p => p.status === 'pending').length}</span>
+    </div>
+    </div>
+    <div className="divide-y divide-amber-50">
+    {incomingPayments.filter(p => p.status === 'pending').slice(0, 5).map(tag => (
+    <div key={tag.id} className="px-5 py-3 flex items-center gap-3">
+    <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-700">{(tag.sender_name || '?').charAt(0).toUpperCase()}</div>
+    <div className="flex-1 min-w-0">
+    <p className="text-sm font-medium text-gray-900 truncate">{String.fromCharCode(8358)}{Number(tag.amount).toLocaleString()} {tag.payment_type}</p>
+    <p className="text-xs text-gray-400">from {tag.sender_name}</p>
+    </div>
+    <button onClick={() => acceptPaymentTag(tag)} className="px-2.5 py-1 text-xs font-medium bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition">Accept</button>
+    </div>
+    ))}
+    </div>
+    </div>
+    )}
+
                     <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden group hover:shadow-md transition-all">
                         <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 text-white overflow-hidden">
                             <div className="absolute inset-0 opacity-5" style={{backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 11px, rgba(255,255,255,0.3) 11px, rgba(255,255,255,0.3) 12px)'}}></div>
@@ -2341,6 +2545,40 @@ const NuOperandi = () => {
                 <MetricCard label="Next Payment" value={nextPaymentDue ? new Date(nextPaymentDue.nextPayment).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '--'} sub={nextPaymentDue ? nextPaymentDue.name : 'No dates set'} trend={0} icon={I.calendar("#3B82F6")} />
             </div>
 
+            {/* Incoming Payments */}
+            {incomingPayments.filter(p => p.status === 'pending').length > 0 && <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200 overflow-hidden">
+                <div className="px-5 py-4 border-b border-amber-100 flex items-center gap-2.5">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <h3 className="text-sm font-semibold text-amber-900">Incoming Payments</h3>
+                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">{incomingPayments.filter(p => p.status === 'pending').length} pending</span>
+                </div>
+                <div className="divide-y divide-amber-100">
+                    {incomingPayments.filter(p => p.status === 'pending').map(tag => <div key={tag.id} className="px-5 py-4 flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-amber-200 flex items-center justify-center text-sm font-bold text-amber-700">{(tag.sender_name || '?').charAt(0).toUpperCase()}</div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900">{tag.sender_name} tagged you</p>
+                            <p className="text-xs text-gray-500">{String.fromCharCode(8358)}{Number(tag.amount).toLocaleString()} {String.fromCharCode(183)} {tag.payment_type} {String.fromCharCode(183)} {tag.frequency}{tag.company_name ? ' ' + String.fromCharCode(183) + ' ' + tag.company_name : ''}</p>
+                            {tag.note && <p className="text-xs text-gray-400 mt-0.5">{tag.note}</p>}
+                        </div>
+                        <div className="flex gap-2">
+                            <button onClick={() => acceptPaymentTag(tag)} className="px-3 py-1.5 text-xs font-medium bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition">Accept</button>
+                            <button onClick={() => declinePaymentTag(tag)} className="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-red-50 hover:text-red-600 transition">Decline</button>
+                        </div>
+                    </div>)}
+                </div>
+            </div>}
+
+            {/* Accepted Payments */}
+            {incomingPayments.filter(p => p.status === 'accepted').length > 0 && <div className="bg-emerald-50/50 rounded-xl border border-emerald-100 p-4 mb-2">
+                <p className="text-xs font-medium text-emerald-600 mb-2">Recently Accepted Payments</p>
+                <div className="space-y-2">
+                    {incomingPayments.filter(p => p.status === 'accepted').slice(0, 3).map(tag => <div key={tag.id} className="flex items-center gap-2 text-xs text-gray-500">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>{String.fromCharCode(8358)}{Number(tag.amount).toLocaleString()} {tag.payment_type} from {tag.sender_name}</span>
+                    </div>)}
+                </div>
+            </div>}
+
             <div>
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-base font-semibold text-gray-900">Income Streams</h2>
@@ -2475,6 +2713,11 @@ const NuOperandi = () => {
                                             <button onClick={() => { setEditItem(e); setModal('editExpense'); }} className="p-1.5 rounded-lg hover:bg-gray-100 transition">{I.edit("#9CA3AF")}</button>
                                         </div>
                                     </div>
+                                        {/* Payment Tag Badges */}
+                                        {paymentTags.filter(t => t.expense_id === String(e.id)).length > 0 && <div className="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-gray-50">
+                                            <span className="text-xs text-gray-400 mr-1">Tagged:</span>
+                                            {paymentTags.filter(t => t.expense_id === String(e.id)).map(t => <span key={t.id} className={"text-xs px-2 py-0.5 rounded-full font-medium " + (t.status === 'accepted' ? "bg-emerald-50 text-emerald-600" : t.status === 'declined' ? "bg-gray-100 text-gray-400 line-through" : "bg-amber-50 text-amber-600")}>{t.status === 'accepted' ? String.fromCharCode(10003) : t.status === 'declined' ? String.fromCharCode(10007) : String.fromCharCode(9203)} @{t.recipient_username}</span>)}
+                                        </div>}
                                 </div>
                                 );
                             })}
@@ -3537,8 +3780,8 @@ const NuOperandi = () => {
             {modal === 'addIdea' && <IdeaForm setIdeas={setIdeas} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'editIdea' && <IdeaForm item={editItem} setIdeas={setIdeas} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'addTeam' && <TeamForm setTeamMembers={setTeamMembers} onClose={() => { setModal(null); setEditItem(null); }} />}
-            {modal === 'addExpense' && <ExpenseForm setExpenses={setExpenses} incomeStreams={incomeStreams} onClose={() => { setModal(null); setEditItem(null); }} />}
-            {modal === 'editExpense' && <ExpenseForm item={editItem} setExpenses={setExpenses} incomeStreams={incomeStreams} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'addExpense' && <ExpenseForm setExpenses={setExpenses} incomeStreams={incomeStreams} supaUser={supaUser} userProfile={userProfile} paymentTags={paymentTags} setPaymentTags={setPaymentTags} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'editExpense' && <ExpenseForm item={editItem} setExpenses={setExpenses} incomeStreams={incomeStreams} supaUser={supaUser} userProfile={userProfile} paymentTags={paymentTags} setPaymentTags={setPaymentTags} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'editTeam' && <TeamForm item={editItem} setTeamMembers={setTeamMembers} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'addLearning' && <LearningForm setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal && modal.startsWith('editLearning_') && <LearningForm item={editItem} idx={parseInt(modal.split('_')[1])} setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
