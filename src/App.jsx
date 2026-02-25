@@ -387,7 +387,7 @@ const DelegateLaunchpad = ({ supabase, supaUser, userProfile, onDelegate, I }) =
 };
 
 
-const ProjectForm = ({ item, onClose, setProjects, getProjectProgress }) => {
+const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser, weeklyPlan, quickTasks }) => {
     const [name, setName] = useState(item ? item.name : '');
     const [desc, setDesc] = useState(item ? item.desc : '');
     const [status, setStatus] = useState(item ? item.status : 'Planning');
@@ -412,42 +412,56 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress }) => {
             setProjects(prev => prev.map(p => p.id === item.id ? { ...p, name, desc, status, launch, team: Number(team), next, teamMembers: selectedMembers } : p));
       // Sync tagged members and project snapshot to Supabase
       (async () => {
-        try {
-          if (supaUser && selectedMembers && selectedMembers.length > 0) {
-            await supabase.from('project_members').delete().eq('project_owner_id', supaUser.id).eq('project_local_id', item.id);
-            const rows = selectedMembers.filter(m => m.id).map(m => ({ project_owner_id: supaUser.id, project_local_id: item.id, project_name: name, member_profile_id: m.id, role: 'member' }));
-            if (rows.length > 0) await supabase.from('project_members').insert(rows);
-          } else if (supaUser) {
-            await supabase.from('project_members').delete().eq('project_owner_id', supaUser.id).eq('project_local_id', item.id);
-          }
-          if (supaUser) {
-            const linkedW = weeklyPlan.filter(t => t.projectId === item.id);
-            const linkedD = tasks.filter(t => t.projectId === item.id);
-            const snap = { name, desc, status, progress: item.progress, launch, next, teamMembers: selectedMembers || [] };
-            const tasksSnap = [...linkedW.map(t => ({ ...t, type: 'weekly' })), ...linkedD.map(t => ({ ...t, type: 'daily' }))];
-            await supabase.from('shared_project_data').upsert({ project_owner_id: supaUser.id, project_local_id: item.id, project_snapshot: snap, tasks_snapshot: tasksSnap, updated_at: new Date().toISOString() }, { onConflict: 'project_owner_id,project_local_id' });
-          }
-        } catch (err) { console.error('sync error:', err); }
-      })();
+            try {
+              if (supaUser && selectedMembers && selectedMembers.length > 0) {
+                const { data: profiles } = await supabase.from('profiles').select('id, username').in('username', selectedMembers);
+                await supabase.from('project_members').delete().eq('project_owner_id', supaUser.id).eq('project_local_id', item.id);
+                const rows = (profiles || []).map(p => ({
+                  project_owner_id: supaUser.id,
+                  project_local_id: item.id,
+                  project_name: name,
+                  member_profile_id: p.id,
+                  role: 'member'
+                }));
+                if (rows.length > 0) await supabase.from('project_members').insert(rows);
+              } else if (supaUser) {
+                await supabase.from('project_members').delete().eq('project_owner_id', supaUser.id).eq('project_local_id', item.id);
+              }
+              if (supaUser) {
+                const linkedW = weeklyPlan.filter(t => t.projectId === item.id);
+                const linkedD = (quickTasks || []).filter(t => t.projectId === item.id);
+                const snap = { name, desc, status, progress: item.progress, launch, next, teamMembers: selectedMembers || [] };
+                const tasksSnap = [...linkedW.map(t => ({ ...t, type: 'weekly' })), ...linkedD.map(t => ({ ...t, type: 'daily' }))];
+                await supabase.from('shared_project_data').upsert({ project_owner_id: supaUser.id, project_local_id: item.id, project_snapshot: snap, tasks_snapshot: tasksSnap, updated_at: new Date().toISOString() }, { onConflict: 'project_owner_id,project_local_id' });
+              }
+            } catch (err) { console.error('sync error:', err); }
+          })();
         } else {
             setProjects(prev => [...prev, { id: newId(), name, desc, progress: 0, status, start: new Date().toISOString().split('T')[0], launch, team: Number(team), next, teamMembers: selectedMembers }]);
       // Sync new project members
       const newProjId = projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1;
       (async () => {
-        try {
-          if (supaUser && selectedMembers && selectedMembers.length > 0) {
-            const rows = selectedMembers.filter(m => m.id).map(m => ({ project_owner_id: supaUser.id, project_local_id: newProjId, project_name: name, member_profile_id: m.id, role: 'member' }));
-            if (rows.length > 0) await supabase.from('project_members').insert(rows);
-          }
-          if (supaUser) {
-            const linkedW = weeklyPlan.filter(t => t.projectId === newProjId);
-            const linkedD = tasks.filter(t => t.projectId === newProjId);
-            const snap = { name, desc, status, progress: 0, launch, next, teamMembers: selectedMembers || [] };
-            const tasksSnap = [...linkedW.map(t => ({ ...t, type: 'weekly' })), ...linkedD.map(t => ({ ...t, type: 'daily' }))];
-            await supabase.from('shared_project_data').upsert({ project_owner_id: supaUser.id, project_local_id: newProjId, project_snapshot: snap, tasks_snapshot: tasksSnap, updated_at: new Date().toISOString() }, { onConflict: 'project_owner_id,project_local_id' });
-          }
-        } catch (err) { console.error('sync error:', err); }
-      })();
+            try {
+              if (supaUser && selectedMembers && selectedMembers.length > 0) {
+                const { data: profiles } = await supabase.from('profiles').select('id, username').in('username', selectedMembers);
+                const rows = (profiles || []).map(p => ({
+                  project_owner_id: supaUser.id,
+                  project_local_id: newProjId,
+                  project_name: name,
+                  member_profile_id: p.id,
+                  role: 'member'
+                }));
+                if (rows.length > 0) await supabase.from('project_members').insert(rows);
+              }
+              if (supaUser) {
+                const linkedW = weeklyPlan.filter(t => t.projectId === newProjId);
+                const linkedD = (quickTasks || []).filter(t => t.projectId === newProjId);
+                const snap = { name, desc, status: 'Planning', progress: 0, launch, next, teamMembers: selectedMembers || [] };
+                const tasksSnap = [...linkedW.map(t => ({ ...t, type: 'weekly' })), ...linkedD.map(t => ({ ...t, type: 'daily' }))];
+                await supabase.from('shared_project_data').upsert({ project_owner_id: supaUser.id, project_local_id: newProjId, project_snapshot: snap, tasks_snapshot: tasksSnap, updated_at: new Date().toISOString() }, { onConflict: 'project_owner_id,project_local_id' });
+              }
+            } catch (err) { console.error('sync error:', err); }
+          })();
         }
         onClose();
     };
@@ -2050,7 +2064,7 @@ const NuOperandi = () => {
     if (!supaUser) return;
     try {
       const linkedWeekly = weeklyPlan.filter(t => t.projectId === proj.id);
-      const linkedDaily = tasks.filter(t => t.projectId === proj.id);
+      const linkedDaily = (quickTasks || []).filter(t => t.projectId === proj.id);
       const snapshot = { name: proj.name, desc: proj.desc, status: proj.status, progress: proj.progress, launch: proj.launch, next: proj.next, teamMembers: proj.teamMembers || [] };
       const tasksSnap = [...linkedWeekly.map(t => ({ ...t, type: 'weekly' })), ...linkedDaily.map(t => ({ ...t, type: 'daily' }))];
       await supabase.from('shared_project_data').upsert({ project_owner_id: supaUser.id, project_local_id: proj.id, project_snapshot: snapshot, tasks_snapshot: tasksSnap, updated_at: new Date().toISOString() }, { onConflict: 'project_owner_id,project_local_id' });
@@ -3935,8 +3949,8 @@ const generateLiveBriefing = useCallback(() => {
             {modal === 'addMenu' && <AddMenu onClose={() => setModal(null)} activeModule={activeModule} setModal={setModal} />}
             {modal === 'addIncome' && <IncomeForm setIncomeStreams={setIncomeStreams} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'editIncome' && <IncomeForm item={editItem} setIncomeStreams={setIncomeStreams} onClose={() => { setModal(null); setEditItem(null); }} />}
-            {modal === 'addProject' && <ProjectForm setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }} />}
-            {modal === 'editProject' && <ProjectForm item={editItem} setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'addProject' && <ProjectForm setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }}  supaUser={supaUser} weeklyPlan={weeklyPlan} quickTasks={quickTasks}/>}
+            {modal === 'editProject' && <ProjectForm item={editItem} setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }}  supaUser={supaUser} weeklyPlan={weeklyPlan} quickTasks={quickTasks}/>}
             {acceptingTask && <AcceptTaskModal task={acceptingTask} onChooseDaily={acceptToDaily} onChooseWeekly={acceptToWeekly} onCancel={() => setAcceptingTask(null)} />}
       {modal === 'addWeekly' && <WeeklyTaskForm setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'editWeekly' && <WeeklyTaskForm item={editItem} setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
