@@ -406,79 +406,48 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress }) => {
     const addMember = (username) => { setSelectedMembers(prev => [...prev, username]); setMemberSearch(''); setMemberSuggestions([]); };
     const removeMember = (username) => { setSelectedMembers(prev => prev.filter(u => u !== username)); };
     const autoProgress = item ? getProjectProgress(item.id) : null;
-      // Sync project members to Supabase when projects change
-  async function syncProjectMembers(projectId, projectName, members) {
-    if (!supaUser) return;
-    try {
-      // Delete existing members for this project
-      await supabase.from('project_members').delete().eq('project_owner_id', supaUser.id).eq('project_local_id', projectId);
-      // Insert new members
-      if (members && members.length > 0) {
-        const rows = members.filter(m => m.id).map(m => ({
-          project_owner_id: supaUser.id,
-          project_local_id: projectId,
-          project_name: projectName,
-          member_profile_id: m.id,
-          role: 'member'
-        }));
-        if (rows.length > 0) await supabase.from('project_members').insert(rows);
-      }
-    } catch (err) { console.error('syncProjectMembers error:', err); }
-  };
-
-  // Sync project snapshot data for shared viewing
-  async function syncProjectSnapshot(proj) {
-    if (!supaUser) return;
-    try {
-      const linkedWeekly = weeklyPlan.filter(t => t.projectId === proj.id);
-      const linkedDaily = tasks.filter(t => t.projectId === proj.id);
-      const snapshot = { name: proj.name, desc: proj.desc, status: proj.status, progress: proj.progress, launch: proj.launch, next: proj.next, teamMembers: proj.teamMembers || [] };
-      const tasksSnap = [...linkedWeekly.map(t => ({ ...t, type: 'weekly' })), ...linkedDaily.map(t => ({ ...t, type: 'daily' }))];
-      await supabase.from('shared_project_data').upsert({ project_owner_id: supaUser.id, project_local_id: proj.id, project_snapshot: snapshot, tasks_snapshot: tasksSnap, updated_at: new Date().toISOString() }, { onConflict: 'project_owner_id,project_local_id' });
-    } catch (err) { console.error('syncProjectSnapshot error:', err); }
-  };
-
-  // Fetch projects shared with current user
-  async function fetchSharedProjects() {
-    if (!supaUser) return;
-    try {
-      const { data: memberships } = await supabase.from('project_members').select('*').eq('member_profile_id', supaUser.id);
-      if (!memberships || memberships.length === 0) { setSharedProjects([]); return; }
-      const shared = [];
-      for (const m of memberships) {
-        const { data: projData } = await supabase.from('shared_project_data').select('*').eq('project_owner_id', m.project_owner_id).eq('project_local_id', m.project_local_id).single();
-        if (projData) {
-          const { data: ownerProfile } = await supabase.from('profiles').select('full_name, username, avatar_url, initials').eq('id', m.project_owner_id).single();
-          const { data: allMembers } = await supabase.from('project_members').select('member_profile_id, role').eq('project_owner_id', m.project_owner_id).eq('project_local_id', m.project_local_id);
-          const memberProfiles = [];
-          if (allMembers) {
-            for (const am of allMembers) {
-              const { data: mp } = await supabase.from('profiles').select('id, full_name, username, avatar_url, initials').eq('id', am.member_profile_id).single();
-              if (mp) memberProfiles.push(mp);
-            }
-          }
-          const { data: completions } = await supabase.from('shared_task_completions').select('*').eq('project_owner_id', m.project_owner_id).eq('project_local_id', m.project_local_id);
-          shared.push({ ...projData, owner: ownerProfile, members: memberProfiles, myRole: m.role, completions: completions || [] });
-        }
-      }
-      setSharedProjects(shared);
-      setSharedTaskCompletions(shared.flatMap(s => s.completions || []));
-    } catch (err) { console.error('fetchSharedProjects error:', err); }
-  };
-
-  const submit = () => {
+    const submit = () => {
         if (!name) return;
         if (item) {
             setProjects(prev => prev.map(p => p.id === item.id ? { ...p, name, desc, status, launch, team: Number(team), next, teamMembers: selectedMembers } : p));
       // Sync tagged members and project snapshot to Supabase
-      syncProjectMembers(item.id, name, selectedMembers);
-      syncProjectSnapshot({ id: item.id, name, desc, status, launch, next, progress: item.progress, teamMembers: selectedMembers });
+      (async () => {
+        try {
+          if (supaUser && selectedMembers && selectedMembers.length > 0) {
+            await supabase.from('project_members').delete().eq('project_owner_id', supaUser.id).eq('project_local_id', item.id);
+            const rows = selectedMembers.filter(m => m.id).map(m => ({ project_owner_id: supaUser.id, project_local_id: item.id, project_name: name, member_profile_id: m.id, role: 'member' }));
+            if (rows.length > 0) await supabase.from('project_members').insert(rows);
+          } else if (supaUser) {
+            await supabase.from('project_members').delete().eq('project_owner_id', supaUser.id).eq('project_local_id', item.id);
+          }
+          if (supaUser) {
+            const linkedW = weeklyPlan.filter(t => t.projectId === item.id);
+            const linkedD = tasks.filter(t => t.projectId === item.id);
+            const snap = { name, desc, status, progress: item.progress, launch, next, teamMembers: selectedMembers || [] };
+            const tasksSnap = [...linkedW.map(t => ({ ...t, type: 'weekly' })), ...linkedD.map(t => ({ ...t, type: 'daily' }))];
+            await supabase.from('shared_project_data').upsert({ project_owner_id: supaUser.id, project_local_id: item.id, project_snapshot: snap, tasks_snapshot: tasksSnap, updated_at: new Date().toISOString() }, { onConflict: 'project_owner_id,project_local_id' });
+          }
+        } catch (err) { console.error('sync error:', err); }
+      })();
         } else {
             setProjects(prev => [...prev, { id: newId(), name, desc, progress: 0, status, start: new Date().toISOString().split('T')[0], launch, team: Number(team), next, teamMembers: selectedMembers }]);
       // Sync new project members
       const newProjId = projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1;
-      syncProjectMembers(newProjId, name, selectedMembers);
-      syncProjectSnapshot({ id: newProjId, name, desc, status, launch, next, progress: 0, teamMembers: selectedMembers });
+      (async () => {
+        try {
+          if (supaUser && selectedMembers && selectedMembers.length > 0) {
+            const rows = selectedMembers.filter(m => m.id).map(m => ({ project_owner_id: supaUser.id, project_local_id: newProjId, project_name: name, member_profile_id: m.id, role: 'member' }));
+            if (rows.length > 0) await supabase.from('project_members').insert(rows);
+          }
+          if (supaUser) {
+            const linkedW = weeklyPlan.filter(t => t.projectId === newProjId);
+            const linkedD = tasks.filter(t => t.projectId === newProjId);
+            const snap = { name, desc, status, progress: 0, launch, next, teamMembers: selectedMembers || [] };
+            const tasksSnap = [...linkedW.map(t => ({ ...t, type: 'weekly' })), ...linkedD.map(t => ({ ...t, type: 'daily' }))];
+            await supabase.from('shared_project_data').upsert({ project_owner_id: supaUser.id, project_local_id: newProjId, project_snapshot: snap, tasks_snapshot: tasksSnap, updated_at: new Date().toISOString() }, { onConflict: 'project_owner_id,project_local_id' });
+          }
+        } catch (err) { console.error('sync error:', err); }
+      })();
         }
         onClose();
     };
@@ -2056,7 +2025,65 @@ const NuOperandi = () => {
     }, [weeklyPlan, quickTasks, completedWeekly, completedTasks]);
 
     
+  // Sync project members to Supabase when projects change
+  async function syncProjectMembers(projectId, projectName, members) {
+    if (!supaUser) return;
+    try {
+      // Delete existing members for this project
+      await supabase.from('project_members').delete().eq('project_owner_id', supaUser.id).eq('project_local_id', projectId);
+      // Insert new members
+      if (members && members.length > 0) {
+        const rows = members.filter(m => m.id).map(m => ({
+          project_owner_id: supaUser.id,
+          project_local_id: projectId,
+          project_name: projectName,
+          member_profile_id: m.id,
+          role: 'member'
+        }));
+        if (rows.length > 0) await supabase.from('project_members').insert(rows);
+      }
+    } catch (err) { console.error('syncProjectMembers error:', err); }
+  };
 
+  // Sync project snapshot data for shared viewing
+  async function syncProjectSnapshot(proj) {
+    if (!supaUser) return;
+    try {
+      const linkedWeekly = weeklyPlan.filter(t => t.projectId === proj.id);
+      const linkedDaily = tasks.filter(t => t.projectId === proj.id);
+      const snapshot = { name: proj.name, desc: proj.desc, status: proj.status, progress: proj.progress, launch: proj.launch, next: proj.next, teamMembers: proj.teamMembers || [] };
+      const tasksSnap = [...linkedWeekly.map(t => ({ ...t, type: 'weekly' })), ...linkedDaily.map(t => ({ ...t, type: 'daily' }))];
+      await supabase.from('shared_project_data').upsert({ project_owner_id: supaUser.id, project_local_id: proj.id, project_snapshot: snapshot, tasks_snapshot: tasksSnap, updated_at: new Date().toISOString() }, { onConflict: 'project_owner_id,project_local_id' });
+    } catch (err) { console.error('syncProjectSnapshot error:', err); }
+  };
+
+  // Fetch projects shared with current user
+  async function fetchSharedProjects() {
+    if (!supaUser) return;
+    try {
+      const { data: memberships } = await supabase.from('project_members').select('*').eq('member_profile_id', supaUser.id);
+      if (!memberships || memberships.length === 0) { setSharedProjects([]); return; }
+      const shared = [];
+      for (const m of memberships) {
+        const { data: projData } = await supabase.from('shared_project_data').select('*').eq('project_owner_id', m.project_owner_id).eq('project_local_id', m.project_local_id).single();
+        if (projData) {
+          const { data: ownerProfile } = await supabase.from('profiles').select('full_name, username, avatar_url, initials').eq('id', m.project_owner_id).single();
+          const { data: allMembers } = await supabase.from('project_members').select('member_profile_id, role').eq('project_owner_id', m.project_owner_id).eq('project_local_id', m.project_local_id);
+          const memberProfiles = [];
+          if (allMembers) {
+            for (const am of allMembers) {
+              const { data: mp } = await supabase.from('profiles').select('id, full_name, username, avatar_url, initials').eq('id', am.member_profile_id).single();
+              if (mp) memberProfiles.push(mp);
+            }
+          }
+          const { data: completions } = await supabase.from('shared_task_completions').select('*').eq('project_owner_id', m.project_owner_id).eq('project_local_id', m.project_local_id);
+          shared.push({ ...projData, owner: ownerProfile, members: memberProfiles, myRole: m.role, completions: completions || [] });
+        }
+      }
+      setSharedProjects(shared);
+      setSharedTaskCompletions(shared.flatMap(s => s.completions || []));
+    } catch (err) { console.error('fetchSharedProjects error:', err); }
+  };
 
 
   // Fetch shared projects when user logs in
