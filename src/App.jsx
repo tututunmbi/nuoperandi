@@ -400,7 +400,7 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress }) => {
     const searchMembers = async (q) => {
         if (!q || q.length < 1) { setMemberSuggestions([]); return; }
         const clean = q.replace('@', '').toLowerCase();
-        const { data } = await supabase.from('profiles').select('username, full_name').ilike('username', clean + '%').limit(5);
+        const { data } = await supabase.from('profiles').select('id, username, full_name, initials, avatar_url').ilike('username', clean + '%').limit(5);
         setMemberSuggestions((data || []).filter(u => !selectedMembers.includes(u.username)));
     };
     const addMember = (username) => { setSelectedMembers(prev => [...prev, username]); setMemberSearch(''); setMemberSuggestions([]); };
@@ -410,8 +410,15 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress }) => {
         if (!name) return;
         if (item) {
             setProjects(prev => prev.map(p => p.id === item.id ? { ...p, name, desc, status, launch, team: Number(team), next, teamMembers: selectedMembers } : p));
+      // Sync tagged members and project snapshot to Supabase
+      syncProjectMembers(item.id, name, selectedMembers);
+      syncProjectSnapshot({ id: item.id, name, desc, status, launch, next, progress: item.progress, teamMembers: selectedMembers });
         } else {
             setProjects(prev => [...prev, { id: newId(), name, desc, progress: 0, status, start: new Date().toISOString().split('T')[0], launch, team: Number(team), next, teamMembers: selectedMembers }]);
+      // Sync new project members
+      const newProjId = projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1;
+      syncProjectMembers(newProjId, name, selectedMembers);
+      syncProjectSnapshot({ id: newProjId, name, desc, status, launch, next, progress: 0, teamMembers: selectedMembers });
         }
         onClose();
     };
@@ -487,7 +494,7 @@ const WeeklyTaskForm = ({ item, onClose, setWeeklyPlan, activeProjects, onDelega
     const searchUsers = async (q) => {
         if (!q || q.length < 2) { setUserSuggestions([]); return; }
         const clean = q.replace('@', '').toLowerCase();
-        const { data } = await supabase.from('profiles').select('username, full_name').ilike('username', clean + '%').limit(5);
+        const { data } = await supabase.from('profiles').select('id, username, full_name, initials, avatar_url').ilike('username', clean + '%').limit(5);
         setUserSuggestions(data || []);
     };
     const submit = () => {
@@ -560,7 +567,7 @@ const TaskForm = ({ item, onClose, setQuickTasks, activeProjects, onDelegate }) 
     const searchUsers = async (q) => {
         if (!q || q.length < 2) { setUserSuggestions([]); return; }
         const clean = q.replace('@', '').toLowerCase();
-        const { data } = await supabase.from('profiles').select('username, full_name').ilike('username', clean + '%').limit(5);
+        const { data } = await supabase.from('profiles').select('id, username, full_name, initials, avatar_url').ilike('username', clean + '%').limit(5);
         setUserSuggestions(data || []);
     };
     const submit = () => {
@@ -977,7 +984,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
     const searchTagUser = async (query) => {
         if (!query || query.length < 2 || !supabase) { setTagSuggestions([]); return; }
         const clean = query.replace('@', '').toLowerCase();
-        const { data } = await supabase.from('profiles').select('username, full_name').ilike('username', clean + '%').limit(5);
+        const { data } = await supabase.from('profiles').select('id, username, full_name, initials, avatar_url').ilike('username', clean + '%').limit(5);
         setTagSuggestions((data || []).filter(u => !taggedMembers.find(t => t.username === u.username) && u.username !== (userProfile ? userProfile.username : '')));
     };
     const addTaggedMember = (user) => {
@@ -1146,6 +1153,8 @@ const NuOperandi = () => {
     /* -- Editable Data State -- */
     const [incomeStreams, setIncomeStreams] = useState(() => load('income', defaultIncome));
     const [projects, setProjects] = useState(() => load('projects', defaultProjects));
+  const [sharedProjects, setSharedProjects] = useState([]);
+  const [sharedTaskCompletions, setSharedTaskCompletions] = useState([]);
     const [quickTasks, setQuickTasks] = useState(() => load('tasks', defaultTasks));
     const [timeBlocks, setTimeBlocks] = useState(() => load('timeblocks', defaultTimeBlocks));
     const [ideas, setIdeas] = useState(() => load('ideas', defaultIdeas));
@@ -1986,7 +1995,74 @@ const NuOperandi = () => {
         return totalUnits === 0 ? 0 : Math.round((doneUnits / totalUnits) * 100);
     }, [weeklyPlan, quickTasks, completedWeekly, completedTasks]);
 
-    const generateLiveBriefing = useCallback(() => {
+    
+  // Sync project members to Supabase when projects change
+  const syncProjectMembers = async (projectId, projectName, members) => {
+    if (!supaUser) return;
+    try {
+      // Delete existing members for this project
+      await supabase.from('project_members').delete().eq('project_owner_id', supaUser.id).eq('project_local_id', projectId);
+      // Insert new members
+      if (members && members.length > 0) {
+        const rows = members.filter(m => m.id).map(m => ({
+          project_owner_id: supaUser.id,
+          project_local_id: projectId,
+          project_name: projectName,
+          member_profile_id: m.id,
+          role: 'member'
+        }));
+        if (rows.length > 0) await supabase.from('project_members').insert(rows);
+      }
+    } catch (err) { console.error('syncProjectMembers error:', err); }
+  };
+
+  // Sync project snapshot data for shared viewing
+  const syncProjectSnapshot = async (proj) => {
+    if (!supaUser) return;
+    try {
+      const linkedWeekly = weeklyPlan.filter(t => t.projectId === proj.id);
+      const linkedDaily = tasks.filter(t => t.projectId === proj.id);
+      const snapshot = { name: proj.name, desc: proj.desc, status: proj.status, progress: proj.progress, launch: proj.launch, next: proj.next, teamMembers: proj.teamMembers || [] };
+      const tasksSnap = [...linkedWeekly.map(t => ({ ...t, type: 'weekly' })), ...linkedDaily.map(t => ({ ...t, type: 'daily' }))];
+      await supabase.from('shared_project_data').upsert({ project_owner_id: supaUser.id, project_local_id: proj.id, project_snapshot: snapshot, tasks_snapshot: tasksSnap, updated_at: new Date().toISOString() }, { onConflict: 'project_owner_id,project_local_id' });
+    } catch (err) { console.error('syncProjectSnapshot error:', err); }
+  };
+
+  // Fetch projects shared with current user
+  const fetchSharedProjects = async () => {
+    if (!supaUser) return;
+    try {
+      const { data: memberships } = await supabase.from('project_members').select('*').eq('member_profile_id', supaUser.id);
+      if (!memberships || memberships.length === 0) { setSharedProjects([]); return; }
+      const shared = [];
+      for (const m of memberships) {
+        const { data: projData } = await supabase.from('shared_project_data').select('*').eq('project_owner_id', m.project_owner_id).eq('project_local_id', m.project_local_id).single();
+        if (projData) {
+          const { data: ownerProfile } = await supabase.from('profiles').select('full_name, username, avatar_url, initials').eq('id', m.project_owner_id).single();
+          const { data: allMembers } = await supabase.from('project_members').select('member_profile_id, role').eq('project_owner_id', m.project_owner_id).eq('project_local_id', m.project_local_id);
+          const memberProfiles = [];
+          if (allMembers) {
+            for (const am of allMembers) {
+              const { data: mp } = await supabase.from('profiles').select('id, full_name, username, avatar_url, initials').eq('id', am.member_profile_id).single();
+              if (mp) memberProfiles.push(mp);
+            }
+          }
+          const { data: completions } = await supabase.from('shared_task_completions').select('*').eq('project_owner_id', m.project_owner_id).eq('project_local_id', m.project_local_id);
+          shared.push({ ...projData, owner: ownerProfile, members: memberProfiles, myRole: m.role, completions: completions || [] });
+        }
+      }
+      setSharedProjects(shared);
+      setSharedTaskCompletions(shared.flatMap(s => s.completions || []));
+    } catch (err) { console.error('fetchSharedProjects error:', err); }
+  };
+
+
+  // Fetch shared projects when user logs in
+  useEffect(() => {
+    if (supaUser) { fetchSharedProjects(); }
+  }, [supaUser]);
+
+const generateLiveBriefing = useCallback(() => {
         const today = new Date();
         const dateStr = today.toISOString().split('T')[0];
         const streamCount = incomeStreams.filter(s => Number(s.monthly || 0) > 0).length;
@@ -2047,6 +2123,7 @@ const NuOperandi = () => {
 
         return { date: dateStr, generatedAt: today.toISOString(), headline, sections, autoGenerated: true };
     }, [incomeStreams, quickTasks, completedTasks, projects, totalMonthly, totalExpenses, netMonthly, nextPaymentDue, getProjectProgress]);
+    if (sharedProjects && sharedProjects.length > 0) { sections.push({ title: "Shared Projects", items: sharedProjects.map(function(sp) { var snap = sp.project_snapshot || {}; var tc = sp.tasks_snapshot ? sp.tasks_snapshot.length : 0; return (snap.name || "Project") + " (" + (snap.status || "Active") + ") - " + tc + " tasks. Owner: " + (sp.owner ? sp.owner.full_name : "Unknown"); }) }); }
 
     const fetchLiveNationData = useCallback(async () => {
         try {
@@ -2120,7 +2197,32 @@ const NuOperandi = () => {
             <nav className="flex-1 p-2 space-y-0.5 mt-2">
                 {[
                     { id: 'command', icon: () => I.command(activeModule === 'command' ? '#3B82F6' : '#6B7280'), label: 'Command Centre' },
-                    { id: 'income', icon: () => I.dollar(activeModule === 'income' ? '#3B82F6' : '#6B7280'), label: 'Income & Projects' },
+                    { id: 'income', icon: () => I.dollar{sharedProjects.length > 0 && <div className="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-xl p-5 mb-4 text-white">
+              <h3 className="text-lg font-bold mb-3 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>Shared Projects</h3>
+              <div className="space-y-3">
+                {sharedProjects.map(function(sp, si) {
+                  var snap = sp.project_snapshot || {};
+                  var tc = sp.tasks_snapshot ? sp.tasks_snapshot.length : 0;
+                  var statusColor = snap.status === 'In Progress' ? 'bg-blue-400' : snap.status === 'Planning' ? 'bg-yellow-400' : snap.status === 'Completed' ? 'bg-green-400' : 'bg-gray-400';
+                  return <div key={si} className="bg-white/10 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-semibold text-sm">{snap.name || 'Project'}</span>
+                      <span className={"text-xs px-2 py-0.5 rounded-full " + statusColor + " text-black font-medium"}>{snap.status || 'Active'}</span>
+                    </div>
+                    <p className="text-xs text-white/70 mb-2">{snap.desc ? snap.desc.substring(0, 80) + (snap.desc.length > 80 ? '...' : '') : 'No description'}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        <div className="w-24 h-1.5 bg-white/20 rounded-full overflow-hidden"><div className="h-full bg-green-400 rounded-full" style={{width: (snap.progress || 0) + '%'}}></div></div>
+                        <span className="text-xs text-white/60">{snap.progress || 0}%</span>
+                      </div>
+                      <span className="text-xs text-white/60">{tc} tasks</span>
+                    </div>
+                    {sp.owner && <p className="text-xs text-white/50 mt-1">By {sp.owner.full_name}</p>}
+                    {sp.members && sp.members.length > 0 && <div className="flex -space-x-1 mt-2">{sp.members.slice(0, 5).map(function(mem, mi) { return mem.avatar_url ? <img key={mi} src={mem.avatar_url} className="w-6 h-6 rounded-full border border-white/30 object-cover" title={mem.full_name} /> : <div key={mi} className="w-6 h-6 rounded-full bg-indigo-400 flex items-center justify-center text-white text-xs font-bold border border-white/30" title={mem.full_name}>{mem.initials || '?'}</div>; })}</div>}
+                  </div>;
+                })}
+              </div>
+            </div>}(activeModule === 'income' ? '#3B82F6' : '#6B7280'), label: 'Income & Projects' },
                     { id: 'briefing', icon: () => I.bar(activeModule === 'briefing' ? '#3B82F6' : '#6B7280'), label: 'Morning Briefing' },
                     { id: 'planner', icon: () => I.calendar(activeModule === 'planner' ? '#3B82F6' : '#6B7280'), label: 'Planner' },
                     { id: 'history', icon: () => I.history(activeModule === 'history' ? '#3B82F6' : '#6B7280'), label: 'History' },
@@ -2767,7 +2869,34 @@ const NuOperandi = () => {
                         <Empty icon={I.bar("#9CA3AF")} title="No projects yet" sub="Add your first project to start tracking progress" action={() => setModal('addProject')} actionLabel="Add Project" />
                     </div>
                 ) : (
-                    <div className="grid grid-cols-3 gap-4">
+                    {sharedProjects.length > 0 && <div className="mb-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>Projects Shared With You</h3>
+              <div className="grid grid-cols-3 gap-4">
+                {sharedProjects.map(function(sp, si) {
+                  var snap = sp.project_snapshot || {};
+                  var tasksArr = sp.tasks_snapshot || [];
+                  var myTasks = tasksArr.filter(function(t) { return t.delegatedTo && userProfile && t.delegatedTo.toLowerCase().includes(userProfile.username); });
+                  var completedIds = (sp.completions || []).map(function(tc) { return tc.task_id; });
+                  var statusColor = snap.status === 'In Progress' ? 'text-blue-600 bg-blue-50' : snap.status === 'Planning' ? 'text-yellow-600 bg-yellow-50' : snap.status === 'Completed' ? 'text-green-600 bg-green-50' : 'text-gray-600 bg-gray-50';
+                  return <div key={si} className="bg-white rounded-xl border border-indigo-100 p-4 hover:shadow-md transition">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-bold text-gray-800">{snap.name || 'Project'}</h4>
+                      <span className={"text-xs px-2 py-0.5 rounded-full font-medium " + statusColor}>{snap.status || 'Active'}</span>
+                    </div>
+                    {snap.desc && <p className="text-xs text-gray-500 mb-2">{snap.desc.substring(0, 100)}</p>}
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-indigo-500 rounded-full transition-all" style={{width: (snap.progress || 0) + '%'}}></div></div>
+                      <span className="text-xs text-gray-400 font-medium">{snap.progress || 0}%</span>
+                    </div>
+                    {sp.owner && <p className="text-xs text-gray-400 mb-2">Owner: {sp.owner.full_name}</p>}
+                    {sp.members && sp.members.length > 0 && <div className="flex -space-x-1 mb-3">{sp.members.slice(0, 6).map(function(mem, mi) { return mem.avatar_url ? <img key={mi} src={mem.avatar_url} className="w-6 h-6 rounded-full border-2 border-white object-cover" title={mem.full_name} /> : <div key={mi} className="w-6 h-6 rounded-full bg-indigo-400 flex items-center justify-center text-white text-[10px] font-bold border-2 border-white" title={mem.full_name}>{mem.initials || '?'}</div>; })}</div>}
+                    {myTasks.length > 0 && <div className="border-t pt-2 mt-2"><p className="text-xs font-semibold text-indigo-600 mb-1">Your Tasks ({myTasks.length})</p>{myTasks.slice(0, 4).map(function(t, ti) { var taskKey = (t.type || 'task') + '_' + (t.id || ti); var isDone = completedIds.includes(taskKey); return <div key={ti} className="flex items-center gap-2 py-0.5"><button onClick={function() { if (isDone) return; supabase.from('shared_task_completions').insert({ project_owner_id: sp.project_owner_id, project_local_id: sp.project_local_id, task_id: taskKey, completed_by: supaUser.id }).then(function() { fetchSharedProjects(); }); }} className={"w-4 h-4 rounded border flex items-center justify-center text-xs " + (isDone ? "bg-green-500 border-green-500 text-white" : "border-gray-300 hover:border-indigo-400 cursor-pointer")}>{isDone && '\u2713'}</button><span className={"text-xs " + (isDone ? "text-gray-400 line-through" : "text-gray-700")}>{t.task || t.task_text || 'Task'}</span></div>; })}</div>}
+                    {myTasks.length === 0 && <p className="text-xs text-gray-400 italic">No tasks assigned to you yet</p>}
+                  </div>;
+                })}
+              </div>
+            </div>}
+            <div className="grid grid-cols-3 gap-4">
                         {projects.map(p => {
                             const autoP = getProjectProgress(p.id);
                             const displayProgress = autoP !== null ? autoP : p.progress;
@@ -2786,7 +2915,8 @@ const NuOperandi = () => {
                                     <div className="flex justify-between mb-1.5">
                                         <span className="text-xs text-gray-400">{displayProgress}%</span>
                                         <span className="text-xs text-gray-400">{linkedCount > 0 ? linkedCount + ' linked tasks' : p.team + ' people'}</span>
-                                    </div>
+
+                    {p.teamMembers && p.teamMembers.length > 0 && <div className="flex -space-x-1 mt-2">{p.teamMembers.slice(0, 5).map(function(tm, ti) { return tm.avatar_url ? <img key={ti} src={tm.avatar_url} className="w-6 h-6 rounded-full border-2 border-white object-cover" title={tm.full_name || tm.name} /> : <div key={ti} className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-[10px] font-bold border-2 border-white" title={tm.full_name || tm.name}>{(tm.full_name || tm.name || "?").split(" ").map(function(w){return w[0]}).join("").toUpperCase().slice(0,2)}</div>; })}{p.teamMembers.length > 5 && <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-[10px] font-bold border-2 border-white">+{p.teamMembers.length - 5}</div>}</div>}                                    </div>
                                     <div className="w-full h-1.5 bg-gray-100 rounded-full"><div className={'h-full rounded-full transition-all ' + (autoP !== null ? 'bg-blue-500' : 'bg-blue-300')} style={{width: displayProgress + '%'}}></div></div>
                                 </div>
                                 {p.next && <p className="text-xs text-blue-600 font-medium mt-2">Next: {p.next}</p>}
