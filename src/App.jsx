@@ -4409,8 +4409,8 @@ const generateLiveBriefing = useCallback(() => {
             <div className={'flex-1 flex flex-col transition-all duration-300 ' + (sidebarOpen ? 'ml-60' : 'ml-16')}>
                 <TopBar />
                 <main className="flex-1 overflow-auto px-8 py-6">
-                    {{EODReportModal()}
-                activeModule === 'command' && CommandCentre()}
+                    {EODReportModal()}
+                {activeModule === 'command' && CommandCentre()}
                     {activeModule === 'income' && <IncomeModule />}
                     {activeModule === 'briefing' && <BriefingModule />}
                     {activeModule === 'planner' && <PlannerModule />}
