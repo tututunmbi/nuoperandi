@@ -1,4 +1,4 @@
-/* build: 1771864607717 */
+/* build: 1772119866095 */
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -23,7 +23,7 @@ const Spark = ({ data, color = "#3B82F6" }) => {
 
 /* ====== QUOTES ====== */
 const quotes = [
-    "Resilience is not a personality trait Ã¢ÂÂ it is a competitive strategy.",
+    "Resilience is not a personality trait   it is a competitive strategy.",
     "Trust is your currency. Build it relentlessly.",
     "A billionaire is someone who has positively influenced a billion people. Not someone with a billion dollars.",
     "Never say die until the bones are rotten.",
@@ -35,14 +35,14 @@ const quotes = [
     "Teach people how to stand, not how to cling. Dependency is not discipleship.",
     "Leave systems behind, not just stories. People must be able to continue without you.",
     "Remember: you are a pen, not the Author. Stay surrendered. Stay dangerous.",
-    "Separate business expenses from personal expenses Ã¢ÂÂ this is non-negotiable for scaling.",
+    "Separate business expenses from personal expenses   this is non-negotiable for scaling.",
     "Exchange affirmation for accomplishment. Stop seeking likes and validation. Seek results.",
     "Exchange security for significance. The safe bet will not build a billion-person impact.",
     "Exchange immediate victory for long-term sustainability. Play the 10-year game.",
     "Change your attitude towards uncertainty. VUCA is permanent. Embrace it as your competitive advantage.",
     "Stop being a people pleaser. Be the best at what you do and it will follow.",
     "Stop measuring performance solely in immediate results.",
-    "Set up a Personal Advisory Board Ã¢ÂÂ people who believe in you, bring fresh energy and fresh direction.",
+    "Set up a Personal Advisory Board   people who believe in you, bring fresh energy and fresh direction.",
     "You cannot ask God to guide your steps if you cannot move your feet. Now move your feet."
 ];
 const getQuote = () => quotes[Math.floor(Date.now() / (5 * 60 * 60 * 1000)) % quotes.length];
@@ -137,9 +137,9 @@ const defaultWeeklyPlan = [];
 const defaultExpenses = [];
 
 /* ====== EMBEDDED BRIEFING DATA ====== */
-const embeddedBriefing = {"date":"2026-02-11","generatedAt":"2026-02-11T06:00:00.000Z","headline":"Revenue on track. Two active projects need attention. Four tasks pending today.","sections":[{"title":"Financial Snapshot","items":["Monthly gross income stands at Ã¢ÂÂ¦2.0M across 2 active streams.","Monthly expenses total Ã¢ÂÂ¦700K, leaving net income at Ã¢ÂÂ¦1.3M Ã¢ÂÂ healthy position.","Annual projected income: Ã¢ÂÂ¦24.0M gross, Ã¢ÂÂ¦15.6M net.","Next incoming payment: Feb 28 Ã¢ÂÂ Principal Consultant, Ginger Technologies Limited."]},{"title":"Today's Priorities","items":["Review and advance Ginger Technologies February Strategy Campaign Rollout.","Follow up on Social Media Manager/Coordinator onboarding Ã¢ÂÂ agreement, NWBS, and deposit still pending.","MNoB Planners: finalize edits, prepare prototype for print test.","Identify and confirm backup printer for MNoB Notebooks."]},{"title":"Project Status","items":["Ginger Technologies Campaign: 0/3 tasks complete Ã¢ÂÂ onboarding is the critical path. Push for signed agreement today.","MNoB Planners: 0/4 tasks complete Ã¢ÂÂ planner edits and prototype print are the next milestones."]},{"title":"Strategic Notes","items":["Separate business expenses from personal expenses Ã¢ÂÂ this remains non-negotiable for scaling.","Two income streams is a solid foundation. Begin scoping a third stream to diversify revenue risk.","Consider scheduling a quarterly review to assess income growth trajectory against the Ã¢ÂÂ¦24M annual target."]}]};
+const embeddedBriefing = {"date":"2026-02-11","generatedAt":"2026-02-11T06:00:00.000Z","headline":"Revenue on track. Two active projects need attention. Four tasks pending today.","sections":[{"title":"Financial Snapshot","items":["Monthly gross income stands at  ₦2.0M across 2 active streams.","Monthly expenses total  ₦700K, leaving net income at  ₦1.3M   healthy position.","Annual projected income:  ₦24.0M gross,  ₦15.6M net.","Next incoming payment: Feb 28   Principal Consultant, Ginger Technologies Limited."]},{"title":"Today's Priorities","items":["Review and advance Ginger Technologies February Strategy Campaign Rollout.","Follow up on Social Media Manager/Coordinator onboarding   agreement, NWBS, and deposit still pending.","MNoB Planners: finalize edits, prepare prototype for print test.","Identify and confirm backup printer for MNoB Notebooks."]},{"title":"Project Status","items":["Ginger Technologies Campaign: 0/3 tasks complete   onboarding is the critical path. Push for signed agreement today.","MNoB Planners: 0/4 tasks complete   planner edits and prototype print are the next milestones."]},{"title":"Strategic Notes","items":["Separate business expenses from personal expenses   this remains non-negotiable for scaling.","Two income streams is a solid foundation. Begin scoping a third stream to diversify revenue risk.","Consider scheduling a quarterly review to assess income growth trajectory against the  ₦24M annual target."]}]};
 
-const embeddedNation = {"date":"2026-02-11","generatedAt":"2026-02-11T09:00:00.000Z","docxFile":"Morning Intelligence Briefing - Feb 9 2026.docx","indicators":[{"label":"USD/NGN","value":"Ã¢ÂÂ¦1,363.84","trend":"up","note":"Parallel: Ã¢ÂÂ¦1,455"},{"label":"Brent Crude","value":"$68.18/bbl","trend":"flat","note":"+0.20%"},{"label":"Inflation","value":"15.15%","trend":"up","note":"Dec 2025 Ã¢ÂÂ¢ Ã¢ÂÂ from 17.33%"},{"label":"NGX ASI","value":"171,727","trend":"up","note":"YTD +10.36%"}],"headlines":["Naira appreciated 4.24% over the past month; FDC fair value at Ã¢ÂÂ¦1,256.79 per PPP.","NGX market cap reached Ã¢ÂÂ¦110.2T Ã¢ÂÂ best weekly performance of 2026 at +3.84%.","Gold hit $5,031/oz, up 72.45% YoY as safe haven demand persists.","91% of Nigerian CEOs expect economic growth in 2026 (PwC).","MPC meeting scheduled Feb 23-24 Ã¢ÂÂ rate easing expected."],"sections":[{"title":"Foreign Exchange","emoji":"ÃÂ°ÃÂÃÂÃÂ±","items":["CBN official (NFEM): Ã¢ÂÂ¦1,365.72/USD Ã¢ÂÂ appreciated ~6% from Ã¢ÂÂ¦1,449 early Feb","Parallel market: Ã¢ÂÂ¦1,455/USD Ã¢ÂÂ spread narrowing, positive confidence signal","CBN injected Ã¢ÂÂ¦1.7T liquidity through cumulative repayments","FDC fair value at Ã¢ÂÂ¦1,256.79 per PPP model Ã¢ÂÂ Naira still undervalued"]},{"title":"Commodities","emoji":"ÃÂ°ÃÂÃÂÃÂ","items":["Brent Crude $68.05 Ã¢ÂÂ below $75 budget benchmark, fiscal pressure risk","Gold record $4,931/oz Ã¢ÂÂ +25% since 2025, safe haven demand persists","Copper $5.88/lb Ã¢ÂÂ +28% YoY, AI data centers need 10x traditional power loads","Cocoa $4,197/t Ã¢ÂÂ Nigeria output down 11% YoY to 305,000 MT","Wheat $5.38/bu Ã¢ÂÂ Nigeria imports 97% of consumption; price moves hit food costs"]},{"title":"Geopolitical Risk","emoji":"ÃÂ°ÃÂÃÂÃÂ","items":["US-China: 34.7-47.5% tariffs in fragile 1-year truce; China signed $700B+ African contracts","Nigeria-China upgraded to Comprehensive Strategic Partnership; $24.6B BRI investments","Ukraine-Russia: 450 drones + 71 missiles in largest aerial assault of year","35M Nigerians projected to face severe food insecurity in 2026 lean season","US-Iran: Nuclear talks in Oman; IRGC seized two tankers near Farsi Island"]},{"title":"Government Policy","emoji":"ÃÂ°ÃÂÃÂÃÂÃÂ¯ÃÂ¸ÃÂ","items":["2026 Budget: Ã¢ÂÂ¦58.18T Ã¢ÂÂ Defence Ã¢ÂÂ¦5.41T | Infrastructure Ã¢ÂÂ¦3.56T | Education Ã¢ÂÂ¦3.52T | Health Ã¢ÂÂ¦2.48T","Tax Reform: 4 new acts effective Jan 1; FIRS transitioning to NRS with AI compliance","Manufacturers can now recover input VAT on ALL purchases including services","Nigeria First procurement mandate; concrete roads replacing asphalt (cement play)","WTO Trade Policy Review reinforces modern investment framework commitment"]},{"title":"Stock Watchlist","emoji":"ÃÂ°ÃÂÃÂÃÂ","items":["Tier 1: ZENITHBANK (Ã¢ÂÂ¦72, +14.89%), TRANSPOWER (~Ã¢ÂÂ¦1.8T cap), DANGCEM, SEPLAT ($3B plan), MTNN (+13.50%)","Tier 2: GTCO (Ã¢ÂÂ¦99), BUACEMENT (+640.8% Q3), ARADEL (+16.42%), BUAFOODS, UBA (Ã¢ÂÂ¦45.20)","Tier 3: GEREGU (~Ã¢ÂÂ¦2T cap), AIRTELAFRI (~Ã¢ÂÂ¦8.5T), NESTLE (turnaround Ã¢ÂÂ¦72.5B profit), OANDO","Allocation: 40% Financial | 30% Energy/Infra | 20% Consumer/Defensive | 10% Digital/Growth"]},{"title":"AI & Technology","emoji":"ÃÂ°ÃÂÃÂ¤ÃÂ","items":["Nigeria ranked #1 globally for AI adoption and optimism","AI market growing 27.08% annually; projected to add $15B to GDP by 2030","17 data centers + 9 under construction; Kasi Cloud Lekki $250M hyperscale nearing completion","Digital economy projected $18.3B revenue in 2026; 5 unicorns","Global AI capex: Amazon, Google, Meta, Microsoft combined ~$650B for 2026"]},{"title":"NGX Market Review","emoji":"ÃÂ°ÃÂÃÂÃÂÃÂ¯ÃÂ¸ÃÂ","items":["Close: 171,727.49 | Daily: +1.01% | Weekly: +3.84% | YTD: +10.36%","Market Cap: Ã¢ÂÂ¦110.234T (+Ã¢ÂÂ¦1.1T this week) | Breadth: 60 gainers vs 19 losers","Sector leaders: Oil & Gas +2.47% | Insurance +2.16% | Industrial +1.70%","NGX could reach Ã¢ÂÂ¦262T in 2026 through Dangote Refinery & NNPC mega-listings","Rate easing cycle expected to trigger asset reallocation from fixed income to equities"]}]};
+const embeddedNation = {"date":"2026-02-11","generatedAt":"2026-02-11T09:00:00.000Z","docxFile":"Morning Intelligence Briefing - Feb 9 2026.docx","indicators":[{"label":"USD/NGN","value":" ₦1,363.84","trend":"up","note":"Parallel:  ₦1,455"},{"label":"Brent Crude","value":"$68.18/bbl","trend":"flat","note":"+0.20%"},{"label":"Inflation","value":"15.15%","trend":"up","note":"Dec 2025 - up ₦ from 17.33%"},{"label":"NGX ASI","value":"171,727","trend":"up","note":"YTD +10.36%"}],"headlines":["Naira appreciated 4.24% over the past month; FDC fair value at  ₦1,256.79 per PPP.","NGX market cap reached  ₦110.2T   best weekly performance of 2026 at +3.84%.","Gold hit $5,031/oz, up 72.45% YoY as safe haven demand persists.","91% of Nigerian CEOs expect economic growth in 2026 (PwC).","MPC meeting scheduled Feb 23-24   rate easing expected."],"sections":[{"title":"Foreign Exchange","emoji":"💱","items":["CBN official (NFEM):  ₦1,365.72/USD   appreciated ~6% from  ₦1,449 early Feb","Parallel market:  ₦1,455/USD   spread narrowing, positive confidence signal","CBN injected  ₦1.7T liquidity through cumulative repayments","FDC fair value at  ₦1,256.79 per PPP model   Naira still undervalued"]},{"title":"Commodities","emoji":"📊","items":["Brent Crude $68.05   below $75 budget benchmark, fiscal pressure risk","Gold record $4,931/oz   +25% since 2025, safe haven demand persists","Copper $5.88/lb   +28% YoY, AI data centers need 10x traditional power loads","Cocoa $4,197/t   Nigeria output down 11% YoY to 305,000 MT","Wheat $5.38/bu   Nigeria imports 97% of consumption; price moves hit food costs"]},{"title":"Geopolitical Risk","emoji":"🌍","items":["US-China: 34.7-47.5% tariffs in fragile 1-year truce; China signed $700B+ African contracts","Nigeria-China upgraded to Comprehensive Strategic Partnership; $24.6B BRI investments","Ukraine-Russia: 450 drones + 71 missiles in largest aerial assault of year","35M Nigerians projected to face severe food insecurity in 2026 lean season","US-Iran: Nuclear talks in Oman; IRGC seized two tankers near Farsi Island"]},{"title":"Government Policy","emoji":"🏛️","items":["2026 Budget:  ₦58.18T   Defence  ₦5.41T | Infrastructure  ₦3.56T | Education  ₦3.52T | Health  ₦2.48T","Tax Reform: 4 new acts effective Jan 1; FIRS transitioning to NRS with AI compliance","Manufacturers can now recover input VAT on ALL purchases including services","Nigeria First procurement mandate; concrete roads replacing asphalt (cement play)","WTO Trade Policy Review reinforces modern investment framework commitment"]},{"title":"Stock Watchlist","emoji":"📈","items":["Tier 1: ZENITHBANK ( ₦72, +14.89%), TRANSPOWER (~ ₦1.8T cap), DANGCEM, SEPLAT ($3B plan), MTNN (+13.50%)","Tier 2: GTCO ( ₦99), BUACEMENT (+640.8% Q3), ARADEL (+16.42%), BUAFOODS, UBA ( ₦45.20)","Tier 3: GEREGU (~ ₦2T cap), AIRTELAFRI (~ ₦8.5T), NESTLE (turnaround  ₦72.5B profit), OANDO","Allocation: 40% Financial | 30% Energy/Infra | 20% Consumer/Defensive | 10% Digital/Growth"]},{"title":"AI & Technology","emoji":"🤖","items":["Nigeria ranked #1 globally for AI adoption and optimism","AI market growing 27.08% annually; projected to add $15B to GDP by 2030","17 data centers + 9 under construction; Kasi Cloud Lekki $250M hyperscale nearing completion","Digital economy projected $18.3B revenue in 2026; 5 unicorns","Global AI capex: Amazon, Google, Meta, Microsoft combined ~$650B for 2026"]},{"title":"NGX Market Review","emoji":"🏛️","items":["Close: 171,727.49 | Daily: +1.01% | Weekly: +3.84% | YTD: +10.36%","Market Cap:  ₦110.234T (+ ₦1.1T this week) | Breadth: 60 gainers vs 19 losers","Sector leaders: Oil & Gas +2.47% | Insurance +2.16% | Industrial +1.70%","NGX could reach  ₦262T in 2026 through Dangote Refinery & NNPC mega-listings","Rate easing cycle expected to trigger asset reallocation from fixed income to equities"]}]};
 
 /* ====== MODAL COMPONENT ====== */
 const Modal = ({ title, onClose, children }) => (
@@ -212,7 +212,7 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
                         <option value="Active">Active</option><option value="Passive">Passive</option>
                     </select>
                 </Field>
-                <Field label="Monthly Amount (Ã¢ÂÂ¦)"><input className={inputCls} value={monthly} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setMonthly(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setMonthly(parts.join('.')); }} placeholder="e.g. 1,000,000" type="text" inputMode="numeric" /></Field>
+                <Field label="Monthly Amount ( ₦)"><input className={inputCls} value={monthly} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setMonthly(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setMonthly(parts.join('.')); }} placeholder="e.g. 1,000,000" type="text" inputMode="numeric" /></Field>
             </div>
             <div className="grid grid-cols-2 gap-3">
                 <Field label="Next Payment Due"><input className={inputCls} type="date" value={nextPayment} onChange={e => setNextPayment(e.target.value)} /></Field>
@@ -281,12 +281,12 @@ const AcceptTaskModal = ({ task, onChooseDaily, onChooseWeekly, onCancel }) => {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <button onClick={() => onChooseDaily(task)} className={"flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition hover:shadow-md " + (task.task_type === "quick" ? "border-blue-400 bg-blue-50" : "border-gray-200 hover:border-blue-300")}>
-              <span className="text-2xl">ÃÂ°ÃÂÃÂÃÂ</span>
+              <span className="text-2xl">📋</span>
               <span className="text-sm font-medium text-gray-900">Daily Tasks</span>
               <span className="text-xs text-gray-500">Add to today's plan</span>
             </button>
             <button onClick={() => onChooseWeekly(task)} className={"flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition hover:shadow-md " + (task.task_type === "weekly" ? "border-blue-400 bg-blue-50" : "border-gray-200 hover:border-blue-300")}>
-              <span className="text-2xl">ÃÂ°ÃÂÃÂÃÂ</span>
+              <span className="text-2xl">📅</span>
               <span className="text-sm font-medium text-gray-900">Weekly Plan</span>
               <span className="text-xs text-gray-500">Add to this week</span>
             </button>
@@ -350,7 +350,7 @@ const DelegateLaunchpad = ({ supabase, supaUser, userProfile, onDelegate, I }) =
   return (
     <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-purple-50 via-blue-50 to-indigo-50 border border-purple-100">
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-lg">ÃÂ°ÃÂÃÂÃÂ</span>
+        <span className="text-lg">🚀</span>
         <h3 className="text-sm font-semibold text-purple-900">Delegate Launchpad</h3>
         {sent && <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-600 animate-pulse">Launched!</span>}
       </div>
@@ -360,7 +360,7 @@ const DelegateLaunchpad = ({ supabase, supaUser, userProfile, onDelegate, I }) =
           <div className="flex items-center bg-white rounded-xl border border-purple-200 px-3">
             <span className="text-purple-400 text-sm mr-1">@</span>
             <input value={recipient} onChange={e => { setRecipient(e.target.value); setSelectedUser(null); searchUsers(e.target.value); }} placeholder="username" className="flex-1 py-2 text-sm bg-transparent focus:outline-none" />
-            {selectedUser && <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600">Ã¢ÂÂ</span>}
+            {selectedUser && <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600">'</span>}
           </div>
           {showSuggestions && <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl border border-gray-200 shadow-lg z-10 overflow-hidden">
             {suggestions.map(u => <button key={u.id} onClick={() => selectUser(u)} className="w-full px-3 py-2 text-left text-sm hover:bg-purple-50 flex items-center gap-2">
@@ -380,7 +380,7 @@ const DelegateLaunchpad = ({ supabase, supaUser, userProfile, onDelegate, I }) =
         {taskType === "weekly" && <input type="date" value={deadline} onChange={e => setDeadline(e.target.value)} className="ml-auto text-xs border border-gray-200 rounded-lg px-2 py-1" />}
       </div>
       <button onClick={launch} disabled={!taskText.trim() || !selectedUser || sending} className={"w-full py-2.5 rounded-xl text-sm font-semibold transition " + (taskText.trim() && selectedUser && !sending ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-md" : "bg-gray-200 text-gray-400 cursor-not-allowed")}>
-        {sent ? "Ã¢ÂÂ Launched!" : sending ? "Launching..." : "ÃÂ°ÃÂÃÂÃÂ Launch Task"}
+        {sent ? "' Launched!" : sending ? "Launching..." : "🚀 Launch Task"}
       </button>
     </div>
   );
@@ -489,7 +489,7 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
                             {selectedMembers.map(u => (
                                 <span key={u} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
                                     @{u}
-                                    <button type="button" onClick={() => removeMember(u)} className="ml-0.5 hover:text-purple-900">ÃÂÃÂ</button>
+                                    <button type="button" onClick={() => removeMember(u)} className="ml-0.5 hover:text-purple-900">×</button>
                                 </span>
                             ))}
                         </div>
@@ -886,7 +886,7 @@ const ProfileEditModal = ({ userProfile, setUserProfile, supaUser, onClose }) =>
 };
 
 const NotificationsPanel = ({ notifications, onMarkRead, onClose, delegatedToMe, onAcceptTask, quickTasks, weeklyPlan, setActiveModule, setPlannerTab }) => {
-  const [expandedNotif, setExpandedNotif] = useState(null);
+    const [expandedNotif, setExpandedNotif] = useState(null);
   const findTaskInPlanner = (notif) => {
     const matchedDelegated = delegatedToMe && delegatedToMe.find(d => 
       notif.related_task_id ? d.id === notif.related_task_id : (notif.message && d.task_text && notif.message.includes(d.task_text.substring(0, 30)))
@@ -934,8 +934,7 @@ const NotificationsPanel = ({ notifications, onMarkRead, onClose, delegatedToMe,
         ) : notifications.map(n => {
           const found = findTaskInPlanner(n);
           return (
-            <div key={n.id} onClick={() => handleNotifClick(n)} className="px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition cursor-pointer">
-              <div className="flex items-start gap-3">
+            <div key={n.id} onClick={() => handleNotifClick(n)} className="px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition cursor-pointer flex items-start gap-3">
               <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
                 <span className="text-xs font-bold text-purple-600">{n.sender_name ? n.sender_name.split(' ').map(w => w[0]).join('').substring(0, 2) : '?'}</span>
               </div>
@@ -949,11 +948,10 @@ const NotificationsPanel = ({ notifications, onMarkRead, onClose, delegatedToMe,
                 </div>
               </div>
               {!n.is_read && <div className="w-2 h-2 rounded-full bg-blue-500 mt-1 flex-shrink-0"></div>}
-            </div>
             {expandedNotif === n.id && n.title === 'Task completed!' && (
               <div className="mt-2 ml-11 p-3 bg-green-50 rounded-lg border border-green-100" onClick={e => e.stopPropagation()}>
                 <p className="text-xs font-semibold text-green-800 mb-1">{n.sender_name} completed a task</p>
-                <p className="text-sm text-green-700 mb-2">{n.message.includes('completed: ') ? n.message.split('completed: ').slice(1).join('completed: ') : n.message}</p>
+                <p className="text-sm text-green-700 mb-2">{n.message}</p>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-green-500">{new Date(n.created_at).toLocaleString()}</span>
                   <button onClick={(e) => { e.stopPropagation(); if (setActiveModule) setActiveModule('boardroom'); onClose(); }} className="text-xs px-2 py-1 rounded-md bg-green-600 text-white hover:bg-green-700 transition">View in Boardroom</button>
@@ -1112,7 +1110,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
         <Modal title={item ? 'Edit Expense' : 'Add Expense'} onClose={onClose}>
             <Field label="Expense Name"><input className={inputCls} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Staff Salaries, Office Rent" /></Field>
             <div className="grid grid-cols-2 gap-3">
-                <Field label="Amount (Ã¢ÂÂ¦)"><input className={inputCls} value={amount} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setAmount(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setAmount(parts.join('.')); }} placeholder="e.g. 200,000" type="text" inputMode="numeric" /></Field>
+                <Field label="Amount ( ₦)"><input className={inputCls} value={amount} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setAmount(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setAmount(parts.join('.')); }} placeholder="e.g. 200,000" type="text" inputMode="numeric" /></Field>
                 <Field label="Frequency">
                     <select className={inputCls} value={frequency} onChange={e => setFrequency(e.target.value)}>
                         <option value="Monthly">Monthly</option><option value="Weekly">Weekly</option><option value="Quarterly">Quarterly</option><option value="Annual">Annual</option><option value="One-time">One-time</option>
@@ -1226,6 +1224,9 @@ const NuOperandi = () => {
     const [completedTimeBlocks, setCompletedTimeBlocks] = useState(() => load('completedBlocks', {}));
     const [weeklyPlan, setWeeklyPlan] = useState(() => load('weeklyPlan', defaultWeeklyPlan));
     const [completedWeekly, setCompletedWeekly] = useState(() => load('completedWeekly', {}));
+    const [showEodReport, setShowEodReport] = useState(false);
+    const [eodReminderEnabled, setEodReminderEnabled] = useState(() => load('eodReminderEnabled', true));
+    const [eodReminderTime, setEodReminderTime] = useState(() => load('eodReminderTime', '16:30'));
     const [expenses, setExpenses] = useState(() => load('expenses', defaultExpenses));
     const [briefing, setBriefing] = useState(() => load('briefing', embeddedBriefing));
     const [nationBriefing, setNationBriefing] = useState(() => load('nationBriefing', embeddedNation));
@@ -1277,7 +1278,39 @@ const NuOperandi = () => {
     useEffect(() => { save('completedBlocks', completedTimeBlocks); }, [completedTimeBlocks]);
     useEffect(() => { save('weeklyPlan', weeklyPlan); }, [weeklyPlan]);
     useEffect(() => { save('expenses', expenses); }, [expenses]);
-    useEffect(() => { save('completedWeekly', completedWeekly); }, [completedWeekly]);
+    useEffect(() => { save('completedWeekly', completedWeekly)
+    save('eodReminderEnabled', eodReminderEnabled);
+    save('eodReminderTime', eodReminderTime);
+    // EOD Reminder notification
+    useEffect(() => {
+      if (!eodReminderEnabled) return;
+      const checkReminder = () => {
+        const now = new Date();
+        const [h, m] = eodReminderTime.split(':').map(Number);
+        if (now.getHours() === h && now.getMinutes() === m) {
+          // Show in-app notification
+          if (!window.__eodReminderShown) {
+            window.__eodReminderShown = true;
+            setShowEodReport(true);
+            // Also try browser notification
+            if (Notification.permission === 'granted') {
+              new Notification('NuOperandi - End of Day Report', { body: 'Time to review your daily progress and submit your EOD report!', icon: '/favicon.ico' });
+            } else if (Notification.permission !== 'denied') {
+              Notification.requestPermission();
+            }
+          }
+        } else {
+          window.__eodReminderShown = false;
+        }
+      };
+      const interval = setInterval(checkReminder, 30000);
+      // Request notification permission on mount
+      if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+        Notification.requestPermission();
+      }
+      return () => clearInterval(interval);
+    }, [eodReminderEnabled, eodReminderTime]);
+; }, [completedWeekly]);
     useEffect(() => { save('collapsedProjects', collapsedProjects); }, [collapsedProjects]);
     useEffect(() => { save('briefing', briefing); }, [briefing]);
     useEffect(() => { save('nationBriefing', nationBriefing); }, [nationBriefing]);
@@ -1356,7 +1389,7 @@ const NuOperandi = () => {
 
         const { data: cloudProjects } = await supabase.from('projects').select('*');
         if (cloudProjects && cloudProjects.length > 0) {
-          const mapped = cloudProjects.map(p => ({ id: p.local_id, name: p.name, desc: p.description, progress: p.progress, status: p.status, start: p.start_date, launch: p.launch_date, team: p.team_size, next: p.next_step, teamMembers: p.team_members || [] }));
+          const mapped = cloudProjects.map(p => ({ id: p.local_id, name: p.name, desc: p.description, progress: p.progress, status: p.status, start: p.start_date, launch: p.launch_date, team: p.team_size, next: p.next_step, teamMembers: p.teamMembers || [] }));
           setProjects(mapped);
         }
 
@@ -2139,16 +2172,16 @@ const generateLiveBriefing = useCallback(() => {
             title: "Financial Snapshot",
             items: [
                 `Monthly gross income: ${fmtNaira(totalMonthly)} across ${streamCount} active stream${streamCount !== 1 ? 's' : ''}.`,
-                `Monthly expenses: ${fmtNaira(totalExpenses)} Ã¢ÂÂ net income: ${fmtNaira(netMonthly)}.`,
+                `Monthly expenses: ${fmtNaira(totalExpenses)}   net income: ${fmtNaira(netMonthly)}.`,
                 `Annual projected: ${fmtNaira(totalMonthly * 12)} gross, ${fmtNaira(netMonthly * 12)} net.`,
-                nextPaymentDue ? `Next payment: ${new Date(nextPaymentDue.nextPayment + 'T00:00:00').toLocaleDateString('en-US', {month: 'short', day: 'numeric'})} Ã¢ÂÂ ${nextPaymentDue.role}, ${nextPaymentDue.name}.` : 'No upcoming payments scheduled.'
+                nextPaymentDue ? `Next payment: ${new Date(nextPaymentDue.nextPayment + 'T00:00:00').toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}   ${nextPaymentDue.role}, ${nextPaymentDue.name}.` : 'No upcoming payments scheduled.'
             ]
         });
 
         if (pendingToday.length > 0) {
             sections.push({ title: "Today's Priorities", items: pendingToday.slice(0, 6).map(t => t.task) });
         } else {
-            sections.push({ title: "Today's Priorities", items: ["Ã¢ÂÂ All tasks complete Ã¢ÂÂ clear schedule ahead."] });
+            sections.push({ title: "Today's Priorities", items: ["' All tasks complete   clear schedule ahead."] });
         }
 
         // Deadline awareness
@@ -2169,7 +2202,7 @@ const generateLiveBriefing = useCallback(() => {
                 title: "Project Status",
                 items: activeProjects.slice(0, 5).map(p => {
                     const progress = getProjectProgress(p.id);
-                    return `${p.name}: ${progress !== null ? progress + '% complete' : 'No linked tasks'} Ã¢ÂÂ ${p.status}`;
+                    return `${p.name}: ${progress !== null ? progress + '% complete' : 'No linked tasks'}   ${p.status}`;
                 })
             });
         }
@@ -2177,8 +2210,8 @@ const generateLiveBriefing = useCallback(() => {
         sections.push({
             title: "Strategic Notes",
             items: [
-                netMonthly > 0 ? `Positive cash flow of ${fmtNaira(netMonthly)}/month Ã¢ÂÂ maintain trajectory.` : `Cash flow gap of ${fmtNaira(Math.abs(netMonthly))}/month Ã¢ÂÂ review expenses.`,
-                streamCount < 3 ? `${streamCount} income stream${streamCount !== 1 ? 's' : ''} active Ã¢ÂÂ consider diversifying to reduce revenue risk.` : `${streamCount} income streams Ã¢ÂÂ well-diversified revenue base.`,
+                netMonthly > 0 ? `Positive cash flow of ${fmtNaira(netMonthly)}/month   maintain trajectory.` : `Cash flow gap of ${fmtNaira(Math.abs(netMonthly))}/month   review expenses.`,
+                streamCount < 3 ? `${streamCount} income stream${streamCount !== 1 ? 's' : ''} active   consider diversifying to reduce revenue risk.` : `${streamCount} income streams   well-diversified revenue base.`,
                 `Annual target: ${fmtNaira(totalMonthly * 12)} gross. Track monthly to stay on course.`
             ]
         });
@@ -2200,7 +2233,7 @@ const generateLiveBriefing = useCallback(() => {
                         ...prev,
                         indicators: prev.indicators.map(ind =>
                             ind.label === 'USD/NGN'
-                                ? { ...ind, value: 'Ã¢ÂÂ¦' + rate.toFixed(2), note: 'Live Ã¢ÂÂ¢ ' + timeStr, trend: 'up' }
+                                ? { ...ind, value: ' ₦' + rate.toFixed(2), note: 'Live  " ' + timeStr, trend: 'up' }
                                 : ind
                         ),
                         lastLiveUpdate: new Date().toISOString()
@@ -2313,6 +2346,318 @@ const generateLiveBriefing = useCallback(() => {
         </div>
     );
 
+    
+    // === EOD REPORT MODAL ===
+    const generateEodPdf = async () => {
+      // Dynamically load jsPDF
+      if (!window.jspdf) {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        document.head.appendChild(script);
+        await new Promise(r => { script.onload = r; setTimeout(r, 3000); });
+      }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const today = new Date();
+      const dateStr = today.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const userName = userProfile?.name || userProfile?.username || 'Team Member';
+      
+      // Gather data
+      const allSubtasks = (projects || []).flatMap(p => (p.subtasks || []).map(s => ({...s, project: p.name})));
+      const doneTasks = allSubtasks.filter(s => s.done);
+      const notDoneTasks = allSubtasks.filter(s => !s.done);
+      const delegatedCompleted = (delegatedByMe || []).filter(d => d.completed || d.status === 'completed');
+      const delegatedPending = (delegatedByMe || []).filter(d => !d.completed && d.status !== 'completed');
+      const totalTasks = allSubtasks.length;
+      const completionRate = totalTasks > 0 ? Math.round((doneTasks.length / totalTasks) * 100) : 0;
+      const projectsTouched = [...new Set(doneTasks.map(s => s.project))].length;
+      
+      // PDF styling
+      let y = 20;
+      const pageW = doc.internal.pageSize.getWidth();
+      const margin = 20;
+      const contentW = pageW - margin * 2;
+      
+      // Header bar
+      doc.setFillColor(30, 58, 95);
+      doc.rect(0, 0, pageW, 40, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('End of Day Report', margin, 26);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(dateStr, pageW - margin, 16, { align: 'right' });
+      doc.text(userName, pageW - margin, 26, { align: 'right' });
+      
+      y = 55;
+      
+      // Stats summary box
+      doc.setFillColor(243, 244, 246);
+      doc.roundedRect(margin, y - 5, contentW, 30, 3, 3, 'F');
+      doc.setTextColor(30, 58, 95);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      const stats = [
+        'Completed: ' + doneTasks.length,
+        'Pending: ' + notDoneTasks.length,
+        'Delegated Done: ' + delegatedCompleted.length,
+        'Rate: ' + completionRate + '%',
+        'Projects: ' + projectsTouched
+      ];
+      const statW = contentW / stats.length;
+      stats.forEach((stat, i) => {
+        doc.text(stat, margin + 5 + i * statW, y + 10);
+      });
+      
+      y += 40;
+      
+      const checkPage = () => { if (y > 270) { doc.addPage(); y = 20; } };
+      
+      // Section: Tasks Completed
+      doc.setFillColor(34, 197, 94);
+      doc.rect(margin, y, 4, 10, 'F');
+      doc.setTextColor(30, 58, 95);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Tasks Completed (' + doneTasks.length + ')', margin + 8, y + 8);
+      y += 16;
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(55, 65, 81);
+      if (doneTasks.length === 0) {
+        doc.text('No tasks completed yet today.', margin + 8, y);
+        y += 8;
+      } else {
+        doneTasks.forEach(t => {
+          checkPage();
+          doc.setFillColor(34, 197, 94);
+          doc.circle(margin + 5, y - 1, 1.5, 'F');
+          const lines = doc.splitTextToSize((t.project ? '[' + t.project + '] ' : '') + t.text, contentW - 15);
+          doc.text(lines, margin + 10, y);
+          y += lines.length * 5 + 3;
+        });
+      }
+      y += 8;
+      
+      // Section: Tasks Not Completed
+      checkPage();
+      doc.setFillColor(239, 68, 68);
+      doc.rect(margin, y, 4, 10, 'F');
+      doc.setTextColor(30, 58, 95);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Tasks Pending (' + notDoneTasks.length + ')', margin + 8, y + 8);
+      y += 16;
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(55, 65, 81);
+      if (notDoneTasks.length === 0) {
+        doc.text('All tasks completed! Great work.', margin + 8, y);
+        y += 8;
+      } else {
+        notDoneTasks.forEach(t => {
+          checkPage();
+          doc.setDrawColor(239, 68, 68);
+          doc.circle(margin + 5, y - 1, 1.5, 'S');
+          const lines = doc.splitTextToSize((t.project ? '[' + t.project + '] ' : '') + t.text, contentW - 15);
+          doc.text(lines, margin + 10, y);
+          y += lines.length * 5 + 3;
+        });
+      }
+      y += 8;
+      
+      // Section: Delegated Tasks Completed
+      checkPage();
+      doc.setFillColor(59, 130, 246);
+      doc.rect(margin, y, 4, 10, 'F');
+      doc.setTextColor(30, 58, 95);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Delegated Tasks Completed (' + delegatedCompleted.length + ')', margin + 8, y + 8);
+      y += 16;
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(55, 65, 81);
+      if (delegatedCompleted.length === 0) {
+        doc.text('No delegated tasks completed.', margin + 8, y);
+        y += 8;
+      } else {
+        delegatedCompleted.forEach(d => {
+          checkPage();
+          doc.setFillColor(59, 130, 246);
+          doc.circle(margin + 5, y - 1, 1.5, 'F');
+          const assignee = d.recipient_username || d.assigned_to || 'Team member';
+          const lines = doc.splitTextToSize(d.task_text + ' (assigned to @' + assignee + ')', contentW - 15);
+          doc.text(lines, margin + 10, y);
+          y += lines.length * 5 + 3;
+        });
+      }
+      y += 8;
+      
+      // Section: Delegated Tasks Pending
+      checkPage();
+      doc.setFillColor(249, 115, 22);
+      doc.rect(margin, y, 4, 10, 'F');
+      doc.setTextColor(30, 58, 95);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Delegated Tasks Pending (' + delegatedPending.length + ')', margin + 8, y + 8);
+      y += 16;
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(55, 65, 81);
+      if (delegatedPending.length === 0) {
+        doc.text('All delegated tasks completed!', margin + 8, y);
+        y += 8;
+      } else {
+        delegatedPending.forEach(d => {
+          checkPage();
+          doc.setDrawColor(249, 115, 22);
+          doc.circle(margin + 5, y - 1, 1.5, 'S');
+          const assignee = d.recipient_username || d.assigned_to || 'Team member';
+          const lines = doc.splitTextToSize(d.task_text + ' (assigned to @' + assignee + ')', contentW - 15);
+          doc.text(lines, margin + 10, y);
+          y += lines.length * 5 + 3;
+        });
+      }
+      y += 8;
+      
+      // Notes section if provided
+      const notesEl = document.getElementById('eod-notes-input');
+      const notes = notesEl ? notesEl.value : '';
+      if (notes.trim()) {
+        checkPage();
+        doc.setFillColor(107, 114, 128);
+        doc.rect(margin, y, 4, 10, 'F');
+        doc.setTextColor(30, 58, 95);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Notes', margin + 8, y + 8);
+        y += 16;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(55, 65, 81);
+        const noteLines = doc.splitTextToSize(notes, contentW - 10);
+        noteLines.forEach(line => {
+          checkPage();
+          doc.text(line, margin + 8, y);
+          y += 5;
+        });
+      }
+      
+      // Footer
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(156, 163, 175);
+        doc.text('Generated by NuOperandi - ' + dateStr, margin, 290);
+        doc.text('Page ' + i + ' of ' + pageCount, pageW - margin, 290, { align: 'right' });
+      }
+      
+      // Download
+      const fileName = 'EOD_Report_' + userName.replace(/\s+/g, '_') + '_' + today.toISOString().split('T')[0] + '.pdf';
+      doc.save(fileName);
+    };
+
+    const EODReportModal = () => {
+      if (!showEodReport) return null;
+      const allSubtasks = (projects || []).flatMap(p => (p.subtasks || []).map(s => ({...s, project: p.name})));
+      const doneTasks = allSubtasks.filter(s => s.done);
+      const notDoneTasks = allSubtasks.filter(s => !s.done);
+      const delegatedCompleted = (delegatedByMe || []).filter(d => d.completed || d.status === 'completed');
+      const delegatedPending = (delegatedByMe || []).filter(d => !d.completed && d.status !== 'completed');
+      const totalTasks = allSubtasks.length;
+      const completionRate = totalTasks > 0 ? Math.round((doneTasks.length / totalTasks) * 100) : 0;
+      
+      return (<div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowEodReport(false)}>
+        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+          <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8e] text-white p-6 rounded-t-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> End of Day Report</h2>
+                <p className="text-blue-200 text-sm mt-1">{new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+              </div>
+              <button onClick={() => setShowEodReport(false)} className="text-white/70 hover:text-white text-2xl">&times;</button>
+            </div>
+          </div>
+          
+          <div className="p-6 space-y-5">
+            <div className="grid grid-cols-4 gap-3">
+              <div className="bg-green-50 rounded-xl p-3 text-center">
+                <div className="text-2xl font-bold text-green-600">{doneTasks.length}</div>
+                <div className="text-xs text-green-700">Completed</div>
+              </div>
+              <div className="bg-red-50 rounded-xl p-3 text-center">
+                <div className="text-2xl font-bold text-red-500">{notDoneTasks.length}</div>
+                <div className="text-xs text-red-600">Pending</div>
+              </div>
+              <div className="bg-blue-50 rounded-xl p-3 text-center">
+                <div className="text-2xl font-bold text-blue-600">{delegatedCompleted.length}</div>
+                <div className="text-xs text-blue-700">Delegated Done</div>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-3 text-center">
+                <div className="text-2xl font-bold text-gray-700">{completionRate}%</div>
+                <div className="text-xs text-gray-500">Rate</div>
+              </div>
+            </div>
+            
+            {doneTasks.length > 0 && <div>
+              <h3 className="text-sm font-semibold text-green-700 mb-2 flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded-full"></span> Tasks Completed ({doneTasks.length})</h3>
+              <div className="space-y-1">{doneTasks.map((t,i) => <div key={i} className="flex items-start gap-2 text-sm text-gray-700 py-1"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg><span><span className="text-gray-400 text-xs">[{t.project}]</span> {t.text}</span></div>)}</div>
+            </div>}
+            
+            {notDoneTasks.length > 0 && <div>
+              <h3 className="text-sm font-semibold text-red-600 mb-2 flex items-center gap-1"><span className="w-2 h-2 bg-red-500 rounded-full"></span> Tasks Pending ({notDoneTasks.length})</h3>
+              <div className="space-y-1">{notDoneTasks.map((t,i) => <div key={i} className="flex items-start gap-2 text-sm text-gray-700 py-1"><span className="w-3.5 h-3.5 rounded-full border-2 border-red-300 mt-0.5 flex-shrink-0"></span><span><span className="text-gray-400 text-xs">[{t.project}]</span> {t.text}</span></div>)}</div>
+            </div>}
+            
+            {delegatedCompleted.length > 0 && <div>
+              <h3 className="text-sm font-semibold text-blue-700 mb-2 flex items-center gap-1"><span className="w-2 h-2 bg-blue-500 rounded-full"></span> Delegated Tasks Completed ({delegatedCompleted.length})</h3>
+              <div className="space-y-1">{delegatedCompleted.map((d,i) => <div key={i} className="flex items-start gap-2 text-sm text-gray-700 py-1"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg><span>{d.task_text} <span className="text-blue-500 text-xs">@{d.recipient_username || 'team'}</span></span></div>)}</div>
+            </div>}
+            
+            {delegatedPending.length > 0 && <div>
+              <h3 className="text-sm font-semibold text-orange-600 mb-2 flex items-center gap-1"><span className="w-2 h-2 bg-orange-500 rounded-full"></span> Delegated Tasks Pending ({delegatedPending.length})</h3>
+              <div className="space-y-1">{delegatedPending.map((d,i) => <div key={i} className="flex items-start gap-2 text-sm text-gray-700 py-1"><span className="w-3.5 h-3.5 rounded-full border-2 border-orange-300 mt-0.5 flex-shrink-0"></span><span>{d.task_text} <span className="text-orange-500 text-xs">@{d.recipient_username || 'team'}</span></span></div>)}</div>
+            </div>}
+            
+            <div>
+              <label className="text-sm font-semibold text-gray-600 mb-2 block">Notes (optional)</label>
+              <textarea id="eod-notes-input" className="w-full border border-gray-200 rounded-xl p-3 text-sm text-gray-700 resize-none focus:outline-none focus:ring-2 focus:ring-blue-200" rows="3" placeholder="Add any additional notes for your report..."></textarea>
+            </div>
+            
+            <div className="bg-gray-50 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-semibold text-gray-600">Daily Reminder</span>
+                <button onClick={() => setEodReminderEnabled(!eodReminderEnabled)} className={"relative inline-flex h-6 w-11 items-center rounded-full transition-colors " + (eodReminderEnabled ? "bg-blue-500" : "bg-gray-300")}>
+                  <span className={"inline-block h-4 w-4 transform rounded-full bg-white transition-transform " + (eodReminderEnabled ? "translate-x-6" : "translate-x-1")}></span>
+                </button>
+              </div>
+              {eodReminderEnabled && <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">Remind me at</span>
+                <input type="time" value={eodReminderTime} onChange={e => setEodReminderTime(e.target.value)} className="border border-gray-200 rounded-lg px-2 py-1 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200" />
+                <span className="text-xs text-gray-500">daily</span>
+              </div>}
+            </div>
+            
+            <div className="flex gap-3">
+              <button onClick={generateEodPdf} className="flex-1 bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8e] text-white py-3 rounded-xl font-medium text-sm hover:opacity-90 transition flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download PDF Report
+              </button>
+              <button onClick={() => setShowEodReport(false)} className="px-6 py-3 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>);
+    };
+
     const CommandCentre = () => {
         const pendingTasks = quickTasks.filter(t => !completedTasks[t.id]);
         const todayDone = quickTasks.length - pendingTasks.length;
@@ -2332,6 +2677,22 @@ const generateLiveBriefing = useCallback(() => {
                     <p className="text-2xl font-semibold text-gray-900">{todayDone}/{quickTasks.length}</p>
                     <p className={'text-xs mt-1.5 ' + (pendingTasks.length === 0 && quickTasks.length > 0 ? 'text-emerald-500' : pendingTasks.length > 0 ? 'text-amber-500' : 'text-gray-400')}>{pendingTasks.length === 0 && quickTasks.length > 0 ? 'All done!' : pendingTasks.length + ' pending'}</p>
                 </div>
+            </div>
+
+            <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8e] flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
+                    <div>
+                        <h3 className="text-sm font-semibold text-gray-800">End of Day Report</h3>
+                        <p className="text-xs text-gray-500">Review your progress and download as PDF</p>
+                    </div>
+                </div>
+                <button onClick={() => setShowEodReport(true)} className="px-4 py-2 bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8e] text-white text-sm font-medium rounded-lg hover:opacity-90 transition flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    Generate Report
+                </button>
             </div>
 
             <div className="grid grid-cols-5 gap-6">
@@ -2705,7 +3066,7 @@ const generateLiveBriefing = useCallback(() => {
             return map;
         }, [expenses]);
 
-        const catIcons = { 'Salary': 'ÃÂ°ÃÂÃÂÃÂ°', 'Rent': 'ÃÂ°ÃÂÃÂÃÂ ', 'Operations': 'Ã¢ÂÂÃÂ¯ÃÂ¸ÃÂ', 'Marketing': 'ÃÂ°ÃÂÃÂÃÂ£', 'Software': 'ÃÂ°ÃÂÃÂÃÂ»', 'Transport': 'ÃÂ°ÃÂÃÂÃÂ', 'Utilities': 'Ã¢ÂÂ¡', 'Tax': 'ÃÂ°ÃÂÃÂÃÂ', 'Other': 'ÃÂ°ÃÂÃÂÃÂ' };
+        const catIcons = { 'Salary': '💰', 'Rent': '🏠', 'Operations': '&₦️', 'Marketing': '📣', 'Software': '💻', 'Transport': '🚗', 'Utilities': '&₦', 'Tax': '📋', 'Other': '📌' };
 
         return (
         <div className="space-y-8 max-w-6xl">
@@ -2769,7 +3130,7 @@ const generateLiveBriefing = useCallback(() => {
                                         <div className={'w-2 h-12 rounded-full ' + (s.status === 'Growing' ? 'bg-blue-400' : s.status === 'At Risk' ? 'bg-red-300' : 'bg-emerald-400')}></div>
                                         <div className="flex-1 min-w-0">
                                             <p className="font-medium text-gray-900 text-sm">{s.name}</p>
-                                            {(s.role || s.company) && <p className="text-xs text-gray-400 mt-0.5">{s.role}{s.role && s.company ? ' Ã¢ÂÂ¢ ' : ''}{s.company}</p>}
+                                            {(s.role || s.company) && <p className="text-xs text-gray-400 mt-0.5">{s.role}{s.role && s.company ? '  " ' : ''}{s.company}</p>}
                                             <div className="flex gap-2 mt-1 flex-wrap">
                                                 <span className={'text-xs px-2 py-0.5 rounded-full ' + (s.type === 'Active' ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-500')}>{s.type}</span>
                                                 <span className={'text-xs px-2 py-0.5 rounded-full ' + (statusColors[s.status] || 'bg-gray-100 text-gray-600')}>{s.status}</span>
@@ -2867,16 +3228,16 @@ const generateLiveBriefing = useCallback(() => {
                                 <div key={e.id} className={'bg-white rounded-xl border px-5 py-4 card-shadow card-shadow-hover transition-all ' + (daysUntilDue !== null && daysUntilDue < 0 ? 'border-red-200' : daysUntilDue !== null && daysUntilDue <= 3 ? 'border-amber-200' : 'border-gray-100')}>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                                            <span className="text-lg flex-shrink-0" role="img">{catIcons[e.category] || 'ÃÂ°ÃÂÃÂÃÂ'}</span>
+                                            <span className="text-lg flex-shrink-0" role="img">{catIcons[e.category] || '📌'}</span>
                                             <div className="min-w-0">
                                                 <p className="text-sm font-medium text-gray-900">{e.name}</p>
                                                 <div className="flex gap-2 mt-0.5 flex-wrap">
                                                     <span className="text-xs text-gray-400">{e.category}</span>
-                                                    <span className="text-xs text-gray-300">Ã¢ÂÂ¢</span>
+                                                    <span className="text-xs text-gray-300"> "</span>
                                                     <span className="text-xs text-gray-400">{e.frequency}</span>
-                                                    {linked && <><span className="text-xs text-gray-300">Ã¢ÂÂ¢</span><span className="text-xs text-blue-500">from {linked.name}</span></>}
-                                                    {e.dueDate && <><span className="text-xs text-gray-300">Ã¢ÂÂ¢</span><span className={'text-xs font-medium ' + dueColor}>{dueLabel}</span></>}
-                                                    {e.note && <><span className="text-xs text-gray-300">Ã¢ÂÂ¢</span><span className="text-xs text-gray-400 italic">{e.note}</span></>}
+                                                    {linked && <><span className="text-xs text-gray-300"> "</span><span className="text-xs text-blue-500">from {linked.name}</span></>}
+                                                    {e.dueDate && <><span className="text-xs text-gray-300"> "</span><span className={'text-xs font-medium ' + dueColor}>{dueLabel}</span></>}
+                                                    {e.note && <><span className="text-xs text-gray-300"> "</span><span className="text-xs text-gray-400 italic">{e.note}</span></>}
                                                 </div>
                                             </div>
                                         </div>
@@ -2958,7 +3319,17 @@ const generateLiveBriefing = useCallback(() => {
                     {p.teamMembers && p.teamMembers.length > 0 && (() => { const resolved = p.teamMembers.map(tm => { if (typeof tm === "object") return tm; const prof = allProfiles.find(pr => pr.username && pr.username.toLowerCase() === (tm || "").toLowerCase()); return prof ? { avatar_url: prof.avatar_url, full_name: prof.full_name || prof.username, initials: prof.initials || (prof.full_name || prof.username || "?").split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2) } : { avatar_url: null, full_name: tm, initials: (tm || "?").slice(0,2).toUpperCase() }; }); return <div className="flex -space-x-1 mt-2">{resolved.slice(0, 5).map(function(m, ti) { return m.avatar_url ? <img key={ti} src={m.avatar_url} className="w-6 h-6 rounded-full border-2 border-white object-cover" title={m.full_name} /> : <div key={ti} className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-[10px] font-bold border-2 border-white" title={m.full_name}>{m.initials}</div>; })}{resolved.length > 5 && <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-[10px] font-bold border-2 border-white">+{resolved.length - 5}</div>}</div>; })()}                                    </div>
                                     <div className="w-full h-1.5 bg-gray-100 rounded-full"><div className={'h-full rounded-full transition-all ' + (autoP !== null ? 'bg-blue-500' : 'bg-blue-300')} style={{width: displayProgress + '%'}}></div></div>
                                 </div>
-                                {(() => { const incWeekly = weeklyPlan.filter(w => w.projectId === p.id && !completedWeekly[w.id]); const incTasks = quickTasks.filter(t => t.projectId === p.id && !completedTasks[t.id]); const allInc = [...incWeekly.map(w => ({ text: w.task, deadline: w.deadline })), ...incTasks.map(t => ({ text: t.task, deadline: t.due }))]; if (allInc.length === 0) return p.next ? <p className="text-xs text-blue-600 font-medium mt-2">Next: {p.next}</p> : null; allInc.sort((a, b) => { if (a.deadline && b.deadline) return new Date(a.deadline) - new Date(b.deadline); if (a.deadline) return -1; if (b.deadline) return 1; return 0; }); const nxt = allInc[0]; return <p className="text-xs text-blue-600 font-medium mt-2">Next: {nxt.text}{nxt.deadline ? " \u00B7 " + new Date(nxt.deadline).toLocaleDateString("en-US", {month:"short",day:"numeric"}) : ""}</p>; })()}
+                                {(() => {
+                                  const linked = [...(weeklyPlan || []).filter(t => t.project === p.id && !completedWeekly[t.id]), ...(quickTasks || []).filter(t => t.project === p.id && !completedTasks[t.id])];
+                                  linked.sort((a, b) => {
+                                    if (a.deadline && b.deadline) return new Date(a.deadline) - new Date(b.deadline);
+                                    if (a.deadline) return -1;
+                                    if (b.deadline) return 1;
+                                    return (b.important ? 1 : 0) - (a.important ? 1 : 0);
+                                  });
+                                  const next = linked[0];
+                                  return next ? <p className="text-xs text-blue-600 font-medium mt-2">Next: {next.text || next.task}{next.deadline ? ' (' + new Date(next.deadline).toLocaleDateString() + ')' : ''}</p> : null;
+                                })()}
                                 {p.launch && <p className="text-xs text-gray-400 mt-1">Launch: {new Date(p.launch).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'})}</p>}
                             </div>
                             );
@@ -2972,8 +3343,6 @@ const generateLiveBriefing = useCallback(() => {
 
     const BoardroomModule = () => {
     const [reminderMsg, setReminderMsg] = useState(null);
-    const [leaderboardProject, setLeaderboardProject] = useState('all');
-    const [eomDismissed, setEomDismissed] = useState(false);
 
     const taskHistory = JSON.parse(localStorage.getItem('nuop_taskHistory') || '[]');
     
@@ -3001,32 +3370,32 @@ const generateLiveBriefing = useCallback(() => {
         completionRate: assigned > 0 ? Math.round((completed / assigned) * 100) : 0
       };
     }).sort((a, b) => b.completed - a.completed || b.assigned - a.assigned);
-    
-    const totalAssigned = allDelegated.length;
-    const totalCompleted = allDelegated.filter(d => d.status === 'completed').length;
-    const totalPending = allDelegated.filter(d => d.status !== 'completed').length;
-    const totalAccepted = allDelegated.filter(d => d.status === 'accepted').length;
-    const avgRate = totalAssigned > 0 ? Math.round((totalCompleted / totalAssigned) * 100) : 0;
-    // Employee of the Month - filter to current month
+
+    const [leaderboardProject, setLeaderboardProject] = useState('all');
+    const [eomDismissed, setEomDismissed] = useState(false);
+
     const eomNow = new Date();
     const monthStart = new Date(eomNow.getFullYear(), eomNow.getMonth(), 1).toISOString();
     const monthlyDelegated = allDelegated.filter(d => d.status === 'completed' && d.created_at >= monthStart);
     const monthlyStats = allProfiles.map(prof => {
       const key = prof.username.toLowerCase();
       const monthTasks = monthlyDelegated.filter(d => (d.recipient_username || '').toLowerCase() === key);
-      return { name: prof.full_name || prof.username, key, avatar_url: prof.avatar_url, initials: prof.initials || (prof.full_name || prof.username).split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2), completed: monthTasks.length };
+      return { name: prof.full_name || prof.username, key, avatar_url: prof.avatar_url, initials: prof.initials || (prof.full_name || prof.username).split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2), completed: monthTasks.length };
     }).filter(m => m.completed > 0).sort((a, b) => b.completed - a.completed);
     const employeeOfMonth = monthlyStats.length > 0 ? monthlyStats[0] : null;
 
-    // Projects with tagged members (for leaderboard filter)
     const projectsWithMembers = projects.filter(p => Array.isArray(p.teamMembers) && p.teamMembers.length > 0);
 
-    // Leaderboard - filtered memberList by project
     const leaderboardList = leaderboardProject === 'all' ? memberList.filter(m => m.completed > 0 || m.assigned > 0) : memberList.filter(m => {
       const proj = projects.find(p => String(p.id) === String(leaderboardProject));
       return proj && Array.isArray(proj.teamMembers) && proj.teamMembers.includes(m.key);
     });
-
+    
+    const totalAssigned = allDelegated.length;
+    const totalCompleted = allDelegated.filter(d => d.status === 'completed').length;
+    const totalPending = allDelegated.filter(d => d.status !== 'completed').length;
+    const totalAccepted = allDelegated.filter(d => d.status === 'accepted').length;
+    const avgRate = totalAssigned > 0 ? Math.round((totalCompleted / totalAssigned) * 100) : 0;
     const topContributor = memberList.find(m => m.completed > 0) || (memberList.length > 0 ? memberList[0] : null);
     
     // All pending tasks sorted by deadline (nearest first)
@@ -3077,7 +3446,11 @@ const generateLiveBriefing = useCallback(() => {
         return (<div className="space-y-6 max-w-5xl">
             <div className="flex items-center justify-between">
                 <div><h1 className="text-xl font-bold text-gray-900">My Dashboard</h1>
-                <p className="text-sm text-gray-500 mt-1">Your personal productivity overview</p></div></div>
+                <p className="text-sm text-gray-500 mt-1">Your personal productivity overview</p></div>
+                <button onClick={() => setShowEodReport(true)} className="px-4 py-2 bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8e] text-white text-sm font-medium rounded-xl hover:opacity-90 transition flex items-center gap-2 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    EOD Report
+                </button></div>
             
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
@@ -3172,6 +3545,69 @@ const generateLiveBriefing = useCallback(() => {
             <div className="flex items-center gap-2 mb-2">{I.check("#10B981")}<p className="text-xs text-gray-500">Avg Completion Rate</p></div>
             <p className="text-2xl font-bold text-gray-900">{avgRate}%</p></div>
         </div>
+        {employeeOfMonth && !eomDismissed && (
+          <div className="bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 rounded-xl border border-amber-200 p-6 card-shadow relative overflow-hidden">
+            <button onClick={() => setEomDismissed(true)} className="absolute top-3 right-3 text-amber-400 hover:text-amber-600 text-sm">Dismiss</button>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                {employeeOfMonth.avatar_url ? <img src={employeeOfMonth.avatar_url} className="w-20 h-20 rounded-full object-cover border-4 border-amber-300 shadow-lg" /> : <div className="w-20 h-20 rounded-full bg-amber-200 flex items-center justify-center text-2xl font-bold text-amber-700 border-4 border-amber-300">{employeeOfMonth.initials}</div>}
+                <span className="absolute -top-2 -right-2 text-2xl">👑</span>
+              </div>
+              <div>
+                <p className="text-xs text-amber-600 font-semibold uppercase tracking-wider mb-1">Employee of the Month</p>
+                <p className="text-xl font-bold text-amber-900">{employeeOfMonth.name}</p>
+                <p className="text-sm text-amber-700 mt-1">{employeeOfMonth.completed} task{employeeOfMonth.completed !== 1 ? 's' : ''} completed this month</p>
+                <p className="text-xs text-amber-500 mt-2 italic">Updates dynamically throughout the month</p>
+              </div>
+            </div>
+            {monthlyStats.length > 1 && (
+              <div className="mt-4 pt-3 border-t border-amber-200">
+                <p className="text-xs text-amber-600 font-semibold mb-2">Runners Up</p>
+                <div className="flex gap-3">
+                  {monthlyStats.slice(1, 4).map((m, i) => (
+                    <div key={i} className="flex items-center gap-2 bg-white/60 rounded-lg px-3 py-1.5">
+                      {m.avatar_url ? <img src={m.avatar_url} className="w-6 h-6 rounded-full object-cover" /> : <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-700">{m.initials}</div>}
+                      <span className="text-xs text-amber-800">{m.name}</span>
+                      <span className="text-xs text-amber-500">{m.completed}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h2 className="text-base font-semibold text-gray-900">Project Leaderboard</h2>
+            <select value={leaderboardProject} onChange={e => setLeaderboardProject(e.target.value)} className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 bg-white">
+              <option value="all">All Members</option>
+              {projectsWithMembers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+          <div className="p-4">
+            {leaderboardList.length === 0 ? <p className="text-sm text-gray-400 text-center py-4">No members to rank</p> : (
+              <div className="space-y-2">
+                {leaderboardList.map((m, i) => {
+                  const medal = i === 0 ? '\uD83E\uDD47' : i === 1 ? '\uD83E\uDD48' : i === 2 ? '\uD83E\uDD49' : (i + 1);
+                  const medalBg = i === 0 ? 'bg-amber-50' : i === 1 ? 'bg-gray-50' : i === 2 ? 'bg-orange-50' : 'bg-white';
+                  return (
+                    <div key={m.key} className={"flex items-center gap-3 px-3 py-2 rounded-lg " + medalBg}>
+                      <span className="text-lg w-8 text-center">{medal}</span>
+                      {m.avatar_url ? <img src={m.avatar_url} className="w-8 h-8 rounded-full object-cover" /> : <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-semibold text-sm">{m.name.charAt(0).toUpperCase()}</div>}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{m.name}</p>
+                        <p className="text-xs text-gray-400">{m.assigned} assigned \u00B7 {m.completed} completed</p>
+                      </div>
+                      <span className="text-sm font-bold text-gray-700">{m.completionRate}%</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
         <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100"><h2 className="text-base font-semibold text-gray-900">Team Overview</h2></div>
           {memberList.length === 0 ? (<div className="p-8 text-center"><p className="text-sm text-gray-400">No delegated tasks yet. Assign tasks to team members to see productivity data.</p></div>
@@ -3195,73 +3631,6 @@ const generateLiveBriefing = useCallback(() => {
                           <div className="h-2 rounded-full" style={{width: Math.max(m.completionRate, 2) + '%', backgroundColor: m.completionRate >= 70 ? '#10B981' : m.completionRate >= 40 ? '#F59E0B' : '#EF4444'}}></div></div>
                         <span className="text-xs text-gray-500 w-8">{m.completionRate}%</span></div></td></tr>))}</tbody></table>)}
         </div>
-
-        {/* Employee of the Month */}
-        {!eomDismissed && (
-        <div className="bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 rounded-xl border border-amber-200 card-shadow mb-4 overflow-hidden relative">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400"></div>
-          <button onClick={() => setEomDismissed(true)} className="absolute top-3 right-3 text-amber-400 hover:text-amber-600 text-xs">dismiss</button>
-          <div className="px-6 py-5 flex items-center gap-5">
-            <div className="relative">
-              {employeeOfMonth ? (
-                employeeOfMonth.avatar_url ? <img src={employeeOfMonth.avatar_url} className="w-20 h-20 rounded-full object-cover border-4 border-amber-300 shadow-lg" /> : <div className="w-20 h-20 rounded-full bg-amber-200 flex items-center justify-center text-2xl font-bold text-amber-700 border-4 border-amber-300 shadow-lg">{employeeOfMonth.initials}</div>
-              ) : <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-2xl text-gray-300 border-4 border-gray-200">?</div>}
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center text-white text-sm shadow-md">'Ã°ÂÂÂ'</div>
-            </div>
-            <div className="flex-1">
-              <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-1">Employee of the Month</p>
-              {employeeOfMonth ? (<>
-                <p className="text-lg font-bold text-gray-900">{employeeOfMonth.name}</p>
-                <p className="text-sm text-amber-700 mt-0.5">{employeeOfMonth.completed} task{employeeOfMonth.completed !== 1 ? 's' : ''} completed this month</p>
-                <p className="text-xs text-amber-500 mt-1 italic">Updates dynamically as tasks are completed!</p>
-              </>) : (<>
-                <p className="text-sm text-gray-500">No completed tasks yet this month</p>
-                <p className="text-xs text-amber-500 mt-1">The race is on - who will take the crown?</p>
-              </>)}
-            </div>
-            {monthlyStats.length > 1 && <div className="text-right">
-              <p className="text-xs text-amber-600 font-medium mb-1">Runners up</p>
-              {monthlyStats.slice(1, 4).map((m, i) => <p key={m.key} className="text-xs text-gray-500">{i === 0 ? 'Ã°ÂÂ¥Â' : i === 1 ? 'Ã°ÂÂ¥Â' : '4th'} {m.name} ({m.completed})</p>)}
-            </div>}
-          </div>
-        </div>
-        )}
-
-        {/* Project Team Leaderboard */}
-        <div className="bg-white rounded-xl border border-gray-100 card-shadow mb-4">
-          <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-gray-900">Project Leaderboard</h2>
-            <select value={leaderboardProject} onChange={e => setLeaderboardProject(e.target.value)} className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 bg-white">
-              <option value="all">All Members</option>
-              {projectsWithMembers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-          </div>
-          {leaderboardList.length === 0 ? (
-            <div className="p-6 text-center text-xs text-gray-400">No members found for this project</div>
-          ) : (
-            <div className="p-4">
-              {leaderboardList.map((m, i) => {
-                const medal = i === 0 ? 'Ã°ÂÂ¥Â' : i === 1 ? 'Ã°ÂÂ¥Â' : i === 2 ? 'Ã°ÂÂ¥Â' : (i + 1);
-                const bgClass = i === 0 ? 'bg-amber-50 border-amber-200' : i === 1 ? 'bg-gray-50 border-gray-200' : i === 2 ? 'bg-orange-50 border-orange-200' : 'bg-white border-gray-100';
-                return (
-                  <div key={m.key} className={"flex items-center gap-3 px-4 py-3 rounded-xl mb-2 border " + bgClass}>
-                    <span className="text-lg w-8 text-center flex-shrink-0">{medal}</span>
-                    {m.avatar_url ? <img src={m.avatar_url} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-semibold text-sm">{m.name.charAt(0).toUpperCase()}</div>}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900">{m.name}</p>
-                      <p className="text-xs text-gray-400">{m.assigned} assigned &middot; {m.completed} completed</p>
-                    </div>
-                    <div className="text-right">
-                      <p className={"text-lg font-bold " + (m.completionRate >= 70 ? 'text-emerald-500' : m.completionRate >= 40 ? 'text-amber-500' : 'text-gray-400')}>{m.completionRate}%</p>
-                      <p className="text-xs text-gray-400">rate</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="bg-white rounded-xl border border-gray-100 card-shadow">
             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
@@ -3349,7 +3718,7 @@ const generateLiveBriefing = useCallback(() => {
     const activeProjects = isOwner ? projects : cloudProjects.map(sp => ({
       id: sp.local_id, name: sp.name, desc: sp.description, progress: sp.progress,
       status: sp.status, start: sp.start_date, launch: sp.launch_date,
-      team: sp.team_size, next: sp.next_step, teamMembers: sp.team_members
+      team: sp.team_size, next: sp.next_step, teamMembers: sp.teamMembers
     }));
     const activeTasks = isOwner ? weeklyPlan : cloudTasks.map(st => ({
       id: st.local_id, task: st.task_text, projectId: st.project_local_id,
@@ -3639,7 +4008,7 @@ const generateLiveBriefing = useCallback(() => {
                         <div className="flex items-center justify-between mb-3">
                             <div>
                                 <h2 className="text-base font-semibold text-gray-900">Goals & Intentions</h2>
-                                <p className="text-xs text-gray-400 mt-0.5">Your master plan Ã¢ÂÂ move tasks to This Week when ready</p>
+                                <p className="text-xs text-gray-400 mt-0.5">Your master plan   move tasks to This Week when ready</p>
                             </div>
                             <div className="flex items-center gap-2">
                                     {weeklyPlan.some(w => completedWeekly[w.id]) && (
@@ -4040,7 +4409,8 @@ const generateLiveBriefing = useCallback(() => {
             <div className={'flex-1 flex flex-col transition-all duration-300 ' + (sidebarOpen ? 'ml-60' : 'ml-16')}>
                 <TopBar />
                 <main className="flex-1 overflow-auto px-8 py-6">
-                    {activeModule === 'command' && CommandCentre()}
+                    {{EODReportModal()}
+                activeModule === 'command' && CommandCentre()}
                     {activeModule === 'income' && <IncomeModule />}
                     {activeModule === 'briefing' && <BriefingModule />}
                     {activeModule === 'planner' && <PlannerModule />}
