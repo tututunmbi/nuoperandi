@@ -1619,7 +1619,7 @@ const NuOperandi = () => {
         };
         initAuth();
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (session?.user) { setSupaUser(session.user); } else { setSupaUser(null); }
+            if (session?.user) { setSupaUser(session.user); } else if (event === "SIGNED_OUT") { setSupaUser(null); }
         });
         return () => subscription?.unsubscribe();
     }, []);
