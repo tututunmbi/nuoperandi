@@ -157,7 +157,7 @@ const Field = ({ label, children }) => (
 );
 
 const inputCls = "w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:bg-white transition";
-const btnPrimary = "w-full py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition";
+const btnPrimary = "w-full py-2.5 bg-violet-500 hover:bg-violet-600 text-white text-sm font-medium rounded-lg transition";
 const btnDanger = "px-3 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium rounded-lg transition";
 
 /* ====== FORM COMPONENTS ====== */
@@ -226,7 +226,7 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
             <div className="mt-4 border-t border-gray-100 pt-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Payment Milestones</span>
-                <button type="button" onClick={addPaymentMilestone} className="text-xs text-blue-500 hover:text-blue-600 font-medium">+ Add Milestone</button>
+                <button type="button" onClick={addPaymentMilestone} className="text-xs text-violet-600 hover:text-violet-700 font-medium">+ Add Milestone</button>
               </div>
               {payments.length === 0 && <p className="text-xs text-gray-400 italic mb-2">No milestones yet. Add deposit/balance tracking.</p>}
               {payments.map((pm, pmIdx) => (
@@ -275,12 +275,12 @@ const AcceptTaskModal = ({ task, onChooseDaily, onChooseWeekly, onCancel }) => {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => onChooseDaily(task)} className={"flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition hover:shadow-md " + (task.task_type === "quick" ? "border-blue-400 bg-blue-50" : "border-gray-200 hover:border-blue-300")}>
+            <button onClick={() => onChooseDaily(task)} className={"flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition hover:shadow-md " + (task.task_type === "quick" ? "border-blue-400 bg-violet-50" : "border-gray-200 hover:border-blue-300")}>
               <span className="text-2xl">📋</span>
               <span className="text-sm font-medium text-gray-900">Daily Tasks</span>
               <span className="text-xs text-gray-500">Add to today's plan</span>
             </button>
-            <button onClick={() => onChooseWeekly(task)} className={"flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition hover:shadow-md " + (task.task_type === "weekly" ? "border-blue-400 bg-blue-50" : "border-gray-200 hover:border-blue-300")}>
+            <button onClick={() => onChooseWeekly(task)} className={"flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition hover:shadow-md " + (task.task_type === "weekly" ? "border-blue-400 bg-violet-50" : "border-gray-200 hover:border-blue-300")}>
               <span className="text-2xl">📅</span>
               <span className="text-sm font-medium text-gray-900">Weekly Plan</span>
               <span className="text-xs text-gray-500">Add to this week</span>
@@ -465,8 +465,8 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
             <Field label="Project Name"><input className={inputCls} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. NuOperandi MVP" /></Field>
             <Field label="Description"><input className={inputCls} value={desc} onChange={e => setDesc(e.target.value)} placeholder="Brief description" /></Field>
             {item && autoProgress !== null && (
-                <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                    <p className="text-xs text-blue-600 font-medium">Progress auto-calculated from linked tasks: {autoProgress}%</p>
+                <div className="mb-4 p-3 bg-violet-50 rounded-lg border border-violet-100">
+                    <p className="text-xs text-violet-700 font-medium">Progress auto-calculated from linked tasks: {autoProgress}%</p>
                 </div>
             )}
             <div className="grid grid-cols-2 gap-3">
@@ -582,8 +582,8 @@ const WeeklyTaskForm = ({ item, onClose, setWeeklyPlan, activeProjects, onDelega
             <Field label="Delegate to (optional)">
                 <input type="text" className={inputCls} value={delegatedTo} onChange={e => { setDelegatedTo(e.target.value); searchUsers(e.target.value); }} placeholder="e.g. @username" />
                 {userSuggestions.length > 0 && <div className="mt-1 border border-gray-200 rounded-lg overflow-hidden">{userSuggestions.map(u => (
-                    <div key={u.username} className="px-3 py-2 text-xs cursor-pointer hover:bg-blue-50 flex items-center gap-2" onClick={() => { setDelegatedTo(u.username); setUserSuggestions([]); }}>
-                        <span className="font-medium text-blue-600">@{u.username}</span><span className="text-gray-400">{u.full_name}</span>
+                    <div key={u.username} className="px-3 py-2 text-xs cursor-pointer hover:bg-violet-50 flex items-center gap-2" onClick={() => { setDelegatedTo(u.username); setUserSuggestions([]); }}>
+                        <span className="font-medium text-violet-700">@{u.username}</span><span className="text-gray-400">{u.full_name}</span>
                     </div>
                 ))}</div>}
             </Field>
@@ -641,8 +641,8 @@ const TaskForm = ({ item, onClose, setQuickTasks, activeProjects, onDelegate }) 
             <Field label="Delegate to (optional)">
                 <input type="text" className={inputCls} value={delegatedTo} onChange={e => { setDelegatedTo(e.target.value); searchUsers(e.target.value); }} placeholder="e.g. @username" />
                 {userSuggestions.length > 0 && <div className="mt-1 border border-gray-200 rounded-lg overflow-hidden">{userSuggestions.map(u => (
-                    <div key={u.username} className="px-3 py-2 text-xs cursor-pointer hover:bg-blue-50 flex items-center gap-2" onClick={() => { setDelegatedTo(u.username); setUserSuggestions([]); }}>
-                        <span className="font-medium text-blue-600">@{u.username}</span><span className="text-gray-400">{u.full_name}</span>
+                    <div key={u.username} className="px-3 py-2 text-xs cursor-pointer hover:bg-violet-50 flex items-center gap-2" onClick={() => { setDelegatedTo(u.username); setUserSuggestions([]); }}>
+                        <span className="font-medium text-violet-700">@{u.username}</span><span className="text-gray-400">{u.full_name}</span>
                     </div>
                 ))}</div>}
             </Field>
@@ -798,7 +798,7 @@ const AuthFlow = ({ onAuth }) => {
                     <Field label="Password"><input type="password" className={inputCls} value={password} onChange={e => setPassword(e.target.value)} placeholder={mode === 'signup' ? 'Min 6 characters' : 'Your password'} /></Field>
                     {mode === 'signup' && autoInitials && username && (
                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm">{autoInitials}</div>
+                            <div className="w-10 h-10 rounded-full bg-violet-500 flex items-center justify-center text-white font-semibold text-sm">{autoInitials}</div>
                             <div><p className="text-sm font-medium text-gray-700">{name.trim()}</p><p className="text-xs text-gray-400">@{username}</p></div>
                         </div>
                     )}
@@ -807,7 +807,7 @@ const AuthFlow = ({ onAuth }) => {
                 <button className={btnPrimary + ' mt-6 w-full'} onClick={mode === 'signup' ? handleSignUp : handleLogin} disabled={loading}>
                     {loading ? 'Please wait...' : (mode === 'signup' ? 'Create Account' : 'Log In')}
                 </button>
-                <p className="text-xs text-gray-400 mt-4">{mode === 'login' ? "Don't have an account?" : 'Already have an account?'} <button onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); }} className="text-blue-500 hover:underline">{mode === 'login' ? 'Sign up' : 'Log in'}</button></p>
+                <p className="text-xs text-gray-400 mt-4">{mode === 'login' ? "Don't have an account?" : 'Already have an account?'} <button onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); }} className="text-violet-600 hover:underline">{mode === 'login' ? 'Sign up' : 'Log in'}</button></p>
             </div>
         </div>
     );
@@ -860,9 +860,9 @@ const ProfileEditModal = ({ userProfile, setUserProfile, supaUser, onClose }) =>
                     {avatarUrl ? (
                         <img src={avatarUrl} alt="Profile" className="w-20 h-20 rounded-full object-cover border-2 border-gray-200 group-hover:border-blue-400 transition" />
                     ) : (
-                        <div className="w-20 h-20 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-2xl group-hover:bg-blue-600 transition">{autoInitials || 'U'}</div>
+                        <div className="w-20 h-20 rounded-full bg-violet-500 flex items-center justify-center text-white font-bold text-2xl group-hover:bg-violet-600 transition">{autoInitials || 'U'}</div>
                     )}
-                    <div className="absolute bottom-0 right-0 w-7 h-7 bg-white rounded-full shadow-md flex items-center justify-center border border-gray-200 group-hover:bg-blue-50 transition">
+                    <div className="absolute bottom-0 right-0 w-7 h-7 bg-white rounded-full shadow-md flex items-center justify-center border border-gray-200 group-hover:bg-violet-50 transition">
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     </div>
                     {uploading && <div className="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center"><div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div></div>}
@@ -871,7 +871,7 @@ const ProfileEditModal = ({ userProfile, setUserProfile, supaUser, onClose }) =>
                 <div className="text-center">
                     <p className="text-sm font-medium text-gray-700">{name.trim() || 'Your Name'}</p>
                     <p className="text-xs text-gray-400">@{username.trim().toLowerCase().replace(/\s+/g, '') || 'username'}</p>
-                    <p className="text-xs text-blue-500 mt-1 cursor-pointer hover:underline" onClick={() => document.getElementById('avatar-upload').click()}>{uploading ? 'Uploading...' : 'Change photo'}</p>
+                    <p className="text-xs text-violet-600 mt-1 cursor-pointer hover:underline" onClick={() => document.getElementById('avatar-upload').click()}>{uploading ? 'Uploading...' : 'Change photo'}</p>
                 </div>
             </div>
             <button className={btnPrimary + ' w-full'} onClick={submit} disabled={saving}>{saving ? 'Saving...' : 'Save Profile'}</button>
@@ -919,7 +919,7 @@ const NotificationsPanel = ({ notifications, onMarkRead, onClose, delegatedToMe,
 
   return (
     <div className="fixed inset-0 z-50" onClick={onClose}>
-      <div className="fixed top-16 right-8 bg-white rounded-xl border border-gray-100 card-shadow w-96 max-h-96 overflow-y-auto z-50" onClick={e => e.stopPropagation()}>
+      <div className="fixed top-16 right-8 bg-white rounded-xl border border-violet-100/60 card-shadow w-96 max-h-96 overflow-y-auto z-50" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
           <span className="text-sm font-semibold text-gray-900">Notifications</span>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition">{I.x("#9CA3AF")}</button>
@@ -929,7 +929,7 @@ const NotificationsPanel = ({ notifications, onMarkRead, onClose, delegatedToMe,
         ) : notifications.map(n => {
           const found = findTaskInPlanner(n);
           return (
-            <div key={n.id} onClick={() => handleNotifClick(n)} className="px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition cursor-pointer flex items-start gap-3">
+            <div key={n.id} onClick={() => handleNotifClick(n)} className="px-4 py-3 border-b border-violet-50 hover:bg-gray-50 transition cursor-pointer flex items-start gap-3">
               <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
                 <span className="text-xs font-bold text-purple-600">{n.sender_name ? n.sender_name.split(' ').map(w => w[0]).join('').substring(0, 2) : '?'}</span>
               </div>
@@ -942,7 +942,7 @@ const NotificationsPanel = ({ notifications, onMarkRead, onClose, delegatedToMe,
                   {found && found.status === 'accepted' && <span className="text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-600">In planner</span>}
                 </div>
               </div>
-              {!n.is_read && <div className="w-2 h-2 rounded-full bg-blue-500 mt-1 flex-shrink-0"></div>}
+              {!n.is_read && <div className="w-2 h-2 rounded-full bg-violet-500 mt-1 flex-shrink-0"></div>}
             {expandedNotif === n.id && n.title === 'Task completed!' && (
               <div className="mt-2 ml-11 p-3 bg-green-50 rounded-lg border border-green-100" onClick={e => e.stopPropagation()}>
                 <p className="text-xs font-semibold text-green-800 mb-1">{n.sender_name} completed a task</p>
@@ -1008,10 +1008,10 @@ const AddMenu = ({ onClose, activeModule, setModal }) => {
     ];
     return (
         <div className="fixed inset-0 z-40" onClick={onClose}>
-            <div className="fixed bottom-24 right-8 bg-white rounded-xl border border-gray-100 card-shadow p-2 min-w-[180px] z-50" onClick={e => e.stopPropagation()}>
+            <div className="fixed bottom-24 right-8 bg-white rounded-xl border border-violet-100/60 card-shadow p-2 min-w-[180px] z-50" onClick={e => e.stopPropagation()}>
                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wide px-3 py-2">Add New</p>
                 {items.map((it, i) => (
-                    <button key={i} onClick={it.action} className="w-full text-left px-3 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition flex items-center gap-2">
+                    <button key={i} onClick={it.action} className="w-full text-left px-3 py-2.5 text-sm text-gray-700 hover:bg-violet-50 hover:text-violet-700 rounded-lg transition flex items-center gap-2">
                         {I.plus("#3B82F6")}
                         {it.label}
                     </button>
@@ -1126,12 +1126,12 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
                 <Field label="Note (optional)"><input className={inputCls} value={note} onChange={e => setNote(e.target.value)} placeholder="e.g. 2 staff members" /></Field>
             </div>
             {/* Tag Team Members Section */}
-            <div className="mt-4 border border-blue-100 rounded-lg">
-                <button onClick={() => setShowTagSection(!showTagSection)} className="w-full flex items-center justify-between px-4 py-3 bg-blue-50/50 hover:bg-blue-50 transition text-left">
+            <div className="mt-4 border border-violet-100 rounded-lg">
+                <button onClick={() => setShowTagSection(!showTagSection)} className="w-full flex items-center justify-between px-4 py-3 bg-violet-50/50 hover:bg-violet-50 transition text-left">
                     <div className="flex items-center gap-2">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <span className="text-sm font-medium text-blue-700">Tag Team Members</span>
-                        {taggedMembers.length > 0 && <span className="text-xs px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600">{taggedMembers.length}</span>}
+                        <span className="text-sm font-medium text-violet-700">Tag Team Members</span>
+                        {taggedMembers.length > 0 && <span className="text-xs px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-700">{taggedMembers.length}</span>}
                     </div>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" className={"transition " + (showTagSection ? "rotate-180" : "")}><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
@@ -1139,7 +1139,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
                     {taggedMembers.map((member, idx) => <div key={idx} className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg">
                         <div className="flex-1 space-y-2">
                             <div className="flex items-center gap-2">
-                                <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-600">{(member.fullName || member.username).charAt(0).toUpperCase()}</div>
+                                <div className="w-7 h-7 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-700">{(member.fullName || member.username).charAt(0).toUpperCase()}</div>
                                 <div><p className="text-sm font-medium text-gray-900">{member.fullName || member.username}</p><p className="text-xs text-gray-400">@{member.username}</p></div>
                             </div>
                             <div className="grid grid-cols-2 gap-2">
@@ -1158,15 +1158,15 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
                     <div className="relative">
                         <input className={inputCls + " !text-xs"} placeholder="Search @username to add..." value={tagSearch} onChange={e => { setTagSearch(e.target.value); searchTagUser(e.target.value); }} />
                         {tagSuggestions.length > 0 && <div className="mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
-                            {tagSuggestions.map(u => <button key={u.username} onClick={() => addTaggedMember(u)} className="w-full text-left px-3 py-2 hover:bg-blue-50 flex items-center gap-2 transition">
-                                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-600">{(u.full_name || u.username).charAt(0).toUpperCase()}</div>
+                            {tagSuggestions.map(u => <button key={u.username} onClick={() => addTaggedMember(u)} className="w-full text-left px-3 py-2 hover:bg-violet-50 flex items-center gap-2 transition">
+                                <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-700">{(u.full_name || u.username).charAt(0).toUpperCase()}</div>
                                 <div><p className="text-sm text-gray-900">{u.full_name || u.username}</p><p className="text-xs text-gray-400">@{u.username}</p></div>
                             </button>)}
                         </div>}
                     </div>
                     {taggedMembers.length > 0 && <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                         <span className="text-xs text-gray-400">Tagged: {taggedMembers.length} {taggedMembers.length === 1 ? 'person' : 'people'}</span>
-                        <span className="text-xs font-medium text-blue-600">{String.fromCharCode(8358)}{taggedMembers.reduce((sum, m) => sum + (m.paymentType === 'Percentage' && linkedStream ? (Number(m.percentage || 0) / 100) * Number(linkedStream.monthly) : Number(String(m.amount || '0').replace(/[^0-9.]/g, ''))), 0).toLocaleString()} allocated</span>
+                        <span className="text-xs font-medium text-violet-700">{String.fromCharCode(8358)}{taggedMembers.reduce((sum, m) => sum + (m.paymentType === 'Percentage' && linkedStream ? (Number(m.percentage || 0) / 100) * Number(linkedStream.monthly) : Number(String(m.amount || '0').replace(/[^0-9.]/g, ''))), 0).toLocaleString()} allocated</span>
                     </div>}
                 </div>}
             </div>
@@ -2102,9 +2102,9 @@ const NuOperandi = () => {
         }]);
     };
 
-    const catColors = { amber: 'bg-amber-50 border-amber-200 text-amber-800', blue: 'bg-blue-50 border-blue-200 text-blue-800', purple: 'bg-purple-50 border-purple-200 text-purple-800', green: 'bg-emerald-50 border-emerald-200 text-emerald-800' };
+    const catColors = { amber: 'bg-amber-50 border-amber-200 text-amber-800', blue: 'bg-violet-50 border-violet-200 text-blue-800', purple: 'bg-purple-50 border-purple-200 text-purple-800', green: 'bg-emerald-50 border-emerald-200 text-emerald-800' };
     const catDot = { amber: 'bg-amber-400', blue: 'bg-blue-400', purple: 'bg-purple-400', green: 'bg-emerald-400' };
-    const statusColors = { 'On Track': 'bg-emerald-50 text-emerald-700', 'Growing': 'bg-blue-50 text-blue-700', 'At Risk': 'bg-red-50 text-red-700', 'In Progress': 'bg-blue-50 text-blue-700', 'Planning': 'bg-amber-50 text-amber-700', 'Launch Ready': 'bg-emerald-50 text-emerald-700', 'Completed': 'bg-gray-100 text-gray-600' };
+    const statusColors = { 'On Track': 'bg-emerald-50 text-emerald-700', 'Growing': 'bg-violet-50 text-violet-700', 'At Risk': 'bg-red-50 text-red-700', 'In Progress': 'bg-violet-50 text-violet-700', 'Planning': 'bg-amber-50 text-amber-700', 'Launch Ready': 'bg-emerald-50 text-emerald-700', 'Completed': 'bg-gray-100 text-gray-600' };
     const prioColor = { high: 'bg-red-100 text-red-600', medium: 'bg-amber-100 text-amber-600', low: 'bg-emerald-100 text-emerald-600' };
     const prioLabel = { high: 'High', medium: 'Med', low: 'Low' };
 
@@ -2121,13 +2121,13 @@ const NuOperandi = () => {
             <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">{icon}</div>
             <p className="text-sm font-medium text-gray-900 mb-1">{title}</p>
             <p className="text-xs text-gray-400 mb-5">{sub}</p>
-            {action && <button onClick={action} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition">{I.plus("white")} {actionLabel}</button>}
+            {action && <button onClick={action} className="inline-flex items-center gap-2 px-4 py-2 bg-violet-500 hover:bg-violet-600 text-white text-sm font-medium rounded-lg transition">{I.plus("white")} {actionLabel}</button>}
         </div>
     );
 
     const Sidebar = () => (
-        <div className={'fixed left-0 top-0 h-screen flex flex-col z-10 bg-white border-r border-gray-100 sidebar-shadow transition-all duration-300 ' + (sidebarOpen ? 'w-60' : 'w-16')}>
-            <div className="p-4 flex items-center justify-between border-b border-gray-50">
+        <div className={'fixed left-0 top-0 h-screen flex flex-col z-10 bg-white/90 backdrop-blur-sm border-r border-violet-100/500 sidebar-shadow transition-all duration-300 ' + (sidebarOpen ? 'w-60' : 'w-16')}>
+            <div className="p-4 flex items-center justify-between border-b border-violet-50">
                 {sidebarOpen ? (
                     <div className="flex items-center gap-2.5"><Emblem size={34} /><span className="text-base font-semibold text-gray-900 tracking-tight">NuOperandi</span></div>
                 ) : (
@@ -2137,14 +2137,14 @@ const NuOperandi = () => {
             </div>
             <nav className="flex-1 p-2 space-y-0.5 mt-2">
                 {[
-                    { id: 'command', icon: () => I.command(activeModule === 'command' ? '#3B82F6' : '#6B7280'), label: 'Command Centre' },
-                    { id: 'income', icon: () => I.dollar(activeModule === 'income' ? '#3B82F6' : '#6B7280'), label: 'Income & Projects' },
-                    { id: 'planner', icon: () => I.calendar(activeModule === 'planner' ? '#3B82F6' : '#6B7280'), label: 'Planner' },
-                    { id: 'history', icon: () => I.history(activeModule === 'history' ? '#3B82F6' : '#6B7280'), label: 'History' },
-                { id: 'boardroom', icon: () => I.bar(activeModule === 'boardroom' ? '#3B82F6' : '#6B7280'), label: 'Boardroom' }
+                    { id: 'command', icon: () => I.command(activeModule === 'command' ? '#7C3AED' : '#6B7280'), label: 'Command Centre' },
+                    { id: 'income', icon: () => I.dollar(activeModule === 'income' ? '#7C3AED' : '#6B7280'), label: 'Income & Projects' },
+                    { id: 'planner', icon: () => I.calendar(activeModule === 'planner' ? '#7C3AED' : '#6B7280'), label: 'Planner' },
+                    { id: 'history', icon: () => I.history(activeModule === 'history' ? '#7C3AED' : '#6B7280'), label: 'History' },
+                { id: 'boardroom', icon: () => I.bar(activeModule === 'boardroom' ? '#7C3AED' : '#6B7280'), label: 'Boardroom' }
                 ].map(item => (
                     <button key={item.id} onClick={() => setActiveModule(item.id)}
-                        className={'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm ' + (activeModule === item.id ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50')}>
+                        className={'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm ' + (activeModule === item.id ? 'bg-violet-50 text-violet-700 font-medium' : 'text-gray-500 hover:text-gray-800 hover:bg-violet-50/50')}>
                         {item.icon()}{sidebarOpen && <span>{item.label}</span>}
                     </button>
                 ))}
@@ -2161,30 +2161,30 @@ const NuOperandi = () => {
         const todayRemaining = todayTasksTotal - todayTasksDone;
         const delegatedActiveCount = delegatedByMe.filter(d => d.status === 'pending' || d.status === 'accepted').length;
         return (
-        <div className="bg-white/80 backdrop-blur-md border-b border-gray-100 px-8 py-5 flex items-center justify-between sticky top-0 z-10">
+        <div className="bg-white/70 backdrop-blur-xl border-b border-violet-100/50 px-8 py-5 flex items-center justify-between sticky top-0 z-10">
             <div className="flex-1 min-w-0">
-                <h1 className="text-xl font-semibold text-gray-900">{greeting()}, <span className="text-blue-500">{userProfile ? userProfile.name.split(' ')[0] : 'User'}</span></h1>
+                <h1 className="text-xl font-semibold text-gray-900">{greeting()}, <span className="text-violet-600">{userProfile ? userProfile.name.split(' ')[0] : 'User'}</span></h1>
                 <p className="text-sm text-gray-400 mt-0.5">{fmtDate(currentTime)}</p>
                 <p className="text-xs text-gray-400 mt-2 italic truncate max-w-xl" style={{color:'#B8952C'}}>"{getQuote()}"</p>
             </div>
             <div className="flex items-center gap-5 flex-shrink-0">
-                <button onClick={() => { setActiveModule('planner'); setPlannerTab('daily'); }} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 hover:bg-blue-50 border border-gray-100 hover:border-blue-200 transition cursor-pointer group" title="Go to Today's Tasks">
+                <button onClick={() => { setActiveModule('planner'); setPlannerTab('daily'); }} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 hover:bg-violet-50 border border-violet-100/60 hover:border-violet-200 transition cursor-pointer group" title="Go to Today's Tasks">
                     {I.clipboard("#6B7280")}
-                    <span className="text-xs font-medium text-gray-500 group-hover:text-blue-600 transition">{todayTasksDone}/{todayTasksTotal} tasks</span>
-                    {todayRemaining > 0 && <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600">{todayRemaining}</span>}
+                    <span className="text-xs font-medium text-gray-500 group-hover:text-violet-700 transition">{todayTasksDone}/{todayTasksTotal} tasks</span>
+                    {todayRemaining > 0 && <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-700">{todayRemaining}</span>}
                     {todayRemaining === 0 && todayTasksTotal > 0 && <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-600">Done</span>}
                 </button>
               {delegatedActiveCount > 0 && <span className="ml-2 px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600 text-xs font-semibold">{delegatedActiveCount} delegated</span>}
                 <span className="text-sm text-gray-400 font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
                 <button onClick={() => setNotificationsOpen(!notificationsOpen)} className="relative text-gray-400 hover:text-gray-600 transition">{I.bell("#9CA3AF")}{unreadCount > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center animate-pulse">{unreadCount}</span>}</button>
-                <div onClick={() => setModal('settings')} className="w-9 h-9 rounded-full cursor-pointer hover:ring-2 hover:ring-blue-400 transition overflow-hidden">{userProfile && userProfile.avatar_url ? <img src={userProfile.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover" /> : <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm">{userProfile ? userProfile.initials : 'U'}</div>}</div>
+                <div onClick={() => setModal('settings')} className="w-9 h-9 rounded-full cursor-pointer hover:ring-2 hover:ring-blue-400 transition overflow-hidden">{userProfile && userProfile.avatar_url ? <img src={userProfile.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover" /> : <div className="w-9 h-9 rounded-full bg-violet-500 flex items-center justify-center text-white font-semibold text-sm">{userProfile ? userProfile.initials : 'U'}</div>}</div>
             </div>
         </div>
         );
     };
 
     const MetricCard = ({label, value, sub, trend, icon}) => (
-        <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow card-shadow-hover transition-all">
+        <div className="bg-white rounded-xl border border-violet-100/60 p-5 card-shadow card-shadow-hover transition-all">
             <div className="flex items-center justify-between mb-3"><span className="text-xs font-medium text-gray-400 uppercase tracking-wide">{label}</span>{icon}</div>
             <p className="text-2xl font-semibold text-gray-900">{value}</p>
             {sub && <p className={'text-xs mt-1.5 ' + (trend > 0 ? 'text-emerald-500' : trend < 0 ? 'text-red-400' : 'text-gray-400')}>{sub}</p>}
@@ -2288,17 +2288,17 @@ const NuOperandi = () => {
             <div className="grid grid-cols-4 gap-3">
               <div className="bg-green-50 rounded-xl p-3 text-center"><div className="text-2xl font-bold text-green-600">{done.length}</div><div className="text-xs text-green-700">Completed</div></div>
               <div className="bg-red-50 rounded-xl p-3 text-center"><div className="text-2xl font-bold text-red-500">{notDone.length}</div><div className="text-xs text-red-600">Pending</div></div>
-              <div className="bg-blue-50 rounded-xl p-3 text-center"><div className="text-2xl font-bold text-blue-600">{delComp.length}</div><div className="text-xs text-blue-700">Delegated Done</div></div>
+              <div className="bg-violet-50 rounded-xl p-3 text-center"><div className="text-2xl font-bold text-violet-700">{delComp.length}</div><div className="text-xs text-violet-700">Delegated Done</div></div>
               <div className="bg-gray-50 rounded-xl p-3 text-center"><div className="text-2xl font-bold text-gray-700">{rate}%</div><div className="text-xs text-gray-500">Rate</div></div>
             </div>
             {done.length > 0 && <div><h3 className="text-sm font-semibold text-green-700 mb-2">Tasks Completed ({done.length})</h3><div className="space-y-1">{done.map((t,i) => <div key={i} className="text-sm text-gray-700 py-1 flex items-start gap-2"><span className="text-green-500 mt-0.5">&#10003;</span><span><span className="text-gray-400 text-xs">[{t.project}]</span> {t.text}</span></div>)}</div></div>}
             {notDone.length > 0 && <div><h3 className="text-sm font-semibold text-red-600 mb-2">Tasks Pending ({notDone.length})</h3><div className="space-y-1">{notDone.map((t,i) => <div key={i} className="text-sm text-gray-700 py-1 flex items-start gap-2"><span className="w-3 h-3 rounded-full border-2 border-red-300 mt-1 flex-shrink-0"></span><span><span className="text-gray-400 text-xs">[{t.project}]</span> {t.text}</span></div>)}</div></div>}
-            {delComp.length > 0 && <div><h3 className="text-sm font-semibold text-blue-700 mb-2">Delegated Completed ({delComp.length})</h3><div className="space-y-1">{delComp.map((d,i) => <div key={i} className="text-sm text-gray-700 py-1 flex items-start gap-2"><span className="text-blue-500 mt-0.5">&#10003;</span><span>{d.task_text} <span className="text-blue-400 text-xs">@{d.recipient_username || 'team'}</span></span></div>)}</div></div>}
+            {delComp.length > 0 && <div><h3 className="text-sm font-semibold text-violet-700 mb-2">Delegated Completed ({delComp.length})</h3><div className="space-y-1">{delComp.map((d,i) => <div key={i} className="text-sm text-gray-700 py-1 flex items-start gap-2"><span className="text-violet-600 mt-0.5">&#10003;</span><span>{d.task_text} <span className="text-blue-400 text-xs">@{d.recipient_username || 'team'}</span></span></div>)}</div></div>}
             {delPend.length > 0 && <div><h3 className="text-sm font-semibold text-orange-600 mb-2">Delegated Pending ({delPend.length})</h3><div className="space-y-1">{delPend.map((d,i) => <div key={i} className="text-sm text-gray-700 py-1 flex items-start gap-2"><span className="w-3 h-3 rounded-full border-2 border-orange-300 mt-1 flex-shrink-0"></span><span>{d.task_text} <span className="text-orange-400 text-xs">@{d.recipient_username || 'team'}</span></span></div>)}</div></div>}
             <div><label className="text-sm font-semibold text-gray-600 mb-2 block">Notes</label><textarea id="eod-notes-input" className="w-full border border-gray-200 rounded-xl p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-200" rows="3" placeholder="Add notes for your report..."></textarea></div>
             <div className="bg-gray-50 rounded-xl p-4">
               <div className="flex items-center justify-between mb-2"><span className="text-sm font-semibold text-gray-600">Daily Reminder</span>
-              <button onClick={() => setEodReminderEnabled(!eodReminderEnabled)} className={"relative inline-flex h-6 w-11 items-center rounded-full transition-colors " + (eodReminderEnabled ? "bg-blue-500" : "bg-gray-300")}><span className={"inline-block h-4 w-4 transform rounded-full bg-white transition " + (eodReminderEnabled ? "translate-x-6" : "translate-x-1")}></span></button></div>
+              <button onClick={() => setEodReminderEnabled(!eodReminderEnabled)} className={"relative inline-flex h-6 w-11 items-center rounded-full transition-colors " + (eodReminderEnabled ? "bg-violet-500" : "bg-gray-300")}><span className={"inline-block h-4 w-4 transform rounded-full bg-white transition " + (eodReminderEnabled ? "translate-x-6" : "translate-x-1")}></span></button></div>
               {eodReminderEnabled && <div className="flex items-center gap-2"><span className="text-xs text-gray-500">Remind at</span><input type="time" value={eodReminderTime} onChange={e => setEodReminderTime(e.target.value)} className="border border-gray-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" /><span className="text-xs text-gray-500">daily</span></div>}
             </div>
             <div className="flex gap-3">
@@ -2323,14 +2323,14 @@ const NuOperandi = () => {
                 <MetricCard label="Net Income" value={fmtNaira(netMonthly)} sub={netMonthly >= 0 ? 'Healthy' : 'Deficit'} trend={netMonthly >= 0 ? 1 : -1} icon={I.wallet(netMonthly >= 0 ? "#10B981" : "#EF4444")} />
                 <MetricCard label="Annual Projected" value={fmtNaira(totalMonthly * 12)} sub={fmtNaira(netMonthly * 12) + ' net/yr'} trend={netMonthly >= 0 ? 1 : -1} icon={I.bar("#8B5CF6")} />
                 <MetricCard label="Next Payment" value={nextPaymentDue ? new Date(nextPaymentDue.nextPayment).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '--'} sub={nextPaymentDue ? nextPaymentDue.name : 'No dates set'} trend={0} icon={I.calendar("#3B82F6")} />
-                <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow card-shadow-hover transition-all cursor-pointer" onClick={() => { setActiveModule('planner'); setPlannerTab('daily'); }}>
+                <div className="bg-white rounded-xl border border-violet-100/60 p-5 card-shadow card-shadow-hover transition-all cursor-pointer" onClick={() => { setActiveModule('planner'); setPlannerTab('daily'); }}>
                     <div className="flex items-center justify-between mb-3"><span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Today's Tasks</span>{I.clipboard("#F59E0B")}</div>
                     <p className="text-2xl font-semibold text-gray-900">{todayDone}/{quickTasks.length}</p>
                     <p className={'text-xs mt-1.5 ' + (pendingTasks.length === 0 && quickTasks.length > 0 ? 'text-emerald-500' : pendingTasks.length > 0 ? 'text-amber-500' : 'text-gray-400')}>{pendingTasks.length === 0 && quickTasks.length > 0 ? 'All done!' : pendingTasks.length + ' pending'}</p>
                 </div>
             </div>
 
-            <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+            <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-violet-100">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8e] flex items-center justify-center text-white text-lg font-bold">R</div>
                     <div><h3 className="text-sm font-semibold text-gray-800">End of Day Report</h3><p className="text-xs text-gray-500">Review progress and download PDF</p></div>
@@ -2340,22 +2340,22 @@ const NuOperandi = () => {
 
             <div className="grid grid-cols-5 gap-6">
                 <div className="col-span-3 space-y-6">
-                    <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
-                        <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+                    <div className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
+                        <div className="px-5 py-4 border-b border-violet-50 flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
                                 {I.clock("#3B82F6")}
                                 <h3 className="text-sm font-semibold text-gray-900">Today's Schedule</h3>
-                                {upcomingBlocks.length > 0 && <span className="text-xs px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600">{upcomingBlocks.length} remaining</span>}
+                                {upcomingBlocks.length > 0 && <span className="text-xs px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-700">{upcomingBlocks.length} remaining</span>}
                             </div>
-                            <button onClick={() => setModal('addTimeBlock')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
+                            <button onClick={() => setModal('addTimeBlock')} className="text-xs text-violet-600 hover:text-violet-700 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
                         </div>
                         {timeBlocks.length === 0 ? (
                             <div className="p-8 text-center">
                                 <p className="text-sm text-gray-400">No time blocks scheduled</p>
-                                <button onClick={() => setModal('addTimeBlock')} className="text-xs text-blue-500 hover:text-blue-600 font-medium mt-2">Add your first block</button>
+                                <button onClick={() => setModal('addTimeBlock')} className="text-xs text-violet-600 hover:text-violet-700 font-medium mt-2">Add your first block</button>
                             </div>
                         ) : (
-                            <div className="divide-y divide-gray-50">
+                            <div className="divide-y divide-violet-50/50">
                                 {timeBlocks.filter(b => !completedTimeBlocks[b.id]).map(b => (
                                     <div key={b.id} className={'px-5 py-3 flex items-center gap-4 group transition ' + (completedTimeBlocks[b.id] ? 'opacity-40 bg-gray-50/50' : 'hover:bg-gray-50/30')}>
                                         <span className="cursor-pointer flex-shrink-0" onClick={() => toggleBlock(b.id)}>
@@ -2364,7 +2364,7 @@ const NuOperandi = () => {
                                         <div className={'w-2 h-2 rounded-full flex-shrink-0 ' + (catDot[b.cat] || catDot.blue)}></div>
                                         <span className="text-xs font-medium text-gray-400 w-28 flex-shrink-0">{b.time}{b.end ? ' - ' + b.end : ''}</span>
                                         <span className={'text-sm flex-1 ' + (completedTimeBlocks[b.id] ? 'line-through text-gray-400' : 'text-gray-900')}>{b.task}</span>
-                                        <button onClick={() => { setEditItem(b); setModal('editTimeBlock'); }} className="p-1 rounded-lg hover:bg-gray-100 transition opacity-0 group-hover:opacity-100">{I.edit("#9CA3AF")}</button>
+                                        <button onClick={() => { setEditItem(b); setModal('editTimeBlock'); }} className="p-1 rounded-lg hover:bg-violet-50 transition opacity-0 group-hover:opacity-100">{I.edit("#9CA3AF")}</button>
                                     </div>
                                 ))}
                             </div>
@@ -2373,27 +2373,27 @@ const NuOperandi = () => {
                             <div className="px-5 py-2.5 border-t border-gray-50 bg-gray-50/30">
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs text-gray-400">{completedBlocks.length}/{timeBlocks.length} completed</span>
-                                    <button onClick={() => { setActiveModule('planner'); setPlannerTab('schedule'); }} className="text-xs text-blue-500 hover:text-blue-600 font-medium">View full schedule</button>
+                                    <button onClick={() => { setActiveModule('planner'); setPlannerTab('schedule'); }} className="text-xs text-violet-600 hover:text-violet-700 font-medium">View full schedule</button>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
-                        <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+                    <div className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
+                        <div className="px-5 py-4 border-b border-violet-50 flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
                                 {I.zap("#F59E0B")}
                                 <h3 className="text-sm font-semibold text-gray-900">Pending Tasks</h3>
                                 {pendingTasks.length > 0 && <span className="text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600">{pendingTasks.length}</span>}
                             </div>
-                            <button onClick={() => setModal('addTask')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
+                            <button onClick={() => setModal('addTask')} className="text-xs text-violet-600 hover:text-violet-700 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
                         </div>
                         {pendingTasks.length === 0 ? (
                             <div className="p-6 text-center">
                                 <p className="text-sm text-gray-400">{quickTasks.length > 0 ? 'All tasks completed today!' : 'No tasks for today'}</p>
                             </div>
                         ) : (
-                            <div className="divide-y divide-gray-50">
+                            <div className="divide-y divide-violet-50/50">
                                 {pendingTasks.slice(0, 6).map(t => {
                                     const proj = t.projectId ? projects.find(p => p.id === t.projectId) : null;
                                     return (
@@ -2415,20 +2415,20 @@ const NuOperandi = () => {
                         )}
                         {pendingTasks.length > 6 && (
                             <div className="px-5 py-2.5 border-t border-gray-50 bg-gray-50/30 text-center">
-                                <button onClick={() => { setActiveModule('planner'); setPlannerTab('daily'); }} className="text-xs text-blue-500 hover:text-blue-600 font-medium">View all {pendingTasks.length} tasks</button>
+                                <button onClick={() => { setActiveModule('planner'); setPlannerTab('daily'); }} className="text-xs text-violet-600 hover:text-violet-700 font-medium">View all {pendingTasks.length} tasks</button>
                             </div>
                         )}
                     </div>
                     {quickTasks.filter(t => t.delegatedTo && !completedTasks[t.id]).length > 0 && (
-                        <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
-                            <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+                        <div className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
+                            <div className="px-5 py-4 border-b border-violet-50 flex items-center justify-between">
                                 <div className="flex items-center gap-2.5">
                                     {I.user("#8B5CF6")}
                                     <h3 className="text-sm font-semibold text-gray-900">Delegated</h3>
                                     <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600">{quickTasks.filter(t => t.delegatedTo && !completedTasks[t.id]).length}</span>
                                 </div>
                             </div>
-                            <div className="divide-y divide-gray-50">
+                            <div className="divide-y divide-violet-50/50">
                                 {quickTasks.filter(t => t.delegatedTo && !completedTasks[t.id]).slice(0, 4).map(t => (
                                     <div key={t.id} className="px-5 py-3 flex items-center gap-3">
                                         <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-semibold text-xs flex-shrink-0">{t.delegatedTo.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)}</div>
@@ -2522,7 +2522,7 @@ const NuOperandi = () => {
     </div>
     )}
 
-                    <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow">
+                    <div className="bg-white rounded-xl border border-violet-100/60 p-5 card-shadow">
                         <div className="flex items-center gap-2.5 mb-4">
                             {I.trending("#3B82F6")}
                             <h3 className="text-sm font-semibold text-gray-900">Weekly Progress</h3>
@@ -2534,27 +2534,27 @@ const NuOperandi = () => {
                         {weeklyDoneCC.total > 0 && (
                             <div>
                                 <div className="w-full h-2.5 bg-gray-100 rounded-full">
-                                    <div className="h-full bg-blue-500 rounded-full transition-all" style={{width: (weeklyDoneCC.total > 0 ? (weeklyDoneCC.done / weeklyDoneCC.total) * 100 : 0) + '%'}}></div>
+                                    <div className="h-full bg-violet-500 rounded-full transition-all" style={{width: (weeklyDoneCC.total > 0 ? (weeklyDoneCC.done / weeklyDoneCC.total) * 100 : 0) + '%'}}></div>
                                 </div>
                                 <p className="text-xs text-gray-400 mt-2">{Math.round((weeklyDoneCC.done / weeklyDoneCC.total) * 100)}% complete this week</p>
                             </div>
                         )}
-                        <button onClick={() => { setActiveModule('planner'); setPlannerTab('weekly'); }} className="text-xs text-blue-500 hover:text-blue-600 font-medium mt-3 flex items-center gap-1">View weekly plan {I.arrowRight("#3B82F6")}</button>
+                        <button onClick={() => { setActiveModule('planner'); setPlannerTab('weekly'); }} className="text-xs text-violet-600 hover:text-violet-700 font-medium mt-3 flex items-center gap-1">View weekly plan {I.arrowRight("#3B82F6")}</button>
                     </div>
 
-                    <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
-                        <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+                    <div className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
+                        <div className="px-5 py-4 border-b border-violet-50 flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
                                 {I.bulb("#8B5CF6")}
                                 <h3 className="text-sm font-semibold text-gray-900">Active Projects</h3>
                                 <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600">{activeProjects.length}</span>
                             </div>
-                            <button onClick={() => setActiveModule('income')} className="text-xs text-blue-500 hover:text-blue-600 font-medium">View all</button>
+                            <button onClick={() => setActiveModule('income')} className="text-xs text-violet-600 hover:text-violet-700 font-medium">View all</button>
                         </div>
                         {activeProjects.length === 0 ? (
                             <div className="p-6 text-center"><p className="text-sm text-gray-400">No active projects</p></div>
                         ) : (
-                            <div className="divide-y divide-gray-50">
+                            <div className="divide-y divide-violet-50/50">
                                 {[...activeProjects].sort((a, b) => (getProjectProgress(b.id) || 0) - (getProjectProgress(a.id) || 0)).slice(0, 5).map(p => {
                                     const prog = getProjectProgress(p.id) || 0;
                                     return (
@@ -2563,7 +2563,7 @@ const NuOperandi = () => {
                                             <p className="text-sm font-medium text-gray-900 truncate">{p.name}</p>
                                             <span className="text-xs text-gray-400 flex-shrink-0 ml-2">{prog}%</span>
                                         </div>
-                                        <div className="w-full h-1.5 bg-gray-100 rounded-full"><div className="h-full bg-blue-500 rounded-full transition-all" style={{width: prog + '%'}}></div></div>
+                                        <div className="w-full h-1.5 bg-gray-100 rounded-full"><div className="h-full bg-violet-500 rounded-full transition-all" style={{width: prog + '%'}}></div></div>
                                     </div>
                                     );
                                 })}
@@ -2646,16 +2646,16 @@ const NuOperandi = () => {
             <div>
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-base font-semibold text-gray-900">Income Streams</h2>
-                    <button onClick={() => setModal('addIncome')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
+                    <button onClick={() => setModal('addIncome')} className="text-xs text-violet-600 hover:text-violet-700 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
                 </div>
                 {incomeStreams.length === 0 ? (
-                    <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                    <div className="bg-white rounded-xl border border-violet-100/60 card-shadow">
                         <Empty icon={I.dollar("#9CA3AF")} title="No income streams yet" sub="Add your first income stream to start tracking" action={() => setModal('addIncome')} actionLabel="Add Income Stream" />
                     </div>
                 ) : (
                     <div className="space-y-2">
                         {incomeStreams.map(s => (
-                            <div key={s.id} className="bg-white rounded-xl border border-gray-100 p-5 card-shadow card-shadow-hover transition-all">
+                            <div key={s.id} className="bg-white rounded-xl border border-violet-100/60 p-5 card-shadow card-shadow-hover transition-all">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4 cursor-pointer flex-1" onClick={() => setExpandedIncome(expandedIncome === s.id ? null : s.id)}>
                                         <div className={'w-2 h-12 rounded-full ' + (s.status === 'Growing' ? 'bg-blue-400' : s.status === 'At Risk' ? 'bg-red-300' : 'bg-emerald-400')}></div>
@@ -2663,7 +2663,7 @@ const NuOperandi = () => {
                                             <p className="font-medium text-gray-900 text-sm">{s.name}</p>
                                             {(s.role || s.company) && <p className="text-xs text-gray-400 mt-0.5">{s.role}{s.role && s.company ? '  " ' : ''}{s.company}</p>}
                                             <div className="flex gap-2 mt-1 flex-wrap">
-                                                <span className={'text-xs px-2 py-0.5 rounded-full ' + (s.type === 'Active' ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-500')}>{s.type}</span>
+                                                <span className={'text-xs px-2 py-0.5 rounded-full ' + (s.type === 'Active' ? 'bg-violet-50 text-violet-700' : 'bg-gray-100 text-gray-500')}>{s.type}</span>
                                                 <span className={'text-xs px-2 py-0.5 rounded-full ' + (statusColors[s.status] || 'bg-gray-100 text-gray-600')}>{s.status}</span>
                                                 {s.paymentCycle && <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">{s.paymentCycle}</span>}
                                                 {s.nextPayment && <span className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">Due {new Date(s.nextPayment).toLocaleDateString('en-US', {month:'short', day:'numeric'})}</span>}
@@ -2676,7 +2676,7 @@ const NuOperandi = () => {
                                             <p className="text-xl font-semibold text-gray-900">{fmtNaira(s.monthly)}</p>
                                             {expensesByStream[s.id] && <p className="text-xs text-red-500 mt-0.5">-{fmtNaira(expensesByStream[s.id].reduce((t,e) => t + e.amount, 0))} expenses</p>}
                                         </div>
-                                        <button onClick={e => { e.stopPropagation(); setEditItem(s); setModal('editIncome'); }} className="p-1.5 rounded-lg hover:bg-gray-100 transition">{I.edit("#9CA3AF")}</button>
+                                        <button onClick={e => { e.stopPropagation(); setEditItem(s); setModal('editIncome'); }} className="p-1.5 rounded-lg hover:bg-violet-50 transition">{I.edit("#9CA3AF")}</button>
                                     </div>
                                 </div>
                             {s.payments && s.payments.length > 0 && (
@@ -2719,16 +2719,16 @@ const NuOperandi = () => {
             <div>
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-base font-semibold text-gray-900">Expenses</h2>
-                    <button onClick={() => setModal('addExpense')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
+                    <button onClick={() => setModal('addExpense')} className="text-xs text-violet-600 hover:text-violet-700 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
                 </div>
                 {expenses.length === 0 ? (
-                    <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                    <div className="bg-white rounded-xl border border-violet-100/60 card-shadow">
                         <Empty icon={I.receipt("#9CA3AF")} title="No expenses tracked yet" sub="Add expenses to see your net income" action={() => setModal('addExpense')} actionLabel="Add Expense" />
                     </div>
                 ) : (
                     <div className="space-y-4">
                         {totalExpenses > 0 && (
-                            <div className="bg-white rounded-xl border border-gray-100 card-shadow p-5">
+                            <div className="bg-white rounded-xl border border-violet-100/60 card-shadow p-5">
                                 <div className="flex items-center justify-between mb-3">
                                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Monthly Breakdown</p>
                                     <p className="text-sm font-semibold text-gray-900">{fmtNaira(totalExpenses)}/mo</p>
@@ -2766,7 +2766,7 @@ const NuOperandi = () => {
                                                     <span className="text-xs text-gray-400">{e.category}</span>
                                                     <span className="text-xs text-gray-300"> "</span>
                                                     <span className="text-xs text-gray-400">{e.frequency}</span>
-                                                    {linked && <><span className="text-xs text-gray-300"> "</span><span className="text-xs text-blue-500">from {linked.name}</span></>}
+                                                    {linked && <><span className="text-xs text-gray-300"> "</span><span className="text-xs text-violet-600">from {linked.name}</span></>}
                                                     {e.dueDate && <><span className="text-xs text-gray-300"> "</span><span className={'text-xs font-medium ' + dueColor}>{dueLabel}</span></>}
                                                     {e.note && <><span className="text-xs text-gray-300"> "</span><span className="text-xs text-gray-400 italic">{e.note}</span></>}
                                                 </div>
@@ -2774,7 +2774,7 @@ const NuOperandi = () => {
                                         </div>
                                         <div className="flex items-center gap-3 flex-shrink-0">
                                             <p className="text-lg font-semibold text-red-600">-{fmtNaira(e.amount)}</p>
-                                            <button onClick={() => { setEditItem(e); setModal('editExpense'); }} className="p-1.5 rounded-lg hover:bg-gray-100 transition">{I.edit("#9CA3AF")}</button>
+                                            <button onClick={() => { setEditItem(e); setModal('editExpense'); }} className="p-1.5 rounded-lg hover:bg-violet-50 transition">{I.edit("#9CA3AF")}</button>
                                         </div>
                                     </div>
                                         {/* Payment Tag Badges */}
@@ -2793,10 +2793,10 @@ const NuOperandi = () => {
             <div>
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-base font-semibold text-gray-900">Active Projects</h2>
-                    <button onClick={() => setModal('addProject')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
+                    <button onClick={() => setModal('addProject')} className="text-xs text-violet-600 hover:text-violet-700 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
                 </div>
                 {projects.length === 0 ? (
-                    <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                    <div className="bg-white rounded-xl border border-violet-100/60 card-shadow">
                         <Empty icon={I.bar("#9CA3AF")} title="No projects yet" sub="Add your first project to start tracking progress" action={() => setModal('addProject')} actionLabel="Add Project" />
                     </div>
                 ) : (<>
@@ -2808,7 +2808,7 @@ const NuOperandi = () => {
                   var tasksArr = sp.tasks_snapshot || [];
                   var myTasks = tasksArr.filter(function(t) { return t.delegatedTo && userProfile && t.delegatedTo.toLowerCase().includes(userProfile.username); });
                   var completedIds = (sp.completions || []).map(function(tc) { return tc.task_id; });
-                  var statusColor = snap.status === 'In Progress' ? 'text-blue-600 bg-blue-50' : snap.status === 'Planning' ? 'text-yellow-600 bg-yellow-50' : snap.status === 'Completed' ? 'text-green-600 bg-green-50' : 'text-gray-600 bg-gray-50';
+                  var statusColor = snap.status === 'In Progress' ? 'text-violet-700 bg-violet-50' : snap.status === 'Planning' ? 'text-yellow-600 bg-yellow-50' : snap.status === 'Completed' ? 'text-green-600 bg-green-50' : 'text-gray-600 bg-gray-50';
                   return <div key={si} className="bg-white rounded-xl border border-indigo-100 p-4 hover:shadow-md transition">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-bold text-gray-800">{snap.name || 'Project'}</h4>
@@ -2833,12 +2833,12 @@ const NuOperandi = () => {
                             const displayProgress = autoP !== null ? autoP : p.progress;
                             const linkedCount = weeklyPlan.filter(w => w.projectId === p.id).length + quickTasks.filter(t => t.projectId === p.id).length;
                             return (
-                            <div key={p.id} className="bg-white rounded-xl border border-gray-100 p-5 card-shadow card-shadow-hover transition-all">
+                            <div key={p.id} className="bg-white rounded-xl border border-violet-100/60 p-5 card-shadow card-shadow-hover transition-all">
                                 <div className="flex items-start justify-between mb-3">
                                     <h3 className="font-semibold text-gray-900 text-sm">{p.name}</h3>
                                     <div className="flex items-center gap-1">
                                         <span className={'text-xs px-2 py-0.5 rounded-full ' + (statusColors[p.status] || 'bg-gray-100 text-gray-600')}>{p.status}</span>
-                                        <button onClick={() => { setEditItem(p); setModal('editProject'); }} className="p-1 rounded-lg hover:bg-gray-100 transition ml-1">{I.edit("#9CA3AF")}</button>
+                                        <button onClick={() => { setEditItem(p); setModal('editProject'); }} className="p-1 rounded-lg hover:bg-violet-50 transition ml-1">{I.edit("#9CA3AF")}</button>
                                     </div>
                                 </div>
                                 <p className="text-xs text-gray-400 mb-4">{p.desc}</p>
@@ -2847,8 +2847,8 @@ const NuOperandi = () => {
                                         <span className="text-xs text-gray-400">{displayProgress}%</span>
                                         <span className="text-xs text-gray-400">{linkedCount > 0 ? linkedCount + ' linked tasks' : p.team + ' people'}</span>
 
-                    {p.teamMembers && p.teamMembers.length > 0 && (() => { const resolved = p.teamMembers.map(tm => { if (typeof tm === "object") return tm; const prof = allProfiles.find(pr => pr.username && pr.username.toLowerCase() === (tm || "").toLowerCase()); return prof ? { avatar_url: prof.avatar_url, full_name: prof.full_name || prof.username, initials: prof.initials || (prof.full_name || prof.username || "?").split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2) } : { avatar_url: null, full_name: tm, initials: (tm || "?").slice(0,2).toUpperCase() }; }); return <div className="flex -space-x-1 mt-2">{resolved.slice(0, 5).map(function(m, ti) { return m.avatar_url ? <img key={ti} src={m.avatar_url} className="w-6 h-6 rounded-full border-2 border-white object-cover" title={m.full_name} /> : <div key={ti} className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-[10px] font-bold border-2 border-white" title={m.full_name}>{m.initials}</div>; })}{resolved.length > 5 && <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-[10px] font-bold border-2 border-white">+{resolved.length - 5}</div>}</div>; })()}                                    </div>
-                                    <div className="w-full h-1.5 bg-gray-100 rounded-full"><div className={'h-full rounded-full transition-all ' + (autoP !== null ? 'bg-blue-500' : 'bg-blue-300')} style={{width: displayProgress + '%'}}></div></div>
+                    {p.teamMembers && p.teamMembers.length > 0 && (() => { const resolved = p.teamMembers.map(tm => { if (typeof tm === "object") return tm; const prof = allProfiles.find(pr => pr.username && pr.username.toLowerCase() === (tm || "").toLowerCase()); return prof ? { avatar_url: prof.avatar_url, full_name: prof.full_name || prof.username, initials: prof.initials || (prof.full_name || prof.username || "?").split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2) } : { avatar_url: null, full_name: tm, initials: (tm || "?").slice(0,2).toUpperCase() }; }); return <div className="flex -space-x-1 mt-2">{resolved.slice(0, 5).map(function(m, ti) { return m.avatar_url ? <img key={ti} src={m.avatar_url} className="w-6 h-6 rounded-full border-2 border-white object-cover" title={m.full_name} /> : <div key={ti} className="w-6 h-6 rounded-full bg-violet-500 flex items-center justify-center text-white text-[10px] font-bold border-2 border-white" title={m.full_name}>{m.initials}</div>; })}{resolved.length > 5 && <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-[10px] font-bold border-2 border-white">+{resolved.length - 5}</div>}</div>; })()}                                    </div>
+                                    <div className="w-full h-1.5 bg-gray-100 rounded-full"><div className={'h-full rounded-full transition-all ' + (autoP !== null ? 'bg-violet-500' : 'bg-blue-300')} style={{width: displayProgress + '%'}}></div></div>
                                 </div>
                                 {(() => {
                                   const linked = [...(weeklyPlan || []).filter(t => t.project === p.id && !completedWeekly[t.id]), ...(quickTasks || []).filter(t => t.project === p.id && !completedTasks[t.id])];
@@ -2859,7 +2859,7 @@ const NuOperandi = () => {
                                     return (b.important ? 1 : 0) - (a.important ? 1 : 0);
                                   });
                                   const next = linked[0];
-                                  return next ? <p className="text-xs text-blue-600 font-medium mt-2">Next: {next.text || next.task}{next.deadline ? ' (' + new Date(next.deadline).toLocaleDateString() + ')' : ''}</p> : null;
+                                  return next ? <p className="text-xs text-violet-700 font-medium mt-2">Next: {next.text || next.task}{next.deadline ? ' (' + new Date(next.deadline).toLocaleDateString() + ')' : ''}</p> : null;
                                 })()}
                                 {p.launch && <p className="text-xs text-gray-400 mt-1">Launch: {new Date(p.launch).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'})}</p>}
                             </div>
@@ -2981,27 +2981,27 @@ const NuOperandi = () => {
                 <button onClick={() => setShowEodReport(true)} className="px-4 py-2 bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8e] text-white text-sm font-medium rounded-xl hover:opacity-90 transition">EOD Report</button></div>
             
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+                <div className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow">
                     <div className="flex items-center gap-2 mb-2">{I.clipboard("#3B82F6")}<p className="text-xs text-gray-500">Total Assigned</p></div>
                     <p className="text-2xl font-bold text-gray-900">{myTotal}</p>
                     <p className="text-xs text-gray-400">{myPending.length} pending, {myAccepted.length} active</p></div>
-                <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+                <div className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow">
                     <div className="flex items-center gap-2 mb-2">{I.check("#10B981")}<p className="text-xs text-gray-500">Completed</p></div>
                     <p className="text-2xl font-bold text-emerald-600">{myCompleted.length}</p></div>
-                <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+                <div className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow">
                     <div className="flex items-center gap-2 mb-2">{I.trending("#F59E0B")}<p className="text-xs text-gray-500">Completion Rate</p></div>
                     <p className="text-2xl font-bold text-gray-900">{myRate}%</p>
                     <div className="w-full bg-gray-100 rounded-full h-2 mt-2"><div className="bg-emerald-500 h-2 rounded-full transition-all" style={{width: myRate + '%'}}></div></div></div>
-                <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+                <div className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow">
                     <div className="flex items-center gap-2 mb-2">{I.clock("#8B5CF6")}<p className="text-xs text-gray-500">Active Tasks</p></div>
                     <p className="text-2xl font-bold text-purple-600">{myAccepted.length}</p></div>
             </div>
             
             {myAccepted.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+            <div className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
                 <div className="px-5 py-4 border-b border-gray-100"><h2 className="text-base font-semibold text-gray-900">Active Tasks</h2>
                 <p className="text-xs text-gray-400 mt-0.5">Tasks you have accepted and are working on</p></div>
-                <div className="divide-y divide-gray-50">{myAccepted.map((d, i) => (
+                <div className="divide-y divide-violet-50/50">{myAccepted.map((d, i) => (
                     <div key={d.id || i} className="px-5 py-3 flex items-center justify-between gap-2">
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-800">{d.task_text}</p>
@@ -3034,10 +3034,10 @@ const NuOperandi = () => {
             </div>)}
             
             {myCompleted.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+            <div className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
                 <div className="px-5 py-4 border-b border-gray-100"><h2 className="text-base font-semibold text-gray-900">Completed</h2>
                 <p className="text-xs text-gray-400 mt-0.5">Tasks you have finished</p></div>
-                <div className="divide-y divide-gray-50">{myCompleted.slice(0, 10).map((d, i) => (
+                <div className="divide-y divide-violet-50/50">{myCompleted.slice(0, 10).map((d, i) => (
                     <div key={d.id || i} className="px-5 py-3 flex items-center gap-3 opacity-70">
                         {I.check("#10B981")}
                         <div className="flex-1 min-w-0">
@@ -3058,18 +3058,18 @@ const NuOperandi = () => {
           <div><h1 className="text-xl font-bold text-gray-900">Boardroom</h1>
             <p className="text-sm text-gray-500 mt-1">Team productivity overview</p></div></div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+          <div className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow">
             <div className="flex items-center gap-2 mb-2">{I.user("#6366F1")}<p className="text-xs text-gray-500">Team Members</p></div>
             <p className="text-2xl font-bold text-gray-900">{uniqueMembers.size}</p></div>
-          <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+          <div className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow">
             <div className="flex items-center gap-2 mb-2">{I.trending("#F59E0B")}<p className="text-xs text-gray-500">Top Contributor</p></div>
             <p className="text-lg font-bold text-gray-900 truncate">{topContributor ? topContributor.name : '-'}</p>
             {topContributor && <p className="text-xs text-gray-400">{topContributor.completed} completed</p>}</div>
-          <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+          <div className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow">
             <div className="flex items-center gap-2 mb-2">{I.clipboard("#3B82F6")}<p className="text-xs text-gray-500">Total Delegated</p></div>
             <p className="text-2xl font-bold text-gray-900">{totalAssigned}</p>
             <p className="text-xs text-gray-400">{totalPending} pending, {totalAccepted} accepted, {totalCompleted} done</p></div>
-          <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+          <div className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow">
             <div className="flex items-center gap-2 mb-2">{I.check("#10B981")}<p className="text-xs text-gray-500">Avg Completion Rate</p></div>
             <p className="text-2xl font-bold text-gray-900">{avgRate}%</p></div>
         </div>
@@ -3105,7 +3105,7 @@ const NuOperandi = () => {
           </div>
         )}
 
-        <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+        <div className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-base font-semibold text-gray-900">Project Leaderboard</h2>
             <select value={leaderboardProject} onChange={e => setLeaderboardProject(e.target.value)} className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 bg-white">
@@ -3122,7 +3122,7 @@ const NuOperandi = () => {
                   return (
                     <div key={m.key} className={"flex items-center gap-3 px-3 py-2 rounded-lg " + medalBg}>
                       <span className="text-lg w-8 text-center">{medal}</span>
-                      {m.avatar_url ? <img src={m.avatar_url} className="w-8 h-8 rounded-full object-cover" /> : <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-semibold text-sm">{m.name.charAt(0).toUpperCase()}</div>}
+                      {m.avatar_url ? <img src={m.avatar_url} className="w-8 h-8 rounded-full object-cover" /> : <div className="w-8 h-8 rounded-full bg-violet-50 flex items-center justify-center text-violet-700 font-semibold text-sm">{m.name.charAt(0).toUpperCase()}</div>}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{m.name}</p>
                         <p className="text-xs text-gray-400">{m.assigned} assigned \u00B7 {m.completed} completed</p>
@@ -3136,10 +3136,10 @@ const NuOperandi = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+        <div className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100"><h2 className="text-base font-semibold text-gray-900">Team Overview</h2></div>
           {memberList.length === 0 ? (<div className="p-8 text-center"><p className="text-sm text-gray-400">No delegated tasks yet. Assign tasks to team members to see productivity data.</p></div>
-          ) : (<table className="w-full"><thead><tr className="text-xs text-gray-500 border-b border-gray-50">
+          ) : (<table className="w-full"><thead><tr className="text-xs text-gray-500 border-b border-violet-50">
                   <th className="text-left px-5 py-3 font-medium">Member</th>
                   <th className="text-center px-3 py-3 font-medium">Assigned</th>
                   <th className="text-center px-3 py-3 font-medium">Completed</th>
@@ -3148,11 +3148,11 @@ const NuOperandi = () => {
                   <th className="text-left px-3 py-3 font-medium">Completion Rate</th></tr></thead>
               <tbody>{memberList.map((m, i) => (<tr key={m.key} className={i % 2 === 0 ? 'bg-gray-50/50' : ''}>
                     <td className="px-5 py-3"><div className="flex items-center gap-2">
-                        {m.avatar_url ? <img src={m.avatar_url} className="w-8 h-8 rounded-full object-cover" /> : <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-semibold text-sm">{m.name.charAt(0).toUpperCase()}</div>}
+                        {m.avatar_url ? <img src={m.avatar_url} className="w-8 h-8 rounded-full object-cover" /> : <div className="w-8 h-8 rounded-full bg-violet-50 flex items-center justify-center text-violet-700 font-semibold text-sm">{m.name.charAt(0).toUpperCase()}</div>}
                         <span className="text-sm font-medium text-gray-800">{m.name}</span></div></td>
                     <td className="text-center px-3 py-3 text-sm text-gray-600">{m.assigned}</td>
                     <td className="text-center px-3 py-3 text-sm text-emerald-600 font-medium">{m.completed}</td>
-                    <td className="text-center px-3 py-3 text-sm text-blue-600 font-medium">{m.accepted}</td>
+                    <td className="text-center px-3 py-3 text-sm text-violet-700 font-medium">{m.accepted}</td>
                     <td className="text-center px-3 py-3 text-sm text-amber-600 font-medium">{m.pending.length}</td>
                     <td className="px-3 py-3"><div className="flex items-center gap-2">
                         <div className="flex-1 bg-gray-100 rounded-full h-2 max-w-[100px]">
@@ -3160,11 +3160,11 @@ const NuOperandi = () => {
                         <span className="text-xs text-gray-500 w-8">{m.completionRate}%</span></div></td></tr>))}</tbody></table>)}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+          <div className="bg-white rounded-xl border border-violet-100/60 card-shadow">
             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-base font-semibold text-gray-900">Pending Tasks</h2>
               <span className="text-xs text-gray-400">sorted by deadline</span></div>
-            <div className="divide-y divide-gray-50 max-h-80 overflow-y-auto">
+            <div className="divide-y divide-violet-50/50 max-h-80 overflow-y-auto">
               {allPendingTasks.length === 0 ? (<div className="p-6 text-center"><p className="text-sm text-gray-400">All tasks completed!</p></div>
               ) : allPendingTasks.slice(0, 12).map((d, i) => (<div key={d.id || i} className="px-5 py-3 flex items-center justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -3194,10 +3194,10 @@ const NuOperandi = () => {
                               setReminderMsg('Failed to send reminder');
                             }
                             setTimeout(() => setReminderMsg(''), 3000);
-                          }} className="text-xs px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium whitespace-nowrap">Remind</button>
+                          }} className="text-xs px-2.5 py-1 rounded-lg bg-violet-50 text-violet-700 hover:bg-violet-100 font-medium whitespace-nowrap">Remind</button>
 <button onClick={() => markDelegatedDone(d.id)} className="text-xs px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-medium whitespace-nowrap" title="Mark as completed">Done</button></div>))}
               {allPendingTasks.length > 12 && <div className="px-5 py-2 text-center"><p className="text-xs text-gray-400">+ {allPendingTasks.length - 12} more tasks</p></div>}</div></div>
-          <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+          <div className="bg-white rounded-xl border border-violet-100/60 card-shadow">
             <div className="px-5 py-4 border-b border-gray-100"><h2 className="text-base font-semibold text-gray-900">Assigned vs Completed</h2></div>
             <div className="p-5">{memberList.length === 0 ? (<div className="text-center py-6"><p className="text-sm text-gray-400">No data yet</p></div>
               ) : (<div className="space-y-3">{memberList.map(m => (<div key={m.key} className="space-y-1">
@@ -3209,7 +3209,7 @@ const NuOperandi = () => {
                     <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-blue-400"></div><span className="text-xs text-gray-500">Assigned</span></div>
                     <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-emerald-400"></div><span className="text-xs text-gray-500">Completed</span></div></div></div>)}</div></div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+        <div className="bg-white rounded-xl border border-violet-100/60 card-shadow">
           <div className="px-5 py-4 border-b border-gray-100"><h2 className="text-base font-semibold text-gray-900">Productivity Overview</h2>
             <p className="text-xs text-gray-400 mt-0.5">Tasks completed per week (last 12 weeks)</p></div>
           <div className="p-5"><div className="flex items-end gap-2">{weeks.map((w, i) => {
@@ -3283,14 +3283,14 @@ const NuOperandi = () => {
         <h2 className="text-base font-semibold text-gray-900 mb-4">Project Status Board</h2>
         <div className="space-y-3">
           {projectStatusData.map(p => (
-            <div key={p.id} className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+            <div key={p.id} className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
               <div className="px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => setExpandedProject(expandedProject === p.id ? null : p.id)}>
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className={"w-2.5 h-2.5 rounded-full flex-shrink-0 " + (p.status === 'Planning' ? 'bg-yellow-400' : p.status === 'In Progress' ? 'bg-blue-500' : 'bg-green-500')} />
+                  <div className={"w-2.5 h-2.5 rounded-full flex-shrink-0 " + (p.status === 'Planning' ? 'bg-yellow-400' : p.status === 'In Progress' ? 'bg-violet-500' : 'bg-green-500')} />
                   <div className="min-w-0">
                     <h3 className="text-sm font-semibold text-gray-900 truncate">{p.name}</h3>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className={"text-xs font-medium " + (p.status === 'Planning' ? 'text-yellow-600' : p.status === 'In Progress' ? 'text-blue-600' : 'text-green-600')}>{p.status}</span>
+                      <span className={"text-xs font-medium " + (p.status === 'Planning' ? 'text-yellow-600' : p.status === 'In Progress' ? 'text-violet-700' : 'text-green-600')}>{p.status}</span>
                       <span className="text-xs text-gray-400">{p.completedCount}/{p.totalTasks} tasks done</span>
                       {p.delegatedTasks.length > 0 && <span className="text-xs text-purple-500">{p.delegatedTasks.length} delegated</span>}
                     </div>
@@ -3298,7 +3298,7 @@ const NuOperandi = () => {
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
                   <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-500 rounded-full transition-all" style={{width: p.progressPct + '%'}} />
+                    <div className="h-full bg-violet-500 rounded-full transition-all" style={{width: p.progressPct + '%'}} />
                   </div>
                   <span className="text-xs text-gray-500 w-8 text-right">{p.progressPct}%</span>
                   <svg className={"w-4 h-4 text-gray-400 transition-transform " + (expandedProject === p.id ? "rotate-180" : "")} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -3306,7 +3306,7 @@ const NuOperandi = () => {
               </div>
               {expandedProject === p.id && (
                 <div className="border-t border-gray-100">
-                  <div className="divide-y divide-gray-50">
+                  <div className="divide-y divide-violet-50/50">
                     {p.tasks.map(tk => (
                       <div key={tk.id} className={"px-5 py-3 flex items-center justify-between " + (activeCompleted[tk.id] ? "opacity-50" : "")}>
                         <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -3324,7 +3324,7 @@ const NuOperandi = () => {
                         </div>
                         <div className="flex-shrink-0 ml-2">
                           {!activeCompleted[tk.id] && !addedTasks[tk.id] && (
-                            <button onClick={(e) => { e.stopPropagation(); addToMyPlan(tk); }} className="text-xs px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium whitespace-nowrap">+ Add to Plan</button>
+                            <button onClick={(e) => { e.stopPropagation(); addToMyPlan(tk); }} className="text-xs px-2.5 py-1 rounded-lg bg-violet-50 text-violet-700 hover:bg-violet-100 font-medium whitespace-nowrap">+ Add to Plan</button>
                           )}
                           {addedTasks[tk.id] && <span className="text-xs text-green-600 font-medium">Added!</span>}
                         </div>
@@ -3401,17 +3401,17 @@ const NuOperandi = () => {
                                 </button>
                             )}
                             {!completedWeekly[w.id] && context === 'thisWeek' && !alreadyPushed && (
-                                <button onClick={() => pushToDaily(w)} className="p-1.5 rounded-lg hover:bg-blue-50 transition text-blue-500" title="Push to Today">
+                                <button onClick={() => pushToDaily(w)} className="p-1.5 rounded-lg hover:bg-violet-50 transition text-violet-600" title="Push to Today">
                                     {I.arrowRight("#3B82F6")}
                                 </button>
                             )}
                             {!completedWeekly[w.id] && context === 'thisWeek' && (
-                                <button onClick={() => setWeeklyPlan(prev => prev.map(t => t.id === w.id ? {...t, thisWeek: false} : t))} className="p-1.5 rounded-lg hover:bg-gray-100 transition text-gray-400" title="Back to Goals">
+                                <button onClick={() => setWeeklyPlan(prev => prev.map(t => t.id === w.id ? {...t, thisWeek: false} : t))} className="p-1.5 rounded-lg hover:bg-violet-50 transition text-gray-400" title="Back to Goals">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
                                 </button>
                             )}
                             {alreadyPushed && <span className="text-xs text-emerald-500 px-2">In today</span>}
-                            <button onClick={() => { setEditItem(w); setModal('editWeekly'); }} className="p-1.5 rounded-lg hover:bg-gray-100 transition">{I.edit("#9CA3AF")}</button>
+                            <button onClick={() => { setEditItem(w); setModal('editWeekly'); }} className="p-1.5 rounded-lg hover:bg-violet-50 transition">{I.edit("#9CA3AF")}</button>
                         </div>
                     </div>
                     {w.subtasks && w.subtasks.length > 0 && !completedWeekly[w.id] && (
@@ -3442,14 +3442,14 @@ const NuOperandi = () => {
                     <button key={tab.id} onClick={() => setPlannerTab(tab.id)}
                         className={'px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ' + (plannerTab === tab.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700')}>
                         {tab.label}
-                        {tab.count > 0 && <span className={'text-xs px-1.5 py-0.5 rounded-full ' + (plannerTab === tab.id ? 'bg-blue-100 text-blue-600' : 'bg-gray-200 text-gray-500')}>{tab.count}</span>}
+                        {tab.count > 0 && <span className={'text-xs px-1.5 py-0.5 rounded-full ' + (plannerTab === tab.id ? 'bg-violet-100 text-violet-700' : 'bg-gray-200 text-gray-500')}>{tab.count}</span>}
                     </button>
                 ))}
             </div>
 
             {plannerTab === 'goals' && (
                 <div className="space-y-6">
-                    <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow">
+                    <div className="bg-white rounded-xl border border-violet-100/60 p-5 card-shadow">
                         <div className="flex items-center justify-between mb-3">
                             <div>
                                 <h2 className="text-base font-semibold text-gray-900">Goals & Intentions</h2>
@@ -3459,18 +3459,18 @@ const NuOperandi = () => {
                                     {weeklyPlan.some(w => completedWeekly[w.id]) && (
                                         <button onClick={() => { setWeeklyPlan(prev => prev.filter(w => !completedWeekly[w.id])); setCompletedWeekly({}); }} className="text-xs text-gray-400 hover:text-gray-600 font-medium flex items-center gap-1">{I.history("#9CA3AF")} Clear done</button>
                                     )}
-                                    <button onClick={() => setModal('addWeekly')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add Goal</button>
+                                    <button onClick={() => setModal('addWeekly')} className="text-xs text-violet-600 hover:text-violet-700 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add Goal</button>
                                 </div>
                         </div>
                         {weeklyTotal > 0 && (
                             <div className="w-full h-2 bg-gray-100 rounded-full">
-                                <div className="h-full bg-blue-500 rounded-full transition-all" style={{width: (weeklyTotal > 0 ? (weeklyDone / weeklyTotal) * 100 : 0) + '%'}}></div>
+                                <div className="h-full bg-violet-500 rounded-full transition-all" style={{width: (weeklyTotal > 0 ? (weeklyDone / weeklyTotal) * 100 : 0) + '%'}}></div>
                             </div>
                         )}
                     </div>
 
                     {weeklyPlan.length === 0 ? (
-                        <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                        <div className="bg-white rounded-xl border border-violet-100/60 card-shadow">
                             <Empty icon={I.clipboard("#9CA3AF")} title="No weekly tasks yet" sub="Start by adding your key objectives for the week" action={() => setModal('addWeekly')} actionLabel="Add Weekly Task" />
                         </div>
                     ) : (
@@ -3484,8 +3484,8 @@ const NuOperandi = () => {
                                     else { projTotal += 1; if (completedWeekly[w.id]) projDone += 1; }
                                 });
                                 return (
-                                    <div key={pid} className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
-                                        <div className="px-5 py-3.5 bg-blue-50/50 border-b border-blue-100/50 flex items-center justify-between cursor-pointer select-none hover:bg-blue-50/80 transition" onClick={() => toggleProjectCollapse(pid)}>
+                                    <div key={pid} className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
+                                        <div className="px-5 py-3.5 bg-violet-50/50 border-b border-violet-100/50 flex items-center justify-between cursor-pointer select-none hover:bg-violet-50/80 transition" onClick={() => toggleProjectCollapse(pid)}>
                                             <div className="flex items-center gap-3">
                                                 <span className={'transition-transform duration-200 ' + (collapsedProjects[pid] ? '' : 'rotate-90')}>{I.chevron("#9CA3AF")}</span>
                                                 <div className="w-2 h-8 rounded-full bg-blue-400"></div>
@@ -3497,11 +3497,11 @@ const NuOperandi = () => {
                                             {proj && (
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-xs text-gray-400">{getProjectProgress(Number(pid)) || 0}%</span>
-                                                    <div className="w-20 h-1.5 bg-gray-100 rounded-full"><div className="h-full bg-blue-500 rounded-full transition-all" style={{width: (getProjectProgress(Number(pid)) || 0) + '%'}}></div></div>
+                                                    <div className="w-20 h-1.5 bg-gray-100 rounded-full"><div className="h-full bg-violet-500 rounded-full transition-all" style={{width: (getProjectProgress(Number(pid)) || 0) + '%'}}></div></div>
                                                 </div>
                                             )}
                                         </div>
-                                        {!collapsedProjects[pid] && <div className="divide-y divide-gray-50">
+                                        {!collapsedProjects[pid] && <div className="divide-y divide-violet-50/50">
                                             {tasks.filter(w => !completedWeekly[w.id]).map(w => <WeeklyTaskRow key={w.id} w={w} context="goals" />)}
                                         </div>}
                                     </div>
@@ -3509,7 +3509,7 @@ const NuOperandi = () => {
                             })}
 
                             {weeklyByProject.unlinked.length > 0 && (
-                                <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                                <div className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
                                     <div className="px-5 py-3.5 bg-gray-50/50 border-b border-gray-100 flex items-center gap-3 cursor-pointer select-none hover:bg-gray-50/80 transition" onClick={() => toggleProjectCollapse('general')}>
                                         <span className={'transition-transform duration-200 ' + (collapsedProjects['general'] ? '' : 'rotate-90')}>{I.chevron("#9CA3AF")}</span>
                                         <div className="w-2 h-8 rounded-full bg-gray-300"></div>
@@ -3518,7 +3518,7 @@ const NuOperandi = () => {
                                             <p className="text-xs text-gray-400">Not linked to a project</p>
                                         </div>
                                     </div>
-                                    {!collapsedProjects['general'] && <div className="divide-y divide-gray-50">
+                                    {!collapsedProjects['general'] && <div className="divide-y divide-violet-50/50">
                                         {weeklyByProject.unlinked.filter(w => !completedWeekly[w.id]).map(w => <WeeklyTaskRow key={w.id} w={w} context="goals" />)}
                                     </div>}
                                 </div>
@@ -3530,7 +3530,7 @@ const NuOperandi = () => {
 
             {plannerTab === 'weekly' && (
                 <div className="space-y-6">
-                    <div className="bg-white rounded-xl border border-gray-100 p-5 card-shadow">
+                    <div className="bg-white rounded-xl border border-violet-100/60 p-5 card-shadow">
                         <div className="flex items-center justify-between mb-3">
                             <div>
                                 <h2 className="text-base font-semibold text-gray-900">This Week</h2>
@@ -3545,7 +3545,7 @@ const NuOperandi = () => {
                     </div>
 
                     {thisWeekOnly.length === 0 ? (
-                        <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                        <div className="bg-white rounded-xl border border-violet-100/60 card-shadow">
                             <Empty icon={I.clipboard("#9CA3AF")} title="No tasks for this week yet" sub="Move tasks from Goals & Intentions to focus on them this week" />
                         </div>
                     ) : (
@@ -3556,7 +3556,7 @@ const NuOperandi = () => {
                                 const activeTasks = tasks.filter(w => !completedWeekly[w.id]);
                                 const doneTasks = tasks.filter(w => completedWeekly[w.id]);
                                 return (
-                                    <div key={pid} className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                                    <div key={pid} className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
                                         <div className="px-5 py-3.5 bg-emerald-50/50 border-b border-emerald-100/50 flex items-center justify-between">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-2 h-8 rounded-full bg-emerald-400"></div>
@@ -3566,7 +3566,7 @@ const NuOperandi = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="divide-y divide-gray-50">
+                                        <div className="divide-y divide-violet-50/50">
                                             {activeTasks.map(w => <WeeklyTaskRow key={w.id} w={w} context="thisWeek" />)}
                                         </div>
                                     </div>
@@ -3574,14 +3574,14 @@ const NuOperandi = () => {
                             })}
 
                             {thisWeekByProject.unlinked.filter(w => !completedWeekly[w.id]).length > 0 && (
-                                <div className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                                <div className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
                                     <div className="px-5 py-3.5 bg-gray-50/50 border-b border-gray-100 flex items-center gap-3">
                                         <div className="w-2 h-8 rounded-full bg-gray-300"></div>
                                         <div>
                                             <p className="text-sm font-semibold text-gray-900">General Tasks</p>
                                         </div>
                                     </div>
-                                    <div className="divide-y divide-gray-50">
+                                    <div className="divide-y divide-violet-50/50">
                                         {thisWeekByProject.unlinked.filter(w => !completedWeekly[w.id]).map(w => <WeeklyTaskRow key={w.id} w={w} context="thisWeek" />)}
                                     </div>
                                 </div>
@@ -3601,25 +3601,25 @@ const NuOperandi = () => {
                                     {quickTasks.some(t => completedTasks[t.id]) && (
                                         <button onClick={archiveCompleted} className="text-xs text-gray-400 hover:text-gray-600 font-medium flex items-center gap-1">{I.history("#9CA3AF")} Archive done</button>
                                     )}
-                                    <button onClick={() => setModal('addTask')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
+                                    <button onClick={() => setModal('addTask')} className="text-xs text-violet-600 hover:text-violet-700 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
                                 </div>
                             </div>
                             {quickTasks.length === 0 ? (
-                                <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                                <div className="bg-white rounded-xl border border-violet-100/60 card-shadow">
                                     <Empty icon={I.check("#9CA3AF")} title="No tasks yet" sub="Add tasks or pull from your weekly plan" action={() => setModal('addTask')} actionLabel="Add Task" />
                                 </div>
                             ) : (
                                 <div className="space-y-2">
                                     {/* Pending tasks first */}
                                     {quickTasks.filter(t => !completedTasks[t.id]).map(t => (
-                                        <div key={t.id} className="bg-white rounded-xl border border-gray-100 p-4 card-shadow card-shadow-hover transition-all flex items-center gap-3">
+                                        <div key={t.id} className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow card-shadow-hover transition-all flex items-center gap-3">
                                             <span className="cursor-pointer" onClick={() => toggleTask(t.id)}>{I.circle("#D1D5DB")}</span>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-medium text-gray-900">{t.task}</p>
                                                 <div className="flex items-center gap-2 mt-0.5">
                                                     <span className="text-xs text-gray-400">{t.due}</span>
                                                     {t.projectId && projectName(t.projectId) && (
-                                                        <span className="text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-500 truncate max-w-[120px]">{projectName(t.projectId)}</span>
+                                                        <span className="text-xs px-1.5 py-0.5 rounded bg-violet-50 text-violet-600 truncate max-w-[120px]">{projectName(t.projectId)}</span>
                                                     )}
                                                     {t.delegatedTo && (
                                                         <span className="text-xs px-1.5 py-0.5 rounded bg-purple-50 text-purple-500 flex items-center gap-1">{I.user("#8B5CF6")} {t.delegatedTo}</span>
@@ -3627,12 +3627,12 @@ const NuOperandi = () => {
                                                 </div>
                                             </div>
                                             <span className={'text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ' + (prioColor[t.priority] || prioColor.medium)}>{prioLabel[t.priority] || 'Med'}</span>
-                                            <button onClick={() => { setEditItem(t); setModal('editTask'); }} className="p-1 rounded-lg hover:bg-gray-100 transition flex-shrink-0">{I.edit("#9CA3AF")}</button>
+                                            <button onClick={() => { setEditItem(t); setModal('editTask'); }} className="p-1 rounded-lg hover:bg-violet-50 transition flex-shrink-0">{I.edit("#9CA3AF")}</button>
                                         </div>
                                     ))}
                                     {/* Completed tasks (dimmed) */}
                                     {quickTasks.filter(t => completedTasks[t.id]).map(t => (
-                                        <div key={t.id} className="bg-white rounded-xl border border-gray-100 p-4 card-shadow transition-all flex items-center gap-3 opacity-50">
+                                        <div key={t.id} className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow transition-all flex items-center gap-3 opacity-50">
                                             <span className="cursor-pointer" onClick={() => toggleTask(t.id)}>{I.check("#10B981")}</span>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-medium text-gray-400 line-through">{t.task}</p>
@@ -3668,20 +3668,20 @@ const NuOperandi = () => {
                         <div>
                             <h2 className="text-base font-semibold text-gray-900 mb-4">At a Glance</h2>
                             <div className="space-y-3">
-                                <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+                                <div className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow">
                                     <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Weekly Progress</p>
                                     <p className="text-2xl font-semibold text-gray-900">{weeklyDone} / {weeklyTotal}</p>
                                     <p className="text-xs text-gray-400">weekly tasks done</p>
                                     {weeklyTotal > 0 && (
-                                        <div className="w-full h-1.5 bg-gray-100 rounded-full mt-2"><div className="h-full bg-blue-500 rounded-full transition-all" style={{width: ((weeklyDone / weeklyTotal) * 100) + '%'}}></div></div>
+                                        <div className="w-full h-1.5 bg-gray-100 rounded-full mt-2"><div className="h-full bg-violet-500 rounded-full transition-all" style={{width: ((weeklyDone / weeklyTotal) * 100) + '%'}}></div></div>
                                     )}
                                 </div>
-                                <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+                                <div className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow">
                                     <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Today</p>
                                     <p className="text-2xl font-semibold text-gray-900">{dailyDone} / {dailyTotal}</p>
                                     <p className="text-xs text-gray-400">tasks done</p>
                                 </div>
-                                <div className="bg-white rounded-xl border border-gray-100 p-4 card-shadow">
+                                <div className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow">
                                     <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Schedule</p>
                                     <p className="text-2xl font-semibold text-gray-900">{timeBlocks.filter(b => !completedTimeBlocks[b.id]).length}</p>
                                     <p className="text-xs text-gray-400">blocks remaining</p>
@@ -3690,7 +3690,7 @@ const NuOperandi = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                    <div className="bg-white rounded-xl border border-violet-100/60 card-shadow">
                         <button onClick={() => setExpandedIdeas(!expandedIdeas)} className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition rounded-xl">
                             <div className="flex items-center gap-3">{I.bulb("#F59E0B")}<span className="text-base font-semibold text-gray-900">Ideas & Learning</span><span className="text-xs text-gray-400 ml-2">{ideas.length + learning.length} items</span></div>
                             <span className={'transition-transform ' + (expandedIdeas ? 'rotate-90' : '')}>{I.chevron("#9CA3AF")}</span>
@@ -3700,7 +3700,7 @@ const NuOperandi = () => {
                                 <div>
                                     <div className="flex items-center justify-between mb-3">
                                         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Ideas I Don't Want to Forget</p>
-                                        <button onClick={() => setModal('addIdea')} className="text-xs text-blue-500 hover:text-blue-600 font-medium">{I.plus("#3B82F6")}</button>
+                                        <button onClick={() => setModal('addIdea')} className="text-xs text-violet-600 hover:text-violet-700 font-medium">{I.plus("#3B82F6")}</button>
                                     </div>
                                     {ideas.length === 0 ? <p className="text-sm text-gray-400 italic">No ideas captured yet. Click + to add one.</p> : (
                                         <div className="space-y-2">
@@ -3717,15 +3717,15 @@ const NuOperandi = () => {
                                 <div className="pt-4 border-t border-gray-100">
                                     <div className="flex items-center justify-between mb-3">
                                         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Things I Said I'd Learn</p>
-                                        <button onClick={() => setModal('addLearning')} className="text-xs text-blue-500 hover:text-blue-600 font-medium">{I.plus("#3B82F6")}</button>
+                                        <button onClick={() => setModal('addLearning')} className="text-xs text-violet-600 hover:text-violet-700 font-medium">{I.plus("#3B82F6")}</button>
                                     </div>
                                     {learning.length === 0 ? <p className="text-sm text-gray-400 italic">No learning goals yet. Click + to add one.</p> : (
                                         <div className="space-y-2">
                                             {learning.map((item, i) => (
-                                                <div key={i} className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg group">
+                                                <div key={i} className="flex items-center gap-3 p-3 bg-violet-50 rounded-lg group">
                                                     <div className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0"></div>
                                                     <p className="text-sm text-gray-800 flex-1">{item}</p>
-                                                    <button onClick={() => { setEditItem(item); setModal('editLearning_' + i); }} className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-blue-100 transition">{I.edit("#9CA3AF")}</button>
+                                                    <button onClick={() => { setEditItem(item); setModal('editLearning_' + i); }} className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-violet-100 transition">{I.edit("#9CA3AF")}</button>
                                                 </div>
                                             ))}
                                         </div>
@@ -3765,10 +3765,10 @@ const NuOperandi = () => {
                     <div>
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-base font-semibold text-gray-900">Today's Schedule</h2>
-                            <button onClick={() => setModal('addTimeBlock')} className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
+                            <button onClick={() => setModal('addTimeBlock')} className="text-xs text-violet-600 hover:text-violet-700 font-medium flex items-center gap-1">{I.plus("#3B82F6")} Add</button>
                         </div>
                         {timeBlocks.length === 0 ? (
-                            <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                            <div className="bg-white rounded-xl border border-violet-100/60 card-shadow">
                                 <Empty icon={I.calendar("#9CA3AF")} title="No time blocks yet" sub="Plan your day by adding time blocks" action={() => setModal('addTimeBlock')} actionLabel="Add Time Block" />
                             </div>
                         ) : (
@@ -3808,13 +3808,13 @@ const NuOperandi = () => {
                     </div>
                 </div>
                 {sortedHistory.length === 0 ? (
-                    <div className="bg-white rounded-xl border border-gray-100 card-shadow">
+                    <div className="bg-white rounded-xl border border-violet-100/60 card-shadow">
                         <Empty icon={I.history("#9CA3AF")} title="No history yet" sub="Completed tasks will automatically move here" />
                     </div>
                 ) : (
                     <div className="space-y-4">
                         {sortedHistory.map(entry => (
-                            <div key={entry.date} className="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                            <div key={entry.date} className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
                                 <div className="px-5 py-3.5 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         {I.calendar("#6B7280")}
@@ -3822,14 +3822,14 @@ const NuOperandi = () => {
                                     </div>
                                     <span className="text-xs text-gray-400">{entry.tasks.length} task{entry.tasks.length !== 1 ? 's' : ''}</span>
                                 </div>
-                                <div className="divide-y divide-gray-50">
+                                <div className="divide-y divide-violet-50/50">
                                     {entry.tasks.map((t, i) => (
                                         <div key={t.id || i} className="px-5 py-3 flex items-center gap-3">
                                             {I.check("#10B981")}
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm text-gray-600">{t.task}</p>
                                                 <div className="flex items-center gap-2 mt-0.5">
-                                                    {t.projectId && <span className="text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-500">{projectName(t.projectId)}</span>}
+                                                    {t.projectId && <span className="text-xs px-1.5 py-0.5 rounded bg-violet-50 text-violet-600">{projectName(t.projectId)}</span>}
                                                     {t.delegatedTo && <span className="text-xs px-1.5 py-0.5 rounded bg-purple-50 text-purple-500">{I.user("#8B5CF6")} {t.delegatedTo}</span>}
                                                 </div>
                                             </div>
@@ -3849,7 +3849,7 @@ const NuOperandi = () => {
     if (authLoading) return <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-white to-gray-50 z-50 flex items-center justify-center"><Emblem size={48} /><p className="ml-3 text-gray-400">Loading...</p></div>;
     if (!supaUser || !userProfile) return <AuthFlow onAuth={handleAuth} />;
     return (
-        <div className="h-screen bg-gray-50 flex">
+        <div className="h-screen bg-gradient-to-br from-purple-100 via-violet-50 to-indigo-100 flex">
             <Sidebar />
             <div className={'flex-1 flex flex-col transition-all duration-300 ' + (sidebarOpen ? 'ml-60' : 'ml-16')}>
                 <TopBar />
@@ -3864,7 +3864,7 @@ const NuOperandi = () => {
             </div>
 
             {/* Floating + Button */}
-            <button onClick={() => setModal(modal === 'addMenu' ? null : 'addMenu')} className={'fixed bottom-8 right-8 w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-lg hover:shadow-xl hover:bg-blue-600 transition-all duration-200 ' + (modal === 'addMenu' ? 'rotate-45' : '')} title="Quick Add">
+            <button onClick={() => setModal(modal === 'addMenu' ? null : 'addMenu')} className={'fixed bottom-8 right-8 w-12 h-12 rounded-full bg-violet-500 text-white flex items-center justify-center shadow-lg hover:shadow-xl hover:bg-violet-600 transition-all duration-200 ' + (modal === 'addMenu' ? 'rotate-45' : '')} title="Quick Add">
                 {I.plus("white")}
             </button>
 
