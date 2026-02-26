@@ -1923,7 +1923,7 @@ const NuOperandi = () => {
 
   const toggleTask = (id) => {
     const wasCompleted = completedTasks[id];
-    setCompletedTasks(p => ({ ...p, [id]: !p[id] }));
+    setCompletedTasks(p => ({ ...p, [id]: p[id] ? false : Date.now() }));
     if (!wasCompleted) {
       setTimeout(() => {
         const completedTask = quickTasks.find(t => t.id === id);
@@ -1980,7 +1980,7 @@ const NuOperandi = () => {
   };
   const toggleWeekly = (id) => {
     const wasCompleted = completedWeekly[id];
-    setCompletedWeekly(p => ({ ...p, [id]: !p[id] }));
+    setCompletedWeekly(p => ({ ...p, [id]: p[id] ? false : Date.now() }));
     if (!wasCompleted) {
       setTimeout(() => {
         const completedWeeklyTask = weeklyPlan.find(t => t.id === id);
@@ -2936,7 +2936,7 @@ const generateLiveBriefing = useCallback(() => {
               </div>
             </div>}
             <div className="grid grid-cols-3 gap-4">
-                        {projects.map(p => {
+                        {[...projects].sort((a, b) => { const getLatest = (proj) => { const wIds = weeklyPlan.filter(w => w.projectId === proj.id).map(w => w.id); const tIds = quickTasks.filter(t => t.projectId === proj.id).map(t => t.id); let latest = 0; wIds.forEach(id => { const v = completedWeekly[id]; if (v && typeof v === "number" && v > latest) latest = v; else if (v === true && latest === 0) latest = 1; }); tIds.forEach(id => { const v = completedTasks[id]; if (v && typeof v === "number" && v > latest) latest = v; else if (v === true && latest === 0) latest = 1; }); return latest; }; return getLatest(b) - getLatest(a); }).map(p => {
                             const autoP = getProjectProgress(p.id);
                             const displayProgress = autoP !== null ? autoP : p.progress;
                             const linkedCount = weeklyPlan.filter(w => w.projectId === p.id).length + quickTasks.filter(t => t.projectId === p.id).length;
