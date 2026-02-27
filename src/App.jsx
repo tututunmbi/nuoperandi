@@ -2285,6 +2285,7 @@ const NuOperandi = () => {
     if (supaUser) { fetchSharedProjects(); }
   }, [supaUser]);
 
+    const sections = [];
     if (sharedProjects && sharedProjects.length > 0) { sections.push({ title: "Shared Projects", items: sharedProjects.filter(Boolean).map(function(sp) { var snap = sp.project_snapshot || {}; var tc = sp.tasks_snapshot ? sp.tasks_snapshot.length : 0; return (snap.name || "Project") + " (" + (snap.status || "Active") + ") - " + tc + " tasks. Owner: " + (sp.owner ? sp.owner.full_name : "Unknown"); }) }); }
 
 
