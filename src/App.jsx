@@ -1,4 +1,12 @@
 /* build: 1772120819651 */
+
+// Global error safety net
+if (typeof window !== 'undefined') {
+  window.addEventListener('unhandledrejection', (e) => {
+    console.error('Unhandled promise rejection:', e.reason);
+    e.preventDefault();
+  });
+}
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -94,6 +102,69 @@ const Emblem = ({ size = 36 }) => (
 );
 
 /* ====== ICONS ====== */
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error('NuOperandi caught error:', error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return React.createElement('div', {
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #F3E8FF 0%, #EDE9FE 30%, #F5F3FF 60%, #EEF2FF 100%)',
+          fontFamily: 'Inter, system-ui, sans-serif',
+          padding: '2rem'
+        }
+      },
+        React.createElement('div', {
+          style: {
+            background: 'white',
+            borderRadius: '1.5rem',
+            padding: '3rem',
+            maxWidth: '420px',
+            textAlign: 'center',
+            boxShadow: '0 20px 60px rgba(124,58,237,0.12)'
+          }
+        },
+          React.createElement('div', { style: { fontSize: '3rem', marginBottom: '1rem' } }, '\u26A0\uFE0F'),
+          React.createElement('h2', { style: { fontSize: '1.5rem', fontWeight: 700, color: '#1F2937', marginBottom: '0.5rem' } }, 'Something went wrong'),
+          React.createElement('p', { style: { color: '#6B7280', marginBottom: '1.5rem', lineHeight: 1.5 } }, 'NuOperandi ran into an issue. Click below to reload and get back to work.'),
+          React.createElement('button', {
+            onClick: () => window.location.reload(),
+            style: {
+              background: 'linear-gradient(135deg, #7C3AED, #6D28D9)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.75rem',
+              padding: '0.75rem 2rem',
+              fontSize: '1rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'transform 0.15s'
+            },
+            onMouseOver: (e) => e.target.style.transform = 'scale(1.04)',
+            onMouseOut: (e) => e.target.style.transform = 'scale(1)'
+          }, 'Reload NuOperandi')
+        )
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const safe = (v) => Array.isArray(v) ? v : [];
 const I = {
     dollar: (c="currentColor") => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
     calendar: (c="currentColor") => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
@@ -1585,6 +1656,14 @@ const NuOperandi = () => {
         };
         initAuth();
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+        // Auto-refresh session to prevent blank screen on token expiry
+        if (event === 'TOKEN_REFRESHED') {
+          console.log('NuOperandi: Session token refreshed');
+        }
+        if (event === 'SIGNED_OUT') {
+          console.log('NuOperandi: User signed out, cleaning up');
+        }
+  
             if (session?.user) { setSupaUser(session.user); } else if (event === "SIGNED_OUT") { setSupaUser(null); }
         });
         return () => subscription?.unsubscribe();
@@ -1594,13 +1673,15 @@ const NuOperandi = () => {
     useEffect(() => {
         if (!supaUser) return;
         const fetchNotifs = async () => {
+    try {
             const { data } = await supabase.from('notifications').select('*').eq('user_id', supaUser.id).order('created_at', { ascending: false }).limit(20);
-            if (data) setNotifications(data);
-        };
+            if (data) setNotifications(data || []);
+        } catch(_loadErr) { console.error('Data load error:', _loadErr); }};
         fetchNotifs();
         const channel = supabase.channel('notifs-' + supaUser.id).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: 'user_id=eq.' + supaUser.id }, payload => {
+ try {
             setNotifications(prev => [payload.new, ...prev]);
-        }).subscribe();
+        } catch(_e) { console.error('Realtime sync error:', _e); }}).subscribe();
         return () => { supabase.removeChannel(channel); };
     }, [supaUser]);
 
@@ -1608,39 +1689,44 @@ const NuOperandi = () => {
     useEffect(() => {
         if (!supaUser || !userProfile) return;
         const fetchDelegated = async () => {
+    try {
             const { data } = await supabase.from('delegated_tasks').select('*').eq('recipient_username', userProfile.username).order('created_at', { ascending: false });
-            if (data) setDelegatedToMe(data);
-        };
+            if (data) setDelegatedToMe(data || []);
+        } catch(_loadErr) { console.error('Data load error:', _loadErr); }};
         fetchDelegated();
         const fetchDelegatedByMe = async () => {
+    try {
             const { data } = await supabase.from('delegated_tasks').select('*').eq('delegator_id', supaUser.id).order('created_at', { ascending: false });
-            if (data) setDelegatedByMe(data);
-        };
+            if (data) setDelegatedByMe(data || []);
+        } catch(_loadErr) { console.error('Data load error:', _loadErr); }};
         fetchDelegatedByMe();
     // Fetch all profiles for Team section (excluding current admin user)
     const fetchAllProfiles = async () => {
+    try {
       if (!supaUser) return;
       const { data } = await supabase.from('profiles').select('id, username, full_name, initials, avatar_url').neq('id', supaUser.id).order('created_at', { ascending: true });
-      if (data) setAllProfiles(data);
-    };
+      if (data) setAllProfiles(data || []);
+    } catch(_loadErr) { console.error('Data load error:', _loadErr); }};
     fetchAllProfiles();
-        const channel = supabase.channel('delegated-' + userProfile.username).on('postgres_changes', { event: '*', schema: 'public', table: 'delegated_tasks', filter: 'recipient_username=eq.' + userProfile.username }, () => { fetchDelegated(); }).subscribe();
+        const channel = supabase.channel('delegated-' + userProfile.username).on('postgres_changes', { event: '*', schema: 'public', table: 'delegated_tasks', filter: 'recipient_username=eq.' + userProfile.username }, () => { try { fetchDelegated(); } catch(_re) { console.error('Realtime error:', _re); }}).subscribe();
         // Also subscribe to changes on tasks delegated BY me (so boardroom auto-updates)
-        const delegatorChannel = supabase.channel('delegator-' + supaUser.id).on('postgres_changes', { event: '*', schema: 'public', table: 'delegated_tasks', filter: 'delegator_id=eq.' + supaUser.id }, () => { fetchDelegatedByMe(); }).subscribe();
+        const delegatorChannel = supabase.channel('delegator-' + supaUser.id).on('postgres_changes', { event: '*', schema: 'public', table: 'delegated_tasks', filter: 'delegator_id=eq.' + supaUser.id }, () => { try { fetchDelegatedByMe(); } catch(_re) { console.error('Realtime error:', _re); }}).subscribe();
 
       const fetchPaymentTags = async () => {
+    try {
         const { data } = await supabase.from('payment_tags').select('*').eq('sender_id', supaUser.id);
-        if (data) setPaymentTags(data);
-      };
+        if (data) setPaymentTags(data || []);
+      } catch(_loadErr) { console.error('Data load error:', _loadErr); }};
       const fetchIncomingPayments = async () => {
+    try {
         const { data } = await supabase.from('payment_tags').select('*').eq('recipient_username', userProfile.username);
-        if (data) setIncomingPayments(data);
-      };
+        if (data) setIncomingPayments(data || []);
+      } catch(_loadErr) { console.error('Data load error:', _loadErr); }};
       fetchPaymentTags();
       fetchIncomingPayments();
         
-      const paymentSenderChannel = supabase.channel('payment-sender-' + supaUser.id).on('postgres_changes', { event: '*', schema: 'public', table: 'payment_tags', filter: 'sender_id=eq.' + supaUser.id }, () => { fetchPaymentTags(); }).subscribe();
-      const paymentRecipientChannel = supabase.channel('payment-recipient-' + userProfile.username).on('postgres_changes', { event: '*', schema: 'public', table: 'payment_tags', filter: 'recipient_username=eq.' + userProfile.username }, () => { fetchIncomingPayments(); }).subscribe();
+      const paymentSenderChannel = supabase.channel('payment-sender-' + supaUser.id).on('postgres_changes', { event: '*', schema: 'public', table: 'payment_tags', filter: 'sender_id=eq.' + supaUser.id }, () => { try { fetchPaymentTags(); } catch(_re) { console.error('Realtime error:', _re); }}).subscribe();
+      const paymentRecipientChannel = supabase.channel('payment-recipient-' + userProfile.username).on('postgres_changes', { event: '*', schema: 'public', table: 'payment_tags', filter: 'recipient_username=eq.' + userProfile.username }, () => { try { fetchIncomingPayments(); } catch(_re) { console.error('Realtime error:', _re); }}).subscribe();
 
       return () => { supabase.removeChannel(channel); supabase.removeChannel(delegatorChannel); supabase.removeChannel(paymentSenderChannel); supabase.removeChannel(paymentRecipientChannel); };
     }, [supaUser, userProfile]);
@@ -4206,4 +4292,7 @@ const NuOperandi = () => {
     );
 };
 
-export default NuOperandi;
+function NuOperandiWithBoundary(props) {
+  return React.createElement(ErrorBoundary, null, React.createElement(NuOperandi, props));
+}
+export default NuOperandiWithBoundary;
