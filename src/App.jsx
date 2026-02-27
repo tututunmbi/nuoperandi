@@ -736,6 +736,21 @@ const GoalForm = ({ onClose, setWeeklyPlan, activeProjects, team, supaUser }) =>
   const [projId, setProjId] = useState('');
   const [deadline, setDeadline] = useState('');
   const [delegatedTo, setDelegatedTo] = useState('');
+  const [userSuggestions, setUserSuggestions] = useState([]);
+  const [delegateSearch, setDelegateSearch] = useState(item && item.delegatedTo ? item.delegatedTo : '');
+  const [showDelegateDrop, setShowDelegateDrop] = useState(false);
+  const searchUsers = async (q) => {
+    setDelegateSearch(q);
+    if (!q || q.length < 1) { setUserSuggestions([]); setShowDelegateDrop(false); return; }
+    const { data } = await supabase.from('profiles').select('id, username, full_name').ilike('full_name', '%' + q + '%').limit(8);
+    setUserSuggestions(data || []);
+    setShowDelegateDrop(true);
+  };
+  const selectDelegate = (user) => {
+    setDelegatedTo(user.full_name || user.username);
+    setDelegateSearch(user.full_name || user.username);
+    setShowDelegateDrop(false);
+  };
   const currentMonth = new Date().toISOString().slice(0, 7);
 
   const submit = () => {
@@ -746,7 +761,7 @@ const GoalForm = ({ onClose, setWeeklyPlan, activeProjects, team, supaUser }) =>
   };
 
   const ap = safe(activeProjects);
-  const tm = safe(team);
+  // delegate now uses profile search
 
   return (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
     <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4" onClick={e => e.stopPropagation()}>
@@ -757,7 +772,21 @@ const GoalForm = ({ onClose, setWeeklyPlan, activeProjects, team, supaUser }) =>
         <div><label className="block text-sm font-medium text-gray-600 mb-1">Linked Project</label><select className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-violet-300 outline-none" value={projId} onChange={e => setProjId(e.target.value)}><option value="">None</option>{ap.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></div>
         <div><label className="block text-sm font-medium text-gray-600 mb-1">Deadline</label><input type="date" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-violet-300 outline-none" value={deadline} onChange={e => setDeadline(e.target.value)} /></div>
       </div>
-      <div><label className="block text-sm font-medium text-gray-600 mb-1">Delegate To</label><select className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-violet-300 outline-none" value={delegatedTo} onChange={e => setDelegatedTo(e.target.value)}><option value="">No one (self)</option>{tm.map(t => <option key={t.id} value={t.name || t.email}>{t.name || t.email}</option>)}</select></div>
+      <div className="mb-4">
+        <label className="block text-sm font-semibold text-gray-600 mb-1">Delegate To</label>
+        <div className="relative">
+          <input type="text" value={delegateSearch} onChange={e => searchUsers(e.target.value)} onFocus={() => { if (userSuggestions.length > 0) setShowDelegateDrop(true); }} placeholder="Search by name..." className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-violet-200 focus:border-violet-400" />
+          {delegatedTo && <button type="button" onClick={() => { setDelegatedTo(''); setDelegateSearch(''); setUserSuggestions([]); }} className="absolute right-2 top-2 text-gray-400 hover:text-red-500 text-xs">clear</button>}
+          {showDelegateDrop && userSuggestions.length > 0 && (
+            <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
+              <button type="button" onClick={() => { setDelegatedTo(''); setDelegateSearch(''); setShowDelegateDrop(false); }} className="w-full text-left px-3 py-2 text-sm hover:bg-violet-50 text-gray-500 border-b border-gray-100">No one (self)</button>
+              {userSuggestions.map(u => (
+                <button type="button" key={u.id} onClick={() => selectDelegate(u)} className="w-full text-left px-3 py-2 text-sm hover:bg-violet-50 text-gray-800">{u.full_name || u.username}</button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
       <div className="flex gap-3 pt-2"><button onClick={onClose} className="flex-1 border border-gray-200 rounded-xl py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">Cancel</button><button onClick={submit} className="flex-1 bg-violet-600 text-white rounded-xl py-2 text-sm font-medium hover:bg-violet-700 shadow-sm">Save Goal</button></div>
     </div>
   </div>);
@@ -3568,7 +3597,7 @@ const NuOperandi = () => {
                       {m.avatar_url ? <img src={m.avatar_url} className="w-8 h-8 rounded-full object-cover" /> : <div className="w-8 h-8 rounded-full bg-violet-50 flex items-center justify-center text-violet-700 font-semibold text-sm">{m.name.charAt(0).toUpperCase()}</div>}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{m.name}</p>
-                        <p className="text-xs text-gray-400">{m.assigned} assigned \u00B7 {m.completed} completed</p>
+                        <p className="text-xs text-gray-400">{m.assigned} assigned · {m.completed} completed</p>
                       </div>
                       <span className="text-sm font-bold text-gray-700">{m.completionRate}%</span>
                     </div>
