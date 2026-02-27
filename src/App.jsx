@@ -140,7 +140,11 @@ class ErrorBoundary extends React.Component {
         },
           React.createElement('div', { style: { fontSize: '3rem', marginBottom: '1rem' } }, '\u26A0\uFE0F'),
           React.createElement('h2', { style: { fontSize: '1.5rem', fontWeight: 700, color: '#1F2937', marginBottom: '0.5rem' } }, 'Something went wrong'),
-          React.createElement('p', { style: { color: '#6B7280', marginBottom: '1.5rem', lineHeight: 1.5 } }, 'NuOperandi ran into an issue. Click below to reload and get back to work.'),
+          React.createElement('p', { style: { color: '#6B7280', marginBottom: '1rem', lineHeight: 1.5 } }, 'NuOperandi ran into an issue. Click below to reload and get back to work.'),
+          React.createElement('details', { style: { marginBottom: '1rem', textAlign: 'left', width: '100%' } },
+            React.createElement('summary', { style: { cursor: 'pointer', color: '#9CA3AF', fontSize: '0.75rem', marginBottom: '0.5rem' } }, 'Error details (screenshot this for support)'),
+            React.createElement('pre', { style: { background: '#F3F4F6', borderRadius: '0.5rem', padding: '0.75rem', fontSize: '0.7rem', color: '#EF4444', whiteSpace: 'pre-wrap', wordBreak: 'break-all', maxHeight: '120px', overflow: 'auto', textAlign: 'left' } }, this.state.error ? (this.state.error.message + '\n' + (this.state.error.stack || '').split('\n').slice(0, 4).join('\n')) : 'Unknown error')
+          ),
           React.createElement('button', {
             onClick: () => window.location.reload(),
             style: {
@@ -200,8 +204,12 @@ class ModuleBoundary extends React.Component {
           boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
         }
       },
-        React.createElement('p', { style: { color: '#6B7280', marginBottom: '0.75rem' } },
+        React.createElement('p', { style: { color: '#6B7280', marginBottom: '0.5rem' } },
           'This section ran into an issue.'),
+        React.createElement('details', { style: { marginBottom: '0.75rem', textAlign: 'left', width: '100%' } },
+          React.createElement('summary', { style: { cursor: 'pointer', color: '#9CA3AF', fontSize: '0.7rem' } }, 'Error details'),
+          React.createElement('pre', { style: { background: '#F9FAFB', borderRadius: '0.375rem', padding: '0.5rem', fontSize: '0.65rem', color: '#EF4444', whiteSpace: 'pre-wrap', wordBreak: 'break-all', maxHeight: '80px', overflow: 'auto' } }, this.state.errorMsg || 'Unknown')
+        ),
         React.createElement('button', {
           onClick: () => self.setState({ hasError: false, errorMsg: '' }),
           style: {
