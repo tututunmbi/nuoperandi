@@ -728,7 +728,41 @@ const WeeklyTaskForm = ({ item, onClose, setWeeklyPlan, activeProjects, onDelega
             </div>
         </Modal>
     );
+}
+
+const GoalForm = ({ onClose, setWeeklyPlan, activeProjects, team, supaUser }) => {
+  const [title, setTitle] = useState('');
+  const [text, setText] = useState('');
+  const [projId, setProjId] = useState('');
+  const [deadline, setDeadline] = useState('');
+  const [delegatedTo, setDelegatedTo] = useState('');
+  const currentMonth = new Date().toISOString().slice(0, 7);
+
+  const submit = () => {
+    if (!title.trim()) return;
+    const goalData = { id: newId(), title: title.trim(), text: text.trim(), projectId: projId || null, deadline: deadline || null, delegatedTo: delegatedTo || null, month: currentMonth, subtasks: [] };
+    setWeeklyPlan(prev => [...prev.filter(Boolean), goalData]);
+    onClose();
+  };
+
+  const ap = safe(activeProjects);
+  const tm = safe(team);
+
+  return (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
+    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4" onClick={e => e.stopPropagation()}>
+      <div className="flex items-center justify-between"><h3 className="text-lg font-bold text-gray-800">Add New Goal</h3><button onClick={onClose} className="text-gray-400 hover:text-gray-600">{I.x("#9CA3AF")}</button></div>
+      <div><label className="block text-sm font-medium text-gray-600 mb-1">Goal Title</label><input className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-violet-300 focus:border-violet-400 outline-none" placeholder="What do you want to achieve?" value={title} onChange={e => setTitle(e.target.value)} /></div>
+      <div><label className="block text-sm font-medium text-gray-600 mb-1">Description</label><textarea className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-violet-300 focus:border-violet-400 outline-none resize-none" rows={3} placeholder="Describe your goal in detail..." value={text} onChange={e => setText(e.target.value)} /></div>
+      <div className="grid grid-cols-2 gap-3">
+        <div><label className="block text-sm font-medium text-gray-600 mb-1">Linked Project</label><select className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-violet-300 outline-none" value={projId} onChange={e => setProjId(e.target.value)}><option value="">None</option>{ap.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></div>
+        <div><label className="block text-sm font-medium text-gray-600 mb-1">Deadline</label><input type="date" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-violet-300 outline-none" value={deadline} onChange={e => setDeadline(e.target.value)} /></div>
+      </div>
+      <div><label className="block text-sm font-medium text-gray-600 mb-1">Delegate To</label><select className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-violet-300 outline-none" value={delegatedTo} onChange={e => setDelegatedTo(e.target.value)}><option value="">No one (self)</option>{tm.map(t => <option key={t.id} value={t.name || t.email}>{t.name || t.email}</option>)}</select></div>
+      <div className="flex gap-3 pt-2"><button onClick={onClose} className="flex-1 border border-gray-200 rounded-xl py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">Cancel</button><button onClick={submit} className="flex-1 bg-violet-600 text-white rounded-xl py-2 text-sm font-medium hover:bg-violet-700 shadow-sm">Save Goal</button></div>
+    </div>
+  </div>);
 };
+;
 
 const TaskForm = ({ item, onClose, setQuickTasks, activeProjects, onDelegate }) => {
     const [task, setTask] = useState(item ? item.task : '');
@@ -1156,12 +1190,13 @@ const AddMenu = ({ onClose, activeModule, setModal }) => {
     );
 };
 
-const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, userProfile, paymentTags, setPaymentTags }) => {
+const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, userProfile, paymentTags, setPaymentTags , activeProjects}) => {
     const [name, setName] = useState(item ? item.name : '');
     const [amount, setAmount] = useState(item ? Number(item.amount).toLocaleString('en-US') : '');
     const [category, setCategory] = useState(item ? item.category : 'Salary');
     const [frequency, setFrequency] = useState(item ? item.frequency : 'Monthly');
     const [linkedStreamId, setLinkedStreamId] = useState(item ? (item.linkedStreamId || '') : '');
+  const [projectId, setProjectId] = useState(item ? (item.projectId || item.project_id || '') : '');
     const [note, setNote] = useState(item ? (item.note || '') : '');
     const [dueDate, setDueDate] = useState(item ? (item.dueDate || '') : '');
     const [taggedMembers, setTaggedMembers] = useState([]);
@@ -1189,7 +1224,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
         if (!name || !amount) return;
         const val = Number(amount.replace(/[^0-9.]/g, ''));
         const lsid = linkedStreamId ? Number(linkedStreamId) : null;
-        const data = { name, amount: val, category, frequency, linkedStreamId: lsid, note, dueDate: dueDate || null };
+        const data = { name, amount: val, category, frequency, linkedStreamId: lsid, note, dueDate: dueDate || null , project_id: projectId || null};
         let expenseId;
         if (item) {
             setExpenses(prev => prev.filter(Boolean).map(e => e.id === item.id ? { ...e, ...data } : e));
@@ -1260,6 +1295,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
                 <Field label="Due Date (optional)"><input className={inputCls} type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} /></Field>
                 <Field label="Note (optional)"><input className={inputCls} value={note} onChange={e => setNote(e.target.value)} placeholder="e.g. 2 staff members" /></Field>
             </div>
+      <div><label className="block text-sm font-medium text-gray-600 mb-1">Project</label><select className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-violet-300 outline-none" value={projectId} onChange={e => setProjectId(e.target.value)}><option value="">No project</option>{safe(activeProjects).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></div>
             {/* Tag Team Members Section */}
             <div className="mt-4 border border-violet-100 rounded-lg">
                 <button onClick={() => setShowTagSection(!showTagSection)} className="w-full flex items-center justify-between px-4 py-3 bg-violet-50/50 hover:bg-violet-50 transition text-left">
@@ -2838,6 +2874,7 @@ const NuOperandi = () => {
                                             <span className="text-xs text-gray-400 flex-shrink-0 ml-2">{prog}%</span>
                                         </div>
                                         <div className="w-full h-1.5 bg-gray-100 rounded-full"><div className="h-full bg-violet-500 rounded-full transition-all" style={{width: prog + '%'}}></div></div>
+                                        {(() => { const pExp = safe(expenses).filter(e => (e.project_id || e.projectId) === p.id); const total = pExp.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0); return total > 0 ? <div className="flex items-center justify-between mt-1"><span className="text-xs text-gray-400">Expenses</span><span className="text-xs font-medium text-red-500">{I.receipt("#EF4444")} {fmt(total)}</span></div> : null; })()}
                                     </div>
                                     );
                                 })}
@@ -2873,19 +2910,34 @@ const NuOperandi = () => {
               <div className="bg-white rounded-2xl border border-violet-100/60 card-shadow overflow-hidden">
                 <div className="px-4 py-3 border-b border-violet-50 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    {I.circle("#7C3AED")}
-                    <h3 className="text-sm font-semibold text-gray-900">My Goals</h3>
+                    {I.bulb("#7C3AED")}
+                    <h3 className="font-semibold text-gray-800 text-sm">My Goals</h3>
+                    <span className="text-xs text-gray-400 ml-1">{(() => { const d = new Date(); return d.toLocaleString('default', { month: 'long', year: 'numeric' }); })()}</span>
                   </div>
                   <button onClick={() => setModal('addGoal')} className="text-xs text-violet-500 hover:text-violet-700 font-medium">+ Add</button>
                 </div>
-                <div className="px-4 py-3 space-y-3">
-                  {weeklyPlan.slice(0, 3).filter(Boolean).map((goal, i) => {
-                    const dn = goal.subtasks ? goal.subtasks.filter(s => s.done).length : (completedWeekly[goal.id] ? 1 : 0);
-                    const tt = goal.subtasks ? goal.subtasks.length : 1;
-                    const pc = tt > 0 ? Math.round((dn/tt)*100) : 0;
-                    return (<div key={i}><div className="flex items-center justify-between mb-1"><p className="text-sm text-gray-700 truncate flex-1">{goal.text || goal.title}</p><span className="text-xs font-medium text-gray-500 ml-2">{pc}%</span></div><div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-violet-400 transition-all" style={{width: pc+'%'}}></div></div></div>);
+                <div className="px-4 py-3 space-y-2 max-h-64 overflow-y-auto">
+                  {safe(weeklyPlan).length === 0 ? (
+                    <div className="text-center py-6 text-gray-400 text-sm">No goals yet. Tap + Add to set your first goal.</div>
+                  ) : safe(weeklyPlan).filter(Boolean).map((goal, i) => {
+                    const isDone = completedWeekly[goal.id];
+                    const proj = safe(activeProjects).find(p => p.id === goal.projectId);
+                    return (<div key={goal.id || i} className={"flex items-start gap-3 p-2 rounded-xl hover:bg-violet-50/40 transition-colors " + (isDone ? "opacity-60" : "")}>
+                      <button onClick={() => setCompletedWeekly(prev => ({...prev, [goal.id]: !prev[goal.id]}))} className={"mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 " + (isDone ? "bg-violet-500 border-violet-500" : "border-gray-300 hover:border-violet-400")}>
+                        {isDone && I.check("#fff")}
+                      </button>
+                      <div className="flex-1 min-w-0">
+                        <p className={"text-sm font-medium " + (isDone ? "line-through text-gray-400" : "text-gray-800")}>{goal.title || goal.task || goal.text}</p>
+                        {goal.text && goal.title && <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{goal.text}</p>}
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          {proj && <span className="text-xs bg-violet-100 text-violet-600 px-2 py-0.5 rounded-full">{proj.name}</span>}
+                          {goal.deadline && <span className="text-xs text-gray-400">{I.calendar("#9CA3AF")} {goal.deadline}</span>}
+                          {goal.delegatedTo && <span className="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">{goal.delegatedTo}</span>}
+                        </div>
+                      </div>
+                      <button onClick={() => { setEditItem(goal); setModal('editWeekly'); }} className="text-gray-300 hover:text-violet-500 flex-shrink-0 mt-1">{I.edit("#D1D5DB")}</button>
+                    </div>);
                   })}
-                  {weeklyPlan.length === 0 && <p className="text-xs text-gray-400 text-center py-2">No goals set this week</p>}
                 </div>
               </div>
               {/* Reminders */}
@@ -4335,7 +4387,8 @@ const NuOperandi = () => {
             {modal === 'editIncome' && <IncomeForm item={editItem} setIncomeStreams={setIncomeStreams} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'addProject' && <ProjectForm setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }}  supaUser={supaUser} weeklyPlan={weeklyPlan} quickTasks={quickTasks}/>}
             {modal === 'editProject' && <ProjectForm item={editItem} setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }}  supaUser={supaUser} weeklyPlan={weeklyPlan} quickTasks={quickTasks}/>}
-            {acceptingTask && <AcceptTaskModal task={acceptingTask} onChooseDaily={acceptToDaily} onChooseWeekly={acceptToWeekly} onCancel={() => setAcceptingTask(null)} />}
+            {acceptingTask && <AcceptTaskModal task={acceptingTask} onChooseDaily={acceptToDaily} onChooseWeekly={acceptToWeekly} onCancel={() => setAcceptingTask(null)}             />}
+      {modal === 'addGoal' && <GoalForm setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} team={teamMembers} supaUser={supaUser} onClose={() => { setModal(null); setEditItem(null); }} />}
       {modal === 'addWeekly' && <WeeklyTaskForm setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'editWeekly' && <WeeklyTaskForm item={editItem} setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'addTask' && <TaskForm setQuickTasks={setQuickTasks} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
@@ -4345,8 +4398,8 @@ const NuOperandi = () => {
             {modal === 'addIdea' && <IdeaForm setIdeas={setIdeas} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'editIdea' && <IdeaForm item={editItem} setIdeas={setIdeas} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'addTeam' && <TeamForm setTeamMembers={setTeamMembers} onClose={() => { setModal(null); setEditItem(null); }} />}
-            {modal === 'addExpense' && <ExpenseForm setExpenses={setExpenses} incomeStreams={incomeStreams} supaUser={supaUser} userProfile={userProfile} paymentTags={paymentTags} setPaymentTags={setPaymentTags} onClose={() => { setModal(null); setEditItem(null); }} />}
-            {modal === 'editExpense' && <ExpenseForm item={editItem} setExpenses={setExpenses} incomeStreams={incomeStreams} supaUser={supaUser} userProfile={userProfile} paymentTags={paymentTags} setPaymentTags={setPaymentTags} onClose={() => { setModal(null); setEditItem(null); }} />}
+            {modal === 'addExpense' && <ExpenseForm setExpenses={setExpenses} incomeStreams={incomeStreams} supaUser={supaUser} userProfile={userProfile} paymentTags={paymentTags} setPaymentTags={setPaymentTags} onClose={() => { setModal(null); setEditItem(null); }}  activeProjects={activeProjects}/>}
+            {modal === 'editExpense' && <ExpenseForm item={editItem} setExpenses={setExpenses} incomeStreams={incomeStreams} supaUser={supaUser} userProfile={userProfile} paymentTags={paymentTags} setPaymentTags={setPaymentTags} onClose={() => { setModal(null); setEditItem(null); }}  activeProjects={activeProjects}/>}
             {modal === 'editTeam' && <TeamForm item={editItem} setTeamMembers={setTeamMembers} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'addLearning' && <LearningForm setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal && modal.startsWith('editLearning_') && <LearningForm item={editItem} idx={parseInt(modal.split('_')[1])} setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
