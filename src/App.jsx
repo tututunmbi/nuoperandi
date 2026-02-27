@@ -737,7 +737,7 @@ const GoalForm = ({ onClose, setWeeklyPlan, activeProjects, team, supaUser }) =>
   const [deadline, setDeadline] = useState('');
   const [delegatedTo, setDelegatedTo] = useState('');
   const [userSuggestions, setUserSuggestions] = useState([]);
-  const [delegateSearch, setDelegateSearch] = useState(item && item.delegatedTo ? item.delegatedTo : '');
+  const [delegateSearch, setDelegateSearch] = useState('');
   const [showDelegateDrop, setShowDelegateDrop] = useState(false);
   const searchUsers = async (q) => {
     setDelegateSearch(q);
