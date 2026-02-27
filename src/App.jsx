@@ -21,7 +21,7 @@ const Spark = ({ data, color = "#3B82F6" }) => {
     if (!data || data.length < 2) return null;
     const max = Math.max(...data), min = Math.min(...data), range = max - min || 1;
     const w = 64, h = 28, pad = 2;
-    const pts = data.map((v, i) => {
+    const pts = data.filter(Boolean).map((v, i) => {
         const x = pad + (i / (data.length - 1)) * (w - pad * 2);
         const y = pad + (1 - (v - min) / range) * (h - pad * 2);
         return x + ',' + y;
@@ -164,6 +164,62 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+
+const SafeModule = ({children, name}) => {
+  try {
+    return children;
+  } catch(e) {
+    console.error('Module ' + name + ' render error:', e);
+    return React.createElement('div', {
+      style: { padding: '2rem', textAlign: 'center', color: '#6B7280' }
+    }, 'This section encountered an error. Please refresh.');
+  }
+};
+
+class ModuleBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, errorMsg: '' };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, errorMsg: error.message };
+  }
+  componentDidCatch(error, info) {
+    console.error('Module error in ' + (this.props.name || 'unknown') + ':', error);
+  }
+  render() {
+    if (this.state.hasError) {
+      const self = this;
+      return React.createElement('div', {
+        style: {
+          padding: '2rem',
+          textAlign: 'center',
+          background: 'white',
+          borderRadius: '1rem',
+          margin: '1rem',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+        }
+      },
+        React.createElement('p', { style: { color: '#6B7280', marginBottom: '0.75rem' } },
+          'This section ran into an issue.'),
+        React.createElement('button', {
+          onClick: () => self.setState({ hasError: false, errorMsg: '' }),
+          style: {
+            background: '#7C3AED',
+            color: 'white',
+            border: 'none',
+            borderRadius: '0.5rem',
+            padding: '0.5rem 1.25rem',
+            cursor: 'pointer',
+            fontSize: '0.875rem'
+          }
+        }, 'Retry')
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const safe = (v) => Array.isArray(v) ? v : [];
 const I = {
     dollar: (c="currentColor") => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
@@ -246,20 +302,20 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
         setPayments(prev => [...prev, { id: Date.now(), label: '', amount: '', dueDate: '', paid: false, paidDate: null }]);
     };
     const updateMilestone = (mId, field, value) => {
-        setPayments(prev => prev.map(p => p.id === mId ? { ...p, [field]: value } : p));
+        setPayments(prev => prev.filter(Boolean).map(p => p.id === mId ? { ...p, [field]: value } : p));
     };
     const removeMilestone = (mId) => {
         setPayments(prev => prev.filter(p => p.id !== mId));
     };
     const toggleMilestonePaid = (mId) => {
-        setPayments(prev => prev.map(p => p.id === mId ? { ...p, paid: !p.paid, paidDate: !p.paid ? new Date().toISOString().split('T')[0] : null } : p));
+        setPayments(prev => prev.filter(Boolean).map(p => p.id === mId ? { ...p, paid: !p.paid, paidDate: !p.paid ? new Date().toISOString().split('T')[0] : null } : p));
     };
     const submit = () => {
         if (!name || !monthly) return;
         const val = Number(monthly.replace(/[^0-9.]/g, ''));
-        const data = { name, role, company, type, monthly: val, status, nextPayment, paymentCycle, payments: payments.map(p => ({ ...p, amount: Number(String(p.amount).replace(/[^0-9.]/g, '')) || 0 })) };
+        const data = { name, role, company, type, monthly: val, status, nextPayment, paymentCycle, payments: payments.filter(Boolean).map(p => ({ ...p, amount: Number(String(p.amount).replace(/[^0-9.]/g, '')) || 0 })) };
         if (item) {
-            setIncomeStreams(prev => prev.map(s => s.id === item.id ? { ...s, ...data } : s));
+            setIncomeStreams(prev => prev.filter(Boolean).map(s => s.id === item.id ? { ...s, ...data } : s));
         } else {
             setIncomeStreams(prev => [...prev, { id: newId(), ...data, lastPayment: new Date().toISOString().split('T')[0], trend: [val, val] }]);
         }
@@ -300,7 +356,7 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
                 <button type="button" onClick={addPaymentMilestone} className="text-xs text-violet-600 hover:text-violet-700 font-medium">+ Add Milestone</button>
               </div>
               {payments.length === 0 && <p className="text-xs text-gray-400 italic mb-2">No milestones yet. Add deposit/balance tracking.</p>}
-              {payments.map((pm, pmIdx) => (
+              {payments.filter(Boolean).map((pm, pmIdx) => (
                 <div key={pm.id} className={"mb-2 p-3 rounded-lg border text-sm " + (pm.paid ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200")}>
                   <div className="flex items-center gap-2 mb-2">
                     <button type="button" onClick={() => toggleMilestonePaid(pm.id)} className={"w-5 h-5 rounded border-2 flex items-center justify-center text-xs " + (pm.paid ? "bg-green-500 border-green-500 text-white" : "border-gray-300 hover:border-blue-400")}>
@@ -429,7 +485,7 @@ const DelegateLaunchpad = ({ supabase, supaUser, userProfile, onDelegate, I }) =
             {selectedUser && <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600">'</span>}
           </div>
           {showSuggestions && <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl border border-gray-200 shadow-lg z-10 overflow-hidden">
-            {suggestions.map(u => <button key={u.id} onClick={() => selectUser(u)} className="w-full px-3 py-2 text-left text-sm hover:bg-purple-50 flex items-center gap-2">
+            {suggestions.filter(Boolean).map(u => <button key={u.id} onClick={() => selectUser(u)} className="w-full px-3 py-2 text-left text-sm hover:bg-purple-50 flex items-center gap-2">
               <span className="font-medium text-gray-900">{u.full_name || u.username}</span>
               <span className="text-xs text-gray-400">@{u.username}</span>
             </button>)}
@@ -442,7 +498,7 @@ const DelegateLaunchpad = ({ supabase, supaUser, userProfile, onDelegate, I }) =
       </div>
       <div className="flex items-center gap-2 mb-3">
         <span className="text-xs text-gray-500">Priority:</span>
-        {["high","medium","low"].map(p => <button key={p} onClick={() => setPriority(p)} className={"text-xs px-2 py-1 rounded-full transition " + (priority === p ? (p === "high" ? "bg-red-100 text-red-600" : p === "medium" ? "bg-amber-100 text-amber-600" : "bg-green-100 text-green-600") : "bg-gray-100 text-gray-400 hover:bg-gray-200")}>{p}</button>)}
+        {["high","medium","low"].filter(Boolean).map(p => <button key={p} onClick={() => setPriority(p)} className={"text-xs px-2 py-1 rounded-full transition " + (priority === p ? (p === "high" ? "bg-red-100 text-red-600" : p === "medium" ? "bg-amber-100 text-amber-600" : "bg-green-100 text-green-600") : "bg-gray-100 text-gray-400 hover:bg-gray-200")}>{p}</button>)}
         {taskType === "weekly" && <input type="date" value={deadline} onChange={e => setDeadline(e.target.value)} className="ml-auto text-xs border border-gray-200 rounded-lg px-2 py-1" />}
       </div>
       <button onClick={launch} disabled={!taskText.trim() || !selectedUser || sending} className={"w-full py-2.5 rounded-xl text-sm font-semibold transition " + (taskText.trim() && selectedUser && !sending ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-md" : "bg-gray-200 text-gray-400 cursor-not-allowed")}>
@@ -475,14 +531,14 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
     const submit = () => {
         if (!name) return;
         if (item) {
-            setProjects(prev => prev.map(p => p.id === item.id ? { ...p, name, desc, status, launch, team: Number(team), next, teamMembers: selectedMembers } : p));
+            setProjects(prev => prev.filter(Boolean).map(p => p.id === item.id ? { ...p, name, desc, status, launch, team: Number(team), next, teamMembers: selectedMembers } : p));
       // Sync tagged members and project snapshot to Supabase
       (async () => {
             try {
               if (supaUser && selectedMembers && selectedMembers.length > 0) {
                 const { data: profiles } = await supabase.from('profiles').select('id, username').in('username', selectedMembers);
                 await supabase.from('project_members').delete().eq('project_owner_id', supaUser.id).eq('project_local_id', item.id);
-                const rows = (profiles || []).map(p => ({
+                const rows = (profiles || []).filter(Boolean).map(p => ({
                   project_owner_id: supaUser.id,
                   project_local_id: item.id,
                   project_name: name,
@@ -497,7 +553,7 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
                 const linkedW = weeklyPlan.filter(t => t.projectId === item.id);
                 const linkedD = (quickTasks || []).filter(t => t.projectId === item.id);
                 const snap = { name, desc, status, progress: item.progress, launch, next, teamMembers: selectedMembers || [] };
-                const tasksSnap = [...linkedW.map(t => ({ ...t, type: 'weekly' })), ...linkedD.map(t => ({ ...t, type: 'daily' }))];
+                const tasksSnap = [...linkedW.filter(Boolean).map(t => ({ ...t, type: 'weekly' })), ...linkedD.filter(Boolean).map(t => ({ ...t, type: 'daily' }))];
                 await supabase.from('shared_project_data').upsert({ project_owner_id: supaUser.id, project_local_id: item.id, project_snapshot: snap, tasks_snapshot: tasksSnap, updated_at: new Date().toISOString() }, { onConflict: 'project_owner_id,project_local_id' });
               }
             } catch (err) { console.error('sync error:', err); }
@@ -505,12 +561,12 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
         } else {
             setProjects(prev => [...prev, { id: newId(), name, desc, progress: 0, status, start: new Date().toISOString().split('T')[0], launch, team: Number(team), next, teamMembers: selectedMembers }]);
       // Sync new project members
-      const newProjId = projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1;
+      const newProjId = projects.length > 0 ? Math.max(...projects.filter(Boolean).map(p => p.id)) + 1 : 1;
       (async () => {
             try {
               if (supaUser && selectedMembers && selectedMembers.length > 0) {
                 const { data: profiles } = await supabase.from('profiles').select('id, username').in('username', selectedMembers);
-                const rows = (profiles || []).map(p => ({
+                const rows = (profiles || []).filter(Boolean).map(p => ({
                   project_owner_id: supaUser.id,
                   project_local_id: newProjId,
                   project_name: name,
@@ -523,7 +579,7 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
                 const linkedW = weeklyPlan.filter(t => t.projectId === newProjId);
                 const linkedD = (quickTasks || []).filter(t => t.projectId === newProjId);
                 const snap = { name, desc, status: 'Planning', progress: 0, launch, next, teamMembers: selectedMembers || [] };
-                const tasksSnap = [...linkedW.map(t => ({ ...t, type: 'weekly' })), ...linkedD.map(t => ({ ...t, type: 'daily' }))];
+                const tasksSnap = [...linkedW.filter(Boolean).map(t => ({ ...t, type: 'weekly' })), ...linkedD.filter(Boolean).map(t => ({ ...t, type: 'daily' }))];
                 await supabase.from('shared_project_data').upsert({ project_owner_id: supaUser.id, project_local_id: newProjId, project_snapshot: snap, tasks_snapshot: tasksSnap, updated_at: new Date().toISOString() }, { onConflict: 'project_owner_id,project_local_id' });
               }
             } catch (err) { console.error('sync error:', err); }
@@ -552,7 +608,7 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
                 <div className="space-y-2">
                     {selectedMembers.length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
-                            {selectedMembers.map(u => (
+                            {selectedMembers.filter(Boolean).map(u => (
                                 <span key={u} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
                                     @{u}
                                     <button type="button" onClick={() => removeMember(u)} className="ml-0.5 hover:text-purple-900">ÃÂ</button>
@@ -564,7 +620,7 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
                         <input className={inputCls} value={memberSearch} onChange={e => { setMemberSearch(e.target.value); searchMembers(e.target.value); }} placeholder="Search by username..." />
                         {memberSuggestions.length > 0 && (
                             <div className="absolute z-50 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
-                                {memberSuggestions.map(u => (
+                                {memberSuggestions.filter(Boolean).map(u => (
                                     <button key={u.username} type="button" onClick={() => addMember(u.username)} className="w-full text-left px-3 py-2 text-sm hover:bg-purple-50 flex items-center gap-2">
                                         <span className="w-6 h-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold">{u.username[0].toUpperCase()}</span>
                                         <span className="font-medium">{u.full_name || u.username}</span>
@@ -589,7 +645,7 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
 const WeeklyTaskForm = ({ item, onClose, setWeeklyPlan, activeProjects, onDelegate }) => {
     const [task, setTask] = useState(item ? item.task : '');
     const [projId, setProjId] = useState(item ? (item.projectId || '') : '');
-    const [subtasks, setSubtasks] = useState(item && item.subtasks ? item.subtasks.map(s => ({...s})) : []);
+    const [subtasks, setSubtasks] = useState(item && item.subtasks ? item.subtasks.filter(Boolean).map(s => ({...s})) : []);
     const [newSub, setNewSub] = useState('');
     const [deadline, setDeadline] = useState(item ? (item.deadline || '') : '');
     const [delegatedTo, setDelegatedTo] = useState(item ? (item.delegatedTo || '') : '');
@@ -610,7 +666,7 @@ const WeeklyTaskForm = ({ item, onClose, setWeeklyPlan, activeProjects, onDelega
         if (!task) return;
         const pid = projId ? Number(projId) : null;
         if (item) {
-            setWeeklyPlan(prev => prev.map(w => w.id === item.id ? { ...w, task, projectId: pid, subtasks, deadline, delegatedTo } : w));
+            setWeeklyPlan(prev => prev.filter(Boolean).map(w => w.id === item.id ? { ...w, task, projectId: pid, subtasks, deadline, delegatedTo } : w));
         } else {
             setWeeklyPlan(prev => [...prev, { id: newId(), task, projectId: pid, subtasks, deadline, delegatedTo }]);
         }
@@ -627,13 +683,13 @@ const WeeklyTaskForm = ({ item, onClose, setWeeklyPlan, activeProjects, onDelega
             <Field label="Linked Project (optional)">
                 <select className={inputCls} value={projId} onChange={e => setProjId(e.target.value)}>
                     <option value="">No project</option>
-                    {activeProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    {activeProjects.filter(Boolean).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
             </Field>
             <Field label="Sub-goals">
                 {subtasks.length > 0 && (
                     <div className="space-y-2 mb-3">
-                        {subtasks.map(s => (
+                        {subtasks.filter(Boolean).map(s => (
                             <div key={s.id} className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg group">
                                 <div className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0"></div>
                                 <span className="text-sm text-gray-700 flex-1">{s.text}</span>
@@ -652,7 +708,7 @@ const WeeklyTaskForm = ({ item, onClose, setWeeklyPlan, activeProjects, onDelega
             </Field>
             <Field label="Delegate to (optional)">
                 <input type="text" className={inputCls} value={delegatedTo} onChange={e => { setDelegatedTo(e.target.value); searchUsers(e.target.value); }} placeholder="e.g. @username" />
-                {userSuggestions.length > 0 && <div className="mt-1 border border-gray-200 rounded-lg overflow-hidden">{userSuggestions.map(u => (
+                {userSuggestions.length > 0 && <div className="mt-1 border border-gray-200 rounded-lg overflow-hidden">{userSuggestions.filter(Boolean).map(u => (
                     <div key={u.username} className="px-3 py-2 text-xs cursor-pointer hover:bg-violet-50 flex items-center gap-2" onClick={() => { setDelegatedTo(u.username); setUserSuggestions([]); }}>
                         <span className="font-medium text-violet-700">@{u.username}</span><span className="text-gray-400">{u.full_name}</span>
                     </div>
@@ -683,7 +739,7 @@ const TaskForm = ({ item, onClose, setQuickTasks, activeProjects, onDelegate }) 
         if (!task) return;
         const pid = projId ? Number(projId) : null;
         if (item) {
-            setQuickTasks(prev => prev.map(t => t.id === item.id ? { ...t, task, priority, due, projectId: pid, delegatedTo } : t));
+            setQuickTasks(prev => prev.filter(Boolean).map(t => t.id === item.id ? { ...t, task, priority, due, projectId: pid, delegatedTo } : t));
         } else {
             setQuickTasks(prev => [...prev, { id: newId(), task, priority, due, projectId: pid, delegatedTo }]);
         }
@@ -698,7 +754,7 @@ const TaskForm = ({ item, onClose, setQuickTasks, activeProjects, onDelegate }) 
             <Field label="Linked Project (optional)">
                 <select className={inputCls} value={projId} onChange={e => setProjId(e.target.value)}>
                     <option value="">No project</option>
-                    {activeProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    {activeProjects.filter(Boolean).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
             </Field>
             <div className="grid grid-cols-2 gap-3">
@@ -711,7 +767,7 @@ const TaskForm = ({ item, onClose, setQuickTasks, activeProjects, onDelegate }) 
             </div>
             <Field label="Delegate to (optional)">
                 <input type="text" className={inputCls} value={delegatedTo} onChange={e => { setDelegatedTo(e.target.value); searchUsers(e.target.value); }} placeholder="e.g. @username" />
-                {userSuggestions.length > 0 && <div className="mt-1 border border-gray-200 rounded-lg overflow-hidden">{userSuggestions.map(u => (
+                {userSuggestions.length > 0 && <div className="mt-1 border border-gray-200 rounded-lg overflow-hidden">{userSuggestions.filter(Boolean).map(u => (
                     <div key={u.username} className="px-3 py-2 text-xs cursor-pointer hover:bg-violet-50 flex items-center gap-2" onClick={() => { setDelegatedTo(u.username); setUserSuggestions([]); }}>
                         <span className="font-medium text-violet-700">@{u.username}</span><span className="text-gray-400">{u.full_name}</span>
                     </div>
@@ -733,7 +789,7 @@ const TimeBlockForm = ({ item, onClose, setTimeBlocks }) => {
     const submit = () => {
         if (!task || !time) return;
         if (item) {
-            setTimeBlocks(prev => prev.map(b => b.id === item.id ? { ...b, task, time, end, cat } : b));
+            setTimeBlocks(prev => prev.filter(Boolean).map(b => b.id === item.id ? { ...b, task, time, end, cat } : b));
         } else {
             setTimeBlocks(prev => [...prev, { id: newId(), task, time, end, cat }]);
         }
@@ -763,7 +819,7 @@ const IdeaForm = ({ item, onClose, setIdeas }) => {
     const [text, setText] = useState(item ? item.text : '');
     const submit = () => {
         if (!text) return;
-        if (item) { setIdeas(prev => prev.map(i => i.id === item.id ? { ...i, text } : i)); }
+        if (item) { setIdeas(prev => prev.filter(Boolean).map(i => i.id === item.id ? { ...i, text } : i)); }
         else { setIdeas(prev => [...prev, { id: newId(), text, t: 'Just now' }]); }
         onClose();
     };
@@ -782,7 +838,7 @@ const LearningForm = ({ item, idx, onClose, setLearning }) => {
     const [text, setText] = useState(item || '');
     const submit = () => {
         if (!text) return;
-        if (item) { setLearning(prev => prev.map((l, i) => i === idx ? text : l)); }
+        if (item) { setLearning(prev => prev.filter(Boolean).map((l, i) => i === idx ? text : l)); }
         else { setLearning(prev => [...prev, text]); }
         onClose();
     };
@@ -806,7 +862,7 @@ const AuthFlow = ({ onAuth }) => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [usernameStatus, setUsernameStatus] = useState('');
-    const autoInitials = name.trim() ? name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '';
+    const autoInitials = name.trim() ? name.trim().split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2) : '';
 
     const checkUsername = async (u) => {
         if (!u || u.length < 2) { setUsernameStatus(''); return; }
@@ -906,7 +962,7 @@ const ProfileEditModal = ({ userProfile, setUserProfile, supaUser, onClose }) =>
         } catch (err) { console.error('Avatar upload error:', err); }
         setUploading(false);
     };
-    const autoInitials = name.trim() ? name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '';
+    const autoInitials = name.trim() ? name.trim().split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2) : '';
     const handleSignOut = async () => { await supabase.auth.signOut(); window.location.reload(); };
     const submit = async () => {
         if (!name.trim() || !username.trim()) return;
@@ -997,12 +1053,12 @@ const NotificationsPanel = ({ notifications, onMarkRead, onClose, delegatedToMe,
         </div>
         {notifications.length === 0 ? (
           <div className="px-4 py-8 text-center text-xs text-gray-400">No notifications yet</div>
-        ) : notifications.map(n => {
+        ) : notifications.filter(Boolean).map(n => {
           const found = findTaskInPlanner(n);
           return (
             <div key={n.id} onClick={() => handleNotifClick(n)} className="px-4 py-3 border-b border-violet-50 hover:bg-gray-50 transition cursor-pointer flex items-start gap-3">
               <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                <span className="text-xs font-bold text-purple-600">{n.sender_name ? n.sender_name.split(' ').map(w => w[0]).join('').substring(0, 2) : '?'}</span>
+                <span className="text-xs font-bold text-purple-600">{n.sender_name ? n.sender_name.split(' ').filter(Boolean).map(w => w[0]).join('').substring(0, 2) : '?'}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-gray-900 truncate">{n.title}</p>
@@ -1038,8 +1094,8 @@ const TeamForm = ({ item, onClose, setTeamMembers }) => {
     const [status, setStatus] = useState(item ? item.status : 'available');
     const submit = () => {
         if (!name) return;
-        const auto = initials || name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-        if (item) { setTeamMembers(prev => prev.map(m => m.id === item.id ? { ...m, name, initials: auto, status } : m)); }
+        const auto = initials || name.split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        if (item) { setTeamMembers(prev => prev.filter(Boolean).map(m => m.id === item.id ? { ...m, name, initials: auto, status } : m)); }
         else { setTeamMembers(prev => [...prev, { id: newId(), name, initials: auto, status }]); }
         onClose();
     };
@@ -1081,7 +1137,7 @@ const AddMenu = ({ onClose, activeModule, setModal }) => {
         <div className="fixed inset-0 z-40" onClick={onClose}>
             <div className="fixed bottom-24 right-8 bg-white rounded-xl border border-violet-100/60 card-shadow p-2 min-w-[180px] z-50" onClick={e => e.stopPropagation()}>
                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wide px-3 py-2">Add New</p>
-                {items.map((it, i) => (
+                {items.filter(Boolean).map((it, i) => (
                     <button key={i} onClick={it.action} className="w-full text-left px-3 py-2.5 text-sm text-gray-700 hover:bg-violet-50 hover:text-violet-700 rounded-lg transition flex items-center gap-2">
                         {I.plus("#3B82F6")}
                         {it.label}
@@ -1115,7 +1171,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
         setTagSearch(''); setTagSuggestions([]);
     };
     const updateTaggedMember = (idx, field, value) => {
-        setTaggedMembers(prev => prev.map((m, i) => i === idx ? { ...m, [field]: value } : m));
+        setTaggedMembers(prev => prev.filter(Boolean).map((m, i) => i === idx ? { ...m, [field]: value } : m));
     };
     const removeTaggedMember = (idx) => {
         setTaggedMembers(prev => prev.filter((_, i) => i !== idx));
@@ -1128,7 +1184,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
         const data = { name, amount: val, category, frequency, linkedStreamId: lsid, note, dueDate: dueDate || null };
         let expenseId;
         if (item) {
-            setExpenses(prev => prev.map(e => e.id === item.id ? { ...e, ...data } : e));
+            setExpenses(prev => prev.filter(Boolean).map(e => e.id === item.id ? { ...e, ...data } : e));
             expenseId = item.id;
         } else {
             expenseId = newId();
@@ -1189,7 +1245,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
             <Field label="Paid From (optional)">
                 <select className={inputCls} value={linkedStreamId} onChange={e => setLinkedStreamId(e.target.value)}>
                     <option value="">General / Personal</option>
-                    {incomeStreams.map(s => <option key={s.id} value={s.id}>{s.name}{s.company ? ' (' + s.company + ')' : ''}</option>)}
+                    {incomeStreams.filter(Boolean).map(s => <option key={s.id} value={s.id}>{s.name}{s.company ? ' (' + s.company + ')' : ''}</option>)}
                 </select>
             </Field>
             <div className="grid grid-cols-2 gap-3">
@@ -1207,7 +1263,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" className={"transition " + (showTagSection ? "rotate-180" : "")}><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
                 {showTagSection && <div className="px-4 py-3 space-y-3">
-                    {taggedMembers.map((member, idx) => <div key={idx} className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg">
+                    {taggedMembers.filter(Boolean).map((member, idx) => <div key={idx} className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg">
                         <div className="flex-1 space-y-2">
                             <div className="flex items-center gap-2">
                                 <div className="w-7 h-7 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-700">{(member.fullName || member.username).charAt(0).toUpperCase()}</div>
@@ -1229,7 +1285,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
                     <div className="relative">
                         <input className={inputCls + " !text-xs"} placeholder="Search @username to add..." value={tagSearch} onChange={e => { setTagSearch(e.target.value); searchTagUser(e.target.value); }} />
                         {tagSuggestions.length > 0 && <div className="mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
-                            {tagSuggestions.map(u => <button key={u.username} onClick={() => addTaggedMember(u)} className="w-full text-left px-3 py-2 hover:bg-violet-50 flex items-center gap-2 transition">
+                            {tagSuggestions.filter(Boolean).map(u => <button key={u.username} onClick={() => addTaggedMember(u)} className="w-full text-left px-3 py-2 hover:bg-violet-50 flex items-center gap-2 transition">
                                 <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-700">{(u.full_name || u.username).charAt(0).toUpperCase()}</div>
                                 <div><p className="text-sm text-gray-900">{u.full_name || u.username}</p><p className="text-xs text-gray-400">@{u.username}</p></div>
                             </button>)}
@@ -1375,19 +1431,19 @@ const NuOperandi = () => {
         // No local data - this is a team member or fresh device. Load from cloud.
         const { data: cloudIncome } = await supabase.from('income_streams').select('*').eq('owner_id', supaUser.id);
         if (cloudIncome && cloudIncome.length > 0) {
-          const mapped = cloudIncome.map(s => ({ id: s.local_id, name: s.name, type: s.type, monthly: s.monthly, status: s.status, note: s.note, ...(s.extra_data || {}) }));
+          const mapped = cloudIncome.filter(Boolean).map(s => ({ id: s.local_id, name: s.name, type: s.type, monthly: s.monthly, status: s.status, note: s.note, ...(s.extra_data || {}) }));
           setIncomeStreams(dedupByKey(mapped, 'id'));
         }
 
         const { data: cloudExpenses } = await supabase.from('expenses').select('*');
         if (cloudExpenses && cloudExpenses.length > 0) {
-          const mapped = cloudExpenses.map(e => ({ id: e.local_id, name: e.name, amount: e.amount, category: e.category, frequency: e.frequency, linkedStreamId: e.linked_stream_id, note: e.note, dueDate: e.due_date }));
+          const mapped = cloudExpenses.filter(Boolean).map(e => ({ id: e.local_id, name: e.name, amount: e.amount, category: e.category, frequency: e.frequency, linkedStreamId: e.linked_stream_id, note: e.note, dueDate: e.due_date }));
           setExpenses(mapped);
         }
 
         const { data: cloudTasks } = await supabase.from('daily_tasks').select('*');
         if (cloudTasks && cloudTasks.length > 0) {
-          const mapped = cloudTasks.map(tk => ({ id: tk.local_id, task: tk.task_text, priority: tk.priority, due: tk.due, projectId: tk.project_id, weeklySourceId: tk.weekly_source_id }));
+          const mapped = cloudTasks.filter(Boolean).map(tk => ({ id: tk.local_id, task: tk.task_text, priority: tk.priority, due: tk.due, projectId: tk.project_id, weeklySourceId: tk.weekly_source_id }));
           setQuickTasks(mapped);
           const comp = {};
           cloudTasks.forEach(tk => { if (tk.completed) comp[tk.local_id] = true; });
@@ -1396,19 +1452,19 @@ const NuOperandi = () => {
 
         const { data: cloudBlocks } = await supabase.from('time_blocks').select('*');
         if (cloudBlocks && cloudBlocks.length > 0) {
-          const mapped = cloudBlocks.map(b => ({ id: b.local_id, task: b.task_text, time: b.start_time, end: b.end_time, cat: b.category }));
+          const mapped = cloudBlocks.filter(Boolean).map(b => ({ id: b.local_id, task: b.task_text, time: b.start_time, end: b.end_time, cat: b.category }));
           setTimeBlocks(mapped);
         }
 
         const { data: cloudIdeas } = await supabase.from('ideas').select('*');
         if (cloudIdeas && cloudIdeas.length > 0) {
-          const mapped = cloudIdeas.map(i => ({ id: i.local_id, text: i.text_content }));
+          const mapped = cloudIdeas.filter(Boolean).map(i => ({ id: i.local_id, text: i.text_content }));
           setIdeas(mapped);
         }
 
         const { data: cloudTeam } = await supabase.from('team_members').select('*');
         if (cloudTeam && cloudTeam.length > 0) {
-          const mapped = cloudTeam.map(m => ({ id: m.local_id, name: m.name, initials: m.initials, status: m.status }));
+          const mapped = cloudTeam.filter(Boolean).map(m => ({ id: m.local_id, name: m.name, initials: m.initials, status: m.status }));
           setTeamMembers(mapped);
         }
 
@@ -1416,19 +1472,19 @@ const NuOperandi = () => {
 
         const { data: cloudHistory } = await supabase.from('task_history').select('*');
         if (cloudHistory && cloudHistory.length > 0) {
-          const mapped = cloudHistory.map(h => ({ date: h.date, tasks: h.tasks }));
+          const mapped = cloudHistory.filter(Boolean).map(h => ({ date: h.date, tasks: h.tasks }));
           setTaskHistory(mapped);
         }
 
         const { data: cloudProjects } = await supabase.from('projects').select('*');
         if (cloudProjects && cloudProjects.length > 0) {
-          const mapped = cloudProjects.map(p => ({ id: p.local_id, name: p.name, desc: p.description, progress: p.progress, status: p.status, start: p.start_date, launch: p.launch_date, team: p.team_size, next: p.next_step, teamMembers: p.teamMembers || [] }));
+          const mapped = cloudProjects.filter(Boolean).map(p => ({ id: p.local_id, name: p.name, desc: p.description, progress: p.progress, status: p.status, start: p.start_date, launch: p.launch_date, team: p.team_size, next: p.next_step, teamMembers: p.teamMembers || [] }));
           setProjects(mapped);
         }
 
         const { data: cloudWeekly } = await supabase.from('weekly_tasks').select('*');
         if (cloudWeekly && cloudWeekly.length > 0) {
-          const mapped = cloudWeekly.map(tk => ({ id: tk.local_id, task: tk.task_text, projectId: tk.project_local_id, subtasks: tk.subtasks || [], deadline: tk.deadline, delegatedTo: tk.delegated_to, thisWeek: !!tk.this_week }));
+          const mapped = cloudWeekly.filter(Boolean).map(tk => ({ id: tk.local_id, task: tk.task_text, projectId: tk.project_local_id, subtasks: tk.subtasks || [], deadline: tk.deadline, delegatedTo: tk.delegated_to, thisWeek: !!tk.this_week }));
           setWeeklyPlan(mapped);
           const comp = {};
           cloudWeekly.forEach(tk => { if (tk.completed) comp[tk.local_id] = true; });
@@ -1459,7 +1515,7 @@ const NuOperandi = () => {
             }
           });
           await supabase.from('projects').delete().eq('owner_id', supaUser.id);
-          const rows = projects.map(p => ({
+          const rows = projects.filter(Boolean).map(p => ({
             local_id: p.id,
             owner_id: supaUser.id,
             name: p.name,
@@ -1483,7 +1539,7 @@ const NuOperandi = () => {
       const timer = setTimeout(async () => {
         try {
           await supabase.from('weekly_tasks').delete().eq('owner_id', supaUser.id);
-          const rows = weeklyPlan.map(tk => ({
+          const rows = weeklyPlan.filter(Boolean).map(tk => ({
             local_id: tk.id,
             owner_id: supaUser.id,
             project_local_id: tk.projectId || null,
@@ -1506,7 +1562,7 @@ const NuOperandi = () => {
     const timer = setTimeout(async () => {
       try {
         await supabase.from('income_streams').delete().eq('owner_id', supaUser.id);
-        const rows = incomeStreams.map(s => ({
+        const rows = incomeStreams.filter(Boolean).map(s => ({
           local_id: s.id, owner_id: supaUser.id, name: s.name,
           type: s.type || 'Active', monthly: s.monthly || 0,
           status: s.status || 'active', note: s.note || '',
@@ -1524,7 +1580,7 @@ const NuOperandi = () => {
     const timer = setTimeout(async () => {
       try {
         await supabase.from('expenses').delete().eq('owner_id', supaUser.id);
-        const rows = expenses.map(e => ({
+        const rows = expenses.filter(Boolean).map(e => ({
           local_id: e.id, owner_id: supaUser.id, name: e.name,
           amount: e.amount || 0, category: e.category || '',
           frequency: e.frequency || 'Monthly',
@@ -1543,7 +1599,7 @@ const NuOperandi = () => {
     const timer = setTimeout(async () => {
       try {
         await supabase.from('daily_tasks').delete().eq('owner_id', supaUser.id);
-        const rows = quickTasks.map(tk => ({
+        const rows = quickTasks.filter(Boolean).map(tk => ({
           local_id: tk.id, owner_id: supaUser.id,
           task_text: tk.task, priority: tk.priority || 'medium',
           due: tk.due || 'Today', project_id: tk.projectId || null,
@@ -1563,7 +1619,7 @@ const NuOperandi = () => {
     const timer = setTimeout(async () => {
       try {
         await supabase.from('time_blocks').delete().eq('owner_id', supaUser.id);
-        const rows = timeBlocks.map(b => ({
+        const rows = timeBlocks.filter(Boolean).map(b => ({
           local_id: b.id, owner_id: supaUser.id,
           task_text: b.task, start_time: b.time || '',
           end_time: b.end || '', category: b.cat || ''
@@ -1580,7 +1636,7 @@ const NuOperandi = () => {
     const timer = setTimeout(async () => {
       try {
         await supabase.from('ideas').delete().eq('owner_id', supaUser.id);
-        const rows = ideas.map(i => ({
+        const rows = ideas.filter(Boolean).map(i => ({
           local_id: i.id, owner_id: supaUser.id,
           text_content: i.text || ''
         }));
@@ -1596,7 +1652,7 @@ const NuOperandi = () => {
     const timer = setTimeout(async () => {
       try {
         await supabase.from('team_members').delete().eq('owner_id', supaUser.id);
-        const rows = teamMembers.map(m => ({
+        const rows = teamMembers.filter(Boolean).map(m => ({
           local_id: m.id, owner_id: supaUser.id,
           name: m.name, initials: m.initials || '',
           status: m.status || 'available'
@@ -1615,7 +1671,7 @@ const NuOperandi = () => {
     const timer = setTimeout(async () => {
       try {
         await supabase.from('task_history').delete().eq('owner_id', supaUser.id);
-        const rows = taskHistory.map(h => ({
+        const rows = taskHistory.filter(Boolean).map(h => ({
           owner_id: supaUser.id, date: h.date, tasks: h.tasks || []
         }));
         if (rows.length > 0) await supabase.from('task_history').insert(rows);
@@ -1733,7 +1789,7 @@ const NuOperandi = () => {
 
     const markNotifRead = async (id) => {
         await supabase.from('notifications').update({ is_read: true }).eq('id', id);
-        setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+        setNotifications(prev => prev.filter(Boolean).map(n => n.id === id ? { ...n, is_read: true } : n));
     };
 
     const unreadCount = notifications.filter(n => !n.is_read).length;
@@ -1749,7 +1805,7 @@ const NuOperandi = () => {
       if (!eodReminderEnabled) return;
       const check = () => {
         const now = new Date();
-        const [h, m] = eodReminderTime.split(':').map(Number);
+        const [h, m] = eodReminderTime.split(':').filter(Boolean).map(Number);
         if (now.getHours() === h && now.getMinutes() === m && !window.__eodShown) {
           window.__eodShown = true;
           setShowEodReport(true);
@@ -1802,7 +1858,7 @@ const NuOperandi = () => {
     const markDelegatedDone = async (taskId) => {
         try {
             await supabase.from('delegated_tasks').update({ status: 'completed' }).eq('id', taskId);
-            setDelegatedByMe(prev => prev.map(d => d.id === taskId ? { ...d, status: 'completed' } : d));
+            setDelegatedByMe(prev => prev.filter(Boolean).map(d => d.id === taskId ? { ...d, status: 'completed' } : d));
         } catch (e) { console.log('Mark done error:', e); }
     };
 
@@ -1810,7 +1866,7 @@ const NuOperandi = () => {
     const toggleReceivedTask = async (task) => {
       try {
         await supabase.from('delegated_tasks').update({ status: 'completed' }).eq('id', task.id);
-        setDelegatedToMe(prev => prev.map(d => d.id === task.id ? { ...d, status: 'completed' } : d));
+        setDelegatedToMe(prev => prev.filter(Boolean).map(d => d.id === task.id ? { ...d, status: 'completed' } : d));
         // Notify the delegator
         if (newStatus === 'completed' && task.delegator_id) {
           await supabase.from('notifications').insert({
@@ -1864,7 +1920,7 @@ const NuOperandi = () => {
           is_read: false
         });
       }
-      setIncomingPayments(prev => prev.map(p => p.id === tag.id ? { ...p, status: 'accepted' } : p));
+      setIncomingPayments(prev => prev.filter(Boolean).map(p => p.id === tag.id ? { ...p, status: 'accepted' } : p));
     } catch (e) { console.log('Accept payment tag error:', e); }
   };
 
@@ -1880,7 +1936,7 @@ const NuOperandi = () => {
           is_read: false
         });
       }
-      setIncomingPayments(prev => prev.map(p => p.id === tag.id ? { ...p, status: 'declined' } : p));
+      setIncomingPayments(prev => prev.filter(Boolean).map(p => p.id === tag.id ? { ...p, status: 'declined' } : p));
     } catch (e) { console.log('Decline payment tag error:', e); }
   };
 
@@ -1899,7 +1955,7 @@ const NuOperandi = () => {
             if (completed.length === 0) return;
             const archiveEntry = {
                 date: today,
-                tasks: completed.map(t => ({
+                tasks: completed.filter(Boolean).map(t => ({
                     ...t,
                     completedAt: new Date().toISOString()
                 }))
@@ -1907,7 +1963,7 @@ const NuOperandi = () => {
             setTaskHistory(prev => {
                 const existing = prev.find(h => h.date === today);
                 if (existing) {
-                    return prev.map(h => h.date === today
+                    return prev.filter(Boolean).map(h => h.date === today
                         ? { ...h, tasks: [...h.tasks, ...archiveEntry.tasks] }
                         : h
                     );
@@ -1915,7 +1971,7 @@ const NuOperandi = () => {
                 return [archiveEntry, ...prev];
             });
             // Remove archived tasks from active list
-            const completedIds = completed.map(t => t.id);
+            const completedIds = completed.filter(Boolean).map(t => t.id);
             setQuickTasks(prev => prev.filter(t => !completedIds.includes(t.id)));
             setCompletedTasks(prev => {
                 const next = { ...prev };
@@ -1996,7 +2052,7 @@ const NuOperandi = () => {
           const archiveEntry = { ...task, completedAt: new Date().toISOString() };
           setTaskHistory(ph => {
             const existing = ph.find(h => h.date === today);
-            if (existing) return ph.map(h => h.date === today ? { ...h, tasks: [...h.tasks, archiveEntry] } : h);
+            if (existing) return ph.filter(Boolean).map(h => h.date === today ? { ...h, tasks: [...h.tasks, archiveEntry] } : h);
             return [{ date: today, tasks: [archiveEntry] }, ...ph];
           });
           return prev.filter(t => t.id !== id);
@@ -2019,7 +2075,7 @@ const NuOperandi = () => {
     try {
       await supabase.from('delegated_tasks').update({ status: 'accepted' }).eq('id', task.id);
     } catch (e) { console.log('Accept sync error:', e); }
-    setDelegatedToMe(prev => prev.map(d => d.id === task.id ? {...d, status: 'accepted'} : d));
+    setDelegatedToMe(prev => prev.filter(Boolean).map(d => d.id === task.id ? {...d, status: 'accepted'} : d));
     setAcceptingTask(null);
   };
 
@@ -2036,7 +2092,7 @@ const NuOperandi = () => {
     try {
       await supabase.from('delegated_tasks').update({ status: 'accepted' }).eq('id', task.id);
     } catch (e) { console.log('Accept sync error:', e); }
-    setDelegatedToMe(prev => prev.map(d => d.id === task.id ? {...d, status: 'accepted'} : d));
+    setDelegatedToMe(prev => prev.filter(Boolean).map(d => d.id === task.id ? {...d, status: 'accepted'} : d));
     setAcceptingTask(null);
   };
   const toggleWeekly = (id) => {
@@ -2053,7 +2109,7 @@ const NuOperandi = () => {
           const archiveEntry = { ...task, completedAt: new Date().toISOString(), source: 'weekly' };
           setTaskHistory(ph => {
             const existing = ph.find(h => h.date === today);
-            if (existing) return ph.map(h => h.date === today ? { ...h, tasks: [...h.tasks, archiveEntry] } : h);
+            if (existing) return ph.filter(Boolean).map(h => h.date === today ? { ...h, tasks: [...h.tasks, archiveEntry] } : h);
             return [{ date: today, tasks: [archiveEntry] }, ...ph];
           });
           return prev.filter(t => t.id !== id);
@@ -2063,9 +2119,9 @@ const NuOperandi = () => {
     }
   };
   const toggleSubtask = (taskId, subtaskId) => {
-    setWeeklyPlan(prev => prev.map(w => {
+    setWeeklyPlan(prev => prev.filter(Boolean).map(w => {
       if (w.id !== taskId) return w;
-      return { ...w, subtasks: (w.subtasks || []).map(s => s.id === subtaskId ? { ...s, done: !s.done } : s) };
+      return { ...w, subtasks: (w.subtasks || []).filter(Boolean).map(s => s.id === subtaskId ? { ...s, done: !s.done } : s) };
     }));
   };
   const archiveCompleted = () => {
@@ -2074,16 +2130,16 @@ const NuOperandi = () => {
         if (completed.length === 0) return;
         const archiveEntry = {
             date: today,
-            tasks: completed.map(t => ({ ...t, completedAt: new Date().toISOString() }))
+            tasks: completed.filter(Boolean).map(t => ({ ...t, completedAt: new Date().toISOString() }))
         };
         setTaskHistory(prev => {
             const existing = prev.find(h => h.date === today);
             if (existing) {
-                return prev.map(h => h.date === today ? { ...h, tasks: [...h.tasks, ...archiveEntry.tasks] } : h);
+                return prev.filter(Boolean).map(h => h.date === today ? { ...h, tasks: [...h.tasks, ...archiveEntry.tasks] } : h);
             }
             return [archiveEntry, ...prev];
         });
-        const completedIds = completed.map(t => t.id);
+        const completedIds = completed.filter(Boolean).map(t => t.id);
         setQuickTasks(prev => prev.filter(t => !completedIds.includes(t.id)));
         setCompletedTasks(prev => {
             const next = { ...prev };
@@ -2146,7 +2202,7 @@ const NuOperandi = () => {
       const linkedWeekly = weeklyPlan.filter(t => t.projectId === proj.id);
       const linkedDaily = (quickTasks || []).filter(t => t.projectId === proj.id);
       const snapshot = { name: proj.name, desc: proj.desc, status: proj.status, progress: proj.progress, launch: proj.launch, next: proj.next, teamMembers: proj.teamMembers || [] };
-      const tasksSnap = [...linkedWeekly.map(t => ({ ...t, type: 'weekly' })), ...linkedDaily.map(t => ({ ...t, type: 'daily' }))];
+      const tasksSnap = [...linkedWeekly.filter(Boolean).map(t => ({ ...t, type: 'weekly' })), ...linkedDaily.filter(Boolean).map(t => ({ ...t, type: 'daily' }))];
       await supabase.from('shared_project_data').upsert({ project_owner_id: supaUser.id, project_local_id: proj.id, project_snapshot: snapshot, tasks_snapshot: tasksSnap, updated_at: new Date().toISOString() }, { onConflict: 'project_owner_id,project_local_id' });
     } catch (err) { console.error('syncProjectSnapshot error:', err); }
   };
@@ -2185,7 +2241,7 @@ const NuOperandi = () => {
     if (supaUser) { fetchSharedProjects(); }
   }, [supaUser]);
 
-    if (sharedProjects && sharedProjects.length > 0) { sections.push({ title: "Shared Projects", items: sharedProjects.map(function(sp) { var snap = sp.project_snapshot || {}; var tc = sp.tasks_snapshot ? sp.tasks_snapshot.length : 0; return (snap.name || "Project") + " (" + (snap.status || "Active") + ") - " + tc + " tasks. Owner: " + (sp.owner ? sp.owner.full_name : "Unknown"); }) }); }
+    if (sharedProjects && sharedProjects.length > 0) { sections.push({ title: "Shared Projects", items: sharedProjects.filter(Boolean).map(function(sp) { var snap = sp.project_snapshot || {}; var tc = sp.tasks_snapshot ? sp.tasks_snapshot.length : 0; return (snap.name || "Project") + " (" + (snap.status || "Active") + ") - " + tc + " tasks. Owner: " + (sp.owner ? sp.owner.full_name : "Unknown"); }) }); }
 
 
     const pushToDaily = (weeklyItem) => {
@@ -2279,7 +2335,7 @@ const NuOperandi = () => {
             {id:'planner', icon:I.calendar(activeModule==='planner'?'#7C3AED':'#6B7280'), label:'Planner'},
             {id:'history', icon:I.history(activeModule==='history'?'#7C3AED':'#6B7280'), label:'History'},
             {id:'boardroom', icon:I.bar(activeModule==='boardroom'?'#7C3AED':'#6B7280'), label:'Boardroom'}
-          ].map(item => (
+          ].filter(Boolean).map(item => (
             <button key={item.id} onClick={() => setActiveModule(item.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm ${activeModule === item.id ? 'bg-violet-50 text-violet-700 font-medium' : 'text-gray-500 hover:text-gray-800 hover:bg-violet-50/50'}`}>
               {item.icon}
               {sidebarOpen && <span>{item.label}</span>}
@@ -2293,7 +2349,7 @@ const NuOperandi = () => {
                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">My Projects</span>
                 <button onClick={() => setModal('addProject')} className="text-xs text-violet-500 hover:text-violet-700 font-medium">+ Add</button>
               </div>
-              {sidebarProjects.map((proj, i) => (
+              {sidebarProjects.filter(Boolean).map((proj, i) => (
                 <button key={proj.id} onClick={() => setActiveModule('project-' + proj.id)} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all ${activeModule === 'project-' + proj.id ? 'bg-violet-50 text-violet-700 font-medium' : 'text-gray-500 hover:text-gray-800 hover:bg-violet-50/50'}`}>
                   <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{backgroundColor: projectColors[i % projectColors.length]}}></span>
                   <span className="truncate">{proj.name}</span>
@@ -2306,7 +2362,7 @@ const NuOperandi = () => {
           )}
           {!sidebarOpen && sidebarProjects.length > 0 && (
             <div className="mt-4 pt-3 border-t border-violet-50 flex flex-col items-center gap-1">
-              {sidebarProjects.slice(0, 3).map((proj, i) => (
+              {sidebarProjects.slice(0, 3).filter(Boolean).map((proj, i) => (
                 <button key={proj.id} onClick={() => setActiveModule('project-' + proj.id)} title={proj.name} className="p-1.5 rounded-lg hover:bg-violet-50/50 transition">
                   <span className="w-3 h-3 rounded-full block" style={{backgroundColor: projectColors[i % projectColors.length]}}></span>
                 </button>
@@ -2388,14 +2444,14 @@ const NuOperandi = () => {
       const today = new Date();
       const dateStr = today.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
       const userName = userProfile ? (userProfile.name || userProfile.username || 'Team Member') : 'Team Member';
-      const allSub = (projects || []).flatMap(p => (p.subtasks || []).map(s => ({...s, project: p.name})));
+      const allSub = (projects || []).flatMap(p => (p.subtasks || []).filter(Boolean).map(s => ({...s, project: p.name})));
       const done = allSub.filter(s => s.done);
       const notDone = allSub.filter(s => !s.done);
       const delComp = (delegatedByMe || []).filter(d => d.completed || d.status === 'completed');
       const delPend = (delegatedByMe || []).filter(d => !d.completed && d.status !== 'completed');
       const total = allSub.length;
       const rate = total > 0 ? Math.round((done.length / total) * 100) : 0;
-      const projCount = [...new Set(done.map(s => s.project))].length;
+      const projCount = [...new Set(done.filter(Boolean).map(s => s.project))].length;
       let y = 20;
       const pw = doc.internal.pageSize.getWidth();
       const mg = 20;
@@ -2451,7 +2507,7 @@ const NuOperandi = () => {
 
     const EODReportModal = () => {
       if (!showEodReport) return null;
-      const allSub = (projects || []).flatMap(p => (p.subtasks || []).map(s => ({...s, project: p.name})));
+      const allSub = (projects || []).flatMap(p => (p.subtasks || []).filter(Boolean).map(s => ({...s, project: p.name})));
       const done = allSub.filter(s => s.done);
       const notDone = allSub.filter(s => !s.done);
       const delComp = (delegatedByMe || []).filter(d => d.completed || d.status === 'completed');
@@ -2474,10 +2530,10 @@ const NuOperandi = () => {
               <div className="bg-violet-50 rounded-xl p-3 text-center"><div className="text-2xl font-bold text-violet-700">{delComp.length}</div><div className="text-xs text-violet-700">Delegated Done</div></div>
               <div className="bg-gray-50 rounded-xl p-3 text-center"><div className="text-2xl font-bold text-gray-700">{rate}%</div><div className="text-xs text-gray-500">Rate</div></div>
             </div>
-            {done.length > 0 && <div><h3 className="text-sm font-semibold text-green-700 mb-2">Tasks Completed ({done.length})</h3><div className="space-y-1">{done.map((t,i) => <div key={i} className="text-sm text-gray-700 py-1 flex items-start gap-2"><span className="text-green-500 mt-0.5">&#10003;</span><span><span className="text-gray-400 text-xs">[{t.project}]</span> {t.text}</span></div>)}</div></div>}
-            {notDone.length > 0 && <div><h3 className="text-sm font-semibold text-red-600 mb-2">Tasks Pending ({notDone.length})</h3><div className="space-y-1">{notDone.map((t,i) => <div key={i} className="text-sm text-gray-700 py-1 flex items-start gap-2"><span className="w-3 h-3 rounded-full border-2 border-red-300 mt-1 flex-shrink-0"></span><span><span className="text-gray-400 text-xs">[{t.project}]</span> {t.text}</span></div>)}</div></div>}
-            {delComp.length > 0 && <div><h3 className="text-sm font-semibold text-violet-700 mb-2">Delegated Completed ({delComp.length})</h3><div className="space-y-1">{delComp.map((d,i) => <div key={i} className="text-sm text-gray-700 py-1 flex items-start gap-2"><span className="text-violet-600 mt-0.5">&#10003;</span><span>{d.task_text} <span className="text-blue-400 text-xs">@{d.recipient_username || 'team'}</span></span></div>)}</div></div>}
-            {delPend.length > 0 && <div><h3 className="text-sm font-semibold text-orange-600 mb-2">Delegated Pending ({delPend.length})</h3><div className="space-y-1">{delPend.map((d,i) => <div key={i} className="text-sm text-gray-700 py-1 flex items-start gap-2"><span className="w-3 h-3 rounded-full border-2 border-orange-300 mt-1 flex-shrink-0"></span><span>{d.task_text} <span className="text-orange-400 text-xs">@{d.recipient_username || 'team'}</span></span></div>)}</div></div>}
+            {done.length > 0 && <div><h3 className="text-sm font-semibold text-green-700 mb-2">Tasks Completed ({done.length})</h3><div className="space-y-1">{done.filter(Boolean).map((t,i) => <div key={i} className="text-sm text-gray-700 py-1 flex items-start gap-2"><span className="text-green-500 mt-0.5">&#10003;</span><span><span className="text-gray-400 text-xs">[{t.project}]</span> {t.text}</span></div>)}</div></div>}
+            {notDone.length > 0 && <div><h3 className="text-sm font-semibold text-red-600 mb-2">Tasks Pending ({notDone.length})</h3><div className="space-y-1">{notDone.filter(Boolean).map((t,i) => <div key={i} className="text-sm text-gray-700 py-1 flex items-start gap-2"><span className="w-3 h-3 rounded-full border-2 border-red-300 mt-1 flex-shrink-0"></span><span><span className="text-gray-400 text-xs">[{t.project}]</span> {t.text}</span></div>)}</div></div>}
+            {delComp.length > 0 && <div><h3 className="text-sm font-semibold text-violet-700 mb-2">Delegated Completed ({delComp.length})</h3><div className="space-y-1">{delComp.filter(Boolean).map((d,i) => <div key={i} className="text-sm text-gray-700 py-1 flex items-start gap-2"><span className="text-violet-600 mt-0.5">&#10003;</span><span>{d.task_text} <span className="text-blue-400 text-xs">@{d.recipient_username || 'team'}</span></span></div>)}</div></div>}
+            {delPend.length > 0 && <div><h3 className="text-sm font-semibold text-orange-600 mb-2">Delegated Pending ({delPend.length})</h3><div className="space-y-1">{delPend.filter(Boolean).map((d,i) => <div key={i} className="text-sm text-gray-700 py-1 flex items-start gap-2"><span className="w-3 h-3 rounded-full border-2 border-orange-300 mt-1 flex-shrink-0"></span><span>{d.task_text} <span className="text-orange-400 text-xs">@{d.recipient_username || 'team'}</span></span></div>)}</div></div>}
             <div><label className="text-sm font-semibold text-gray-600 mb-2 block">Notes</label><textarea id="eod-notes-input" className="w-full border border-gray-200 rounded-xl p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-200" rows="3" placeholder="Add notes for your report..."></textarea></div>
             <div className="bg-gray-50 rounded-xl p-4">
               <div className="flex items-center justify-between mb-2"><span className="text-sm font-semibold text-gray-600">Daily Reminder</span>
@@ -2521,10 +2577,10 @@ const NuOperandi = () => {
               </div>
               {/* Mini Bar Chart */}
               <div className="flex items-end gap-1.5 h-24 mt-2">
-                {[...Array(6)].map((_, i) => {
+                {[...Array(6)].filter(Boolean).map((_, i) => {
                   const months = ['Jul','Aug','Sep','Oct','Nov','Dec'];
                   const vals = [netMonthly*0.7, netMonthly*0.4, netMonthly*1.1, netMonthly*0.9, netMonthly*0.6, netMonthly];
-                  const maxVal = Math.max(...vals.map(Math.abs), 1);
+                  const maxVal = Math.max(...vals.filter(Boolean).map(Math.abs), 1);
                   const h = Math.abs(vals[i]) / maxVal * 80;
                   const isPos = vals[i] >= 0;
                   return (
@@ -2546,7 +2602,7 @@ const NuOperandi = () => {
               <div className="bg-white rounded-2xl border border-violet-100/60 p-5 card-shadow flex-1">
                 <span className="text-sm font-medium text-gray-500">Most Spending</span>
                 <div className="grid grid-cols-2 gap-3 mt-3">
-                  {expenses.slice(0, 2).map((exp, i) => (
+                  {expenses.slice(0, 2).filter(Boolean).map((exp, i) => (
                     <div key={i} className="text-center">
                       <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center mx-auto mb-2">
                         {i === 0 ? I.receipt("#7C3AED") : I.receipt("#7C3AED")}
@@ -2675,7 +2731,7 @@ const NuOperandi = () => {
                             </div>
                         ) : (
                             <div className="divide-y divide-violet-50/50">
-                                {pendingTasks.slice(0, 6).map(t => {
+                                {pendingTasks.slice(0, 6).filter(Boolean).map(t => {
                                     const proj = t.projectId ? projects.find(p => p.id === t.projectId) : null;
                                     return (
                                     <div key={t.id} className="px-5 py-3 flex items-center gap-3 group hover:bg-gray-50/30 transition">
@@ -2710,9 +2766,9 @@ const NuOperandi = () => {
                                 </div>
                             </div>
                             <div className="divide-y divide-violet-50/50">
-                                {quickTasks.filter(t => t.delegatedTo && !completedTasks[t.id]).slice(0, 4).map(t => (
+                                {quickTasks.filter(t => t.delegatedTo && !completedTasks[t.id]).slice(0, 4).filter(Boolean).map(t => (
                                     <div key={t.id} className="px-5 py-3 flex items-center gap-3">
-                                        <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-semibold text-xs flex-shrink-0">{t.delegatedTo.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)}</div>
+                                        <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-semibold text-xs flex-shrink-0">{t.delegatedTo.split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0,2)}</div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm text-gray-900 truncate">{t.task}</p>
                                             <p className="text-xs text-purple-500">{t.delegatedTo}</p>
@@ -2735,9 +2791,9 @@ const NuOperandi = () => {
                                 </div>
                             </div>
                             <div className="divide-y divide-purple-50">
-                                {delegatedToMe.filter(t => t.status === 'pending').slice(0, 5).map(t => (
+                                {delegatedToMe.filter(t => t.status === 'pending').slice(0, 5).filter(Boolean).map(t => (
                                     <div key={t.id} className="px-5 py-3 flex items-center gap-3">
-                                        <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-semibold text-xs flex-shrink-0">{t.delegator_name ? t.delegator_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) : '?'}</div>
+                                        <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-semibold text-xs flex-shrink-0">{t.delegator_name ? t.delegator_name.split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0,2) : '?'}</div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm text-gray-900 truncate">{t.task_text}</p>
                                             <p className="text-xs text-purple-500">from {t.delegator_name}</p>
@@ -2765,7 +2821,7 @@ const NuOperandi = () => {
                             <div className="p-6 text-center"><p className="text-sm text-gray-400">No active projects</p></div>
                         ) : (
                             <div className="divide-y divide-violet-50/50">
-                                {[...activeProjects].sort((a, b) => (getProjectProgress(b.id) || 0) - (getProjectProgress(a.id) || 0)).slice(0, 5).map(p => {
+                                {[...activeProjects].sort((a, b) => (getProjectProgress(b.id) || 0) - (getProjectProgress(a.id) || 0)).slice(0, 5).filter(Boolean).map(p => {
                                     const prog = getProjectProgress(p.id) || 0;
                                     return (
                                     <div key={p.id} className="px-5 py-3 hover:bg-gray-50/30 transition cursor-pointer" onClick={() => { setEditItem(p); setModal('editProject'); }}>
@@ -2791,9 +2847,9 @@ const NuOperandi = () => {
                 </div>
                 <div className="px-4 py-3">
                   <div className="flex items-center gap-1 mb-3">
-                    {(() => { const today = new Date(); const dow = today.getDay(); const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']; return days.map((d, i) => { const dt = new Date(today); dt.setDate(today.getDate() - dow + i); const isT = dt.toDateString() === today.toDateString(); const hasE = timeBlocks.some(b => b.date === dt.toISOString().split('T')[0]); return (<div key={i} className={`flex-1 flex flex-col items-center py-1.5 rounded-lg ${isT ? 'bg-violet-500 text-white' : 'hover:bg-gray-50'}`}><span className={`text-xs ${isT ? 'text-violet-200' : 'text-gray-400'}`}>{d.substring(0,2)}</span><span className={`text-sm font-medium ${isT ? 'text-white' : 'text-gray-700'}`}>{dt.getDate()}</span>{hasE && !isT && <span className="w-1 h-1 rounded-full bg-violet-400 mt-0.5"></span>}</div>); }); })()}
+                    {(() => { const today = new Date(); const dow = today.getDay(); const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']; return days.filter(Boolean).map((d, i) => { const dt = new Date(today); dt.setDate(today.getDate() - dow + i); const isT = dt.toDateString() === today.toDateString(); const hasE = timeBlocks.some(b => b.date === dt.toISOString().split('T')[0]); return (<div key={i} className={`flex-1 flex flex-col items-center py-1.5 rounded-lg ${isT ? 'bg-violet-500 text-white' : 'hover:bg-gray-50'}`}><span className={`text-xs ${isT ? 'text-violet-200' : 'text-gray-400'}`}>{d.substring(0,2)}</span><span className={`text-sm font-medium ${isT ? 'text-white' : 'text-gray-700'}`}>{dt.getDate()}</span>{hasE && !isT && <span className="w-1 h-1 rounded-full bg-violet-400 mt-0.5"></span>}</div>); }); })()}
                   </div>
-                  {timeBlocks.filter(b => b.date === new Date().toISOString().split('T')[0]).slice(0, 2).map((b, i) => (
+                  {timeBlocks.filter(b => b.date === new Date().toISOString().split('T')[0]).slice(0, 2).filter(Boolean).map((b, i) => (
                     <div key={i} className="flex items-center gap-2 py-2 border-t border-gray-50">
                       <div className="w-1 h-8 rounded-full bg-violet-400"></div>
                       <div className="flex-1 min-w-0">
@@ -2815,7 +2871,7 @@ const NuOperandi = () => {
                   <button onClick={() => setModal('addGoal')} className="text-xs text-violet-500 hover:text-violet-700 font-medium">+ Add</button>
                 </div>
                 <div className="px-4 py-3 space-y-3">
-                  {weeklyPlan.slice(0, 3).map((goal, i) => {
+                  {weeklyPlan.slice(0, 3).filter(Boolean).map((goal, i) => {
                     const dn = goal.subtasks ? goal.subtasks.filter(s => s.done).length : (completedWeekly[goal.id] ? 1 : 0);
                     const tt = goal.subtasks ? goal.subtasks.length : 1;
                     const pc = tt > 0 ? Math.round((dn/tt)*100) : 0;
@@ -2831,7 +2887,7 @@ const NuOperandi = () => {
                   <h3 className="text-sm font-semibold text-gray-900">Reminders</h3>
                 </div>
                 <div className="px-4 py-3 space-y-2">
-                  {quickTasks.filter(t => !completedTasks[t.id]).slice(0, 3).map((task, i) => (
+                  {quickTasks.filter(t => !completedTasks[t.id]).slice(0, 3).filter(Boolean).map((task, i) => (
                     <div key={i} className="flex items-center gap-2 py-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
                       <p className="text-sm text-gray-700 truncate flex-1">{task.text}</p>
@@ -2915,7 +2971,7 @@ const NuOperandi = () => {
             {incomingPayments.filter(p => p.status === 'accepted').length > 0 && <div className="bg-emerald-50/50 rounded-xl border border-emerald-100 p-4 mb-2">
                 <p className="text-xs font-medium text-emerald-600 mb-2">Recently Accepted Payments</p>
                 <div className="space-y-2">
-                    {incomingPayments.filter(p => p.status === 'accepted').slice(0, 3).map(tag => <div key={tag.id} className="flex items-center gap-2 text-xs text-gray-500">
+                    {incomingPayments.filter(p => p.status === 'accepted').slice(0, 3).filter(Boolean).map(tag => <div key={tag.id} className="flex items-center gap-2 text-xs text-gray-500">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
                         <span>{String.fromCharCode(8358)}{Number(tag.amount).toLocaleString()} {tag.payment_type} from {tag.sender_name}</span>
                     </div>)}
@@ -2933,7 +2989,7 @@ const NuOperandi = () => {
                     </div>
                 ) : (
                     <div className="space-y-2">
-                        {incomeStreams.map(s => (
+                        {incomeStreams.filter(Boolean).map(s => (
                             <div key={s.id} className="bg-white rounded-xl border border-violet-100/60 p-5 card-shadow card-shadow-hover transition-all">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4 cursor-pointer flex-1" onClick={() => setExpandedIncome(expandedIncome === s.id ? null : s.id)}>
@@ -2968,7 +3024,7 @@ const NuOperandi = () => {
                                         <div className="bg-green-500 h-1.5 rounded-full transition-all" style={{width: Math.round(s.payments.filter(p => p.paid).length / s.payments.length * 100) + '%'}}></div>
                                     </div>
                                     <div className="space-y-1">
-                                        {s.payments.map(pm => (
+                                        {s.payments.filter(Boolean).map(pm => (
                                             <div key={pm.id} className={"flex items-center justify-between text-xs px-2 py-1 rounded " + (pm.paid ? "text-green-700 bg-green-50" : "text-gray-600 bg-gray-50")}>
                                                 <div className="flex items-center gap-2">
                                                     <span>{pm.paid ? "\u2713" : "\u25CB"}</span>
@@ -3013,13 +3069,13 @@ const NuOperandi = () => {
                                     <p className="text-sm font-semibold text-gray-900">{fmtNaira(totalExpenses)}/mo</p>
                                 </div>
                                 <div className="w-full h-3 bg-gray-100 rounded-full flex overflow-hidden mb-3">
-                                    {expensesByCategory.map(([cat, amt], i) => {
+                                    {expensesByCategory.filter(Boolean).map(([cat, amt], i) => {
                                         const colors = ['bg-red-400','bg-orange-400','bg-amber-400','bg-blue-400','bg-purple-400','bg-pink-400','bg-teal-400','bg-indigo-400','bg-gray-400'];
                                         return <div key={cat} className={colors[i % colors.length] + ' h-full'} style={{width: (amt / totalExpenses * 100) + '%'}} title={cat + ': ' + fmtNaira(amt)}></div>;
                                     })}
                                 </div>
                                 <div className="flex flex-wrap gap-x-4 gap-y-1">
-                                    {expensesByCategory.map(([cat, amt], i) => {
+                                    {expensesByCategory.filter(Boolean).map(([cat, amt], i) => {
                                         const dots = ['bg-red-400','bg-orange-400','bg-amber-400','bg-blue-400','bg-purple-400','bg-pink-400','bg-teal-400','bg-indigo-400','bg-gray-400'];
                                         return <div key={cat} className="flex items-center gap-1.5"><div className={'w-2 h-2 rounded-full ' + dots[i % dots.length]}></div><span className="text-xs text-gray-500">{cat}</span><span className="text-xs font-medium text-gray-700">{fmtNaira(amt)}</span></div>;
                                     })}
@@ -3027,7 +3083,7 @@ const NuOperandi = () => {
                             </div>
                         )}
                         <div className="space-y-2">
-                            {expenses.map(e => {
+                            {expenses.filter(Boolean).map(e => {
                                 const linked = e.linkedStreamId ? incomeStreams.find(s => s.id === e.linkedStreamId) : null;
                                 const dueDateObj = e.dueDate ? new Date(e.dueDate + 'T00:00:00') : null;
                                 const today = new Date(); today.setHours(0,0,0,0);
@@ -3059,7 +3115,7 @@ const NuOperandi = () => {
                                         {/* Payment Tag Badges */}
                                         {paymentTags.filter(t => t.expense_id === String(e.id)).length > 0 && <div className="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-gray-50">
                                             <span className="text-xs text-gray-400 mr-1">Tagged:</span>
-                                            {paymentTags.filter(t => t.expense_id === String(e.id)).map(t => <span key={t.id} className={"text-xs px-2 py-0.5 rounded-full font-medium " + (t.status === 'accepted' ? "bg-emerald-50 text-emerald-600" : t.status === 'declined' ? "bg-gray-100 text-gray-400 line-through" : "bg-amber-50 text-amber-600")}>{t.status === 'accepted' ? String.fromCharCode(10003) : t.status === 'declined' ? String.fromCharCode(10007) : String.fromCharCode(9203)} @{t.recipient_username}</span>)}
+                                            {paymentTags.filter(t => t.expense_id === String(e.id)).filter(Boolean).map(t => <span key={t.id} className={"text-xs px-2 py-0.5 rounded-full font-medium " + (t.status === 'accepted' ? "bg-emerald-50 text-emerald-600" : t.status === 'declined' ? "bg-gray-100 text-gray-400 line-through" : "bg-amber-50 text-amber-600")}>{t.status === 'accepted' ? String.fromCharCode(10003) : t.status === 'declined' ? String.fromCharCode(10007) : String.fromCharCode(9203)} @{t.recipient_username}</span>)}
                                         </div>}
                                 </div>
                                 );
@@ -3082,11 +3138,11 @@ const NuOperandi = () => {
                     {sharedProjects.length > 0 && <div className="mb-6">
               <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>Projects Shared With You</h3>
               <div className="grid grid-cols-3 gap-4">
-                {sharedProjects.map(function(sp, si) {
+                {sharedProjects.filter(Boolean).map(function(sp, si) {
                   var snap = sp.project_snapshot || {};
                   var tasksArr = sp.tasks_snapshot || [];
                   var myTasks = tasksArr.filter(function(t) { return t.delegatedTo && userProfile && t.delegatedTo.toLowerCase().includes(userProfile.username); });
-                  var completedIds = (sp.completions || []).map(function(tc) { return tc.task_id; });
+                  var completedIds = (sp.completions || []).filter(Boolean).map(function(tc) { return tc.task_id; });
                   var statusColor = snap.status === 'In Progress' ? 'text-violet-700 bg-violet-50' : snap.status === 'Planning' ? 'text-yellow-600 bg-yellow-50' : snap.status === 'Completed' ? 'text-green-600 bg-green-50' : 'text-gray-600 bg-gray-50';
                   return <div key={si} className="bg-white rounded-xl border border-indigo-100 p-4 hover:shadow-md transition">
                     <div className="flex items-center justify-between mb-2">
@@ -3099,15 +3155,15 @@ const NuOperandi = () => {
                       <span className="text-xs text-gray-400 font-medium">{snap.progress || 0}%</span>
                     </div>
                     {sp.owner && <p className="text-xs text-gray-400 mb-2">Owner: {sp.owner.full_name}</p>}
-                    {sp.members && sp.members.length > 0 && <div className="flex -space-x-1 mb-3">{sp.members.slice(0, 6).map(function(mem, mi) { return mem.avatar_url ? <img key={mi} src={mem.avatar_url} className="w-6 h-6 rounded-full border-2 border-white object-cover" title={mem.full_name} /> : <div key={mi} className="w-6 h-6 rounded-full bg-indigo-400 flex items-center justify-center text-white text-[10px] font-bold border-2 border-white" title={mem.full_name}>{mem.initials || '?'}</div>; })}</div>}
-                    {myTasks.length > 0 && <div className="border-t pt-2 mt-2"><p className="text-xs font-semibold text-indigo-600 mb-1">Your Tasks ({myTasks.length})</p>{myTasks.slice(0, 4).map(function(t, ti) { var taskKey = (t.type || 'task') + '_' + (t.id || ti); var isDone = completedIds.includes(taskKey); return <div key={ti} className="flex items-center gap-2 py-0.5"><button onClick={function() { if (isDone) return; supabase.from('shared_task_completions').insert({ project_owner_id: sp.project_owner_id, project_local_id: sp.project_local_id, task_id: taskKey, completed_by: supaUser.id }).then(function() { fetchSharedProjects(); }); }} className={"w-4 h-4 rounded border flex items-center justify-center text-xs " + (isDone ? "bg-green-500 border-green-500 text-white" : "border-gray-300 hover:border-indigo-400 cursor-pointer")}>{isDone && '\u2713'}</button><span className={"text-xs " + (isDone ? "text-gray-400 line-through" : "text-gray-700")}>{t.task || t.task_text || 'Task'}</span></div>; })}</div>}
+                    {sp.members && sp.members.length > 0 && <div className="flex -space-x-1 mb-3">{sp.members.slice(0, 6).filter(Boolean).map(function(mem, mi) { return mem.avatar_url ? <img key={mi} src={mem.avatar_url} className="w-6 h-6 rounded-full border-2 border-white object-cover" title={mem.full_name} /> : <div key={mi} className="w-6 h-6 rounded-full bg-indigo-400 flex items-center justify-center text-white text-[10px] font-bold border-2 border-white" title={mem.full_name}>{mem.initials || '?'}</div>; })}</div>}
+                    {myTasks.length > 0 && <div className="border-t pt-2 mt-2"><p className="text-xs font-semibold text-indigo-600 mb-1">Your Tasks ({myTasks.length})</p>{myTasks.slice(0, 4).filter(Boolean).map(function(t, ti) { var taskKey = (t.type || 'task') + '_' + (t.id || ti); var isDone = completedIds.includes(taskKey); return <div key={ti} className="flex items-center gap-2 py-0.5"><button onClick={function() { if (isDone) return; supabase.from('shared_task_completions').insert({ project_owner_id: sp.project_owner_id, project_local_id: sp.project_local_id, task_id: taskKey, completed_by: supaUser.id }).then(function() { fetchSharedProjects(); }); }} className={"w-4 h-4 rounded border flex items-center justify-center text-xs " + (isDone ? "bg-green-500 border-green-500 text-white" : "border-gray-300 hover:border-indigo-400 cursor-pointer")}>{isDone && '\u2713'}</button><span className={"text-xs " + (isDone ? "text-gray-400 line-through" : "text-gray-700")}>{t.task || t.task_text || 'Task'}</span></div>; })}</div>}
                     {myTasks.length === 0 && <p className="text-xs text-gray-400 italic">No tasks assigned to you yet</p>}
                   </div>;
                 })}
               </div>
             </div>}
             <div className="grid grid-cols-3 gap-4">
-                        {[...projects].sort((a, b) => { const getLatest = (proj) => { const wIds = weeklyPlan.filter(w => w.projectId === proj.id).map(w => w.id); const tIds = quickTasks.filter(t => t.projectId === proj.id).map(t => t.id); let latest = 0; wIds.forEach(id => { const v = completedWeekly[id]; if (v && typeof v === "number" && v > latest) latest = v; else if (v === true && latest === 0) latest = 1; }); tIds.forEach(id => { const v = completedTasks[id]; if (v && typeof v === "number" && v > latest) latest = v; else if (v === true && latest === 0) latest = 1; }); return latest; }; return getLatest(b) - getLatest(a); }).map(p => {
+                        {[...projects].sort((a, b) => { const getLatest = (proj) => { const wIds = weeklyPlan.filter(w => w.projectId === proj.id).map(w => w.id); const tIds = quickTasks.filter(t => t.projectId === proj.id).map(t => t.id); let latest = 0; wIds.forEach(id => { const v = completedWeekly[id]; if (v && typeof v === "number" && v > latest) latest = v; else if (v === true && latest === 0) latest = 1; }); tIds.forEach(id => { const v = completedTasks[id]; if (v && typeof v === "number" && v > latest) latest = v; else if (v === true && latest === 0) latest = 1; }); return latest; }; return getLatest(b) - getLatest(a); }).filter(Boolean).map(p => {
                             const autoP = getProjectProgress(p.id);
                             const displayProgress = autoP !== null ? autoP : p.progress;
                             const linkedCount = weeklyPlan.filter(w => w.projectId === p.id).length + quickTasks.filter(t => t.projectId === p.id).length;
@@ -3126,7 +3182,7 @@ const NuOperandi = () => {
                                         <span className="text-xs text-gray-400">{displayProgress}%</span>
                                         <span className="text-xs text-gray-400">{linkedCount > 0 ? linkedCount + ' linked tasks' : p.team + ' people'}</span>
 
-                    {p.teamMembers && p.teamMembers.length > 0 && (() => { const resolved = p.teamMembers.map(tm => { if (typeof tm === "object") return tm; const prof = allProfiles.find(pr => pr.username && pr.username.toLowerCase() === (tm || "").toLowerCase()); return prof ? { avatar_url: prof.avatar_url, full_name: prof.full_name || prof.username, initials: prof.initials || (prof.full_name || prof.username || "?").split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2) } : { avatar_url: null, full_name: tm, initials: (tm || "?").slice(0,2).toUpperCase() }; }); return <div className="flex -space-x-1 mt-2">{resolved.slice(0, 5).map(function(m, ti) { return m.avatar_url ? <img key={ti} src={m.avatar_url} className="w-6 h-6 rounded-full border-2 border-white object-cover" title={m.full_name} /> : <div key={ti} className="w-6 h-6 rounded-full bg-violet-500 flex items-center justify-center text-white text-[10px] font-bold border-2 border-white" title={m.full_name}>{m.initials}</div>; })}{resolved.length > 5 && <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-[10px] font-bold border-2 border-white">+{resolved.length - 5}</div>}</div>; })()}                                    </div>
+                    {p.teamMembers && p.teamMembers.length > 0 && (() => { const resolved = p.teamMembers.filter(Boolean).map(tm => { if (typeof tm === "object") return tm; const prof = allProfiles.find(pr => pr.username && pr.username.toLowerCase() === (tm || "").toLowerCase()); return prof ? { avatar_url: prof.avatar_url, full_name: prof.full_name || prof.username, initials: prof.initials || (prof.full_name || prof.username || "?").split(" ").filter(Boolean).map(w => w[0]).join("").toUpperCase().slice(0,2) } : { avatar_url: null, full_name: tm, initials: (tm || "?").slice(0,2).toUpperCase() }; }); return <div className="flex -space-x-1 mt-2">{resolved.slice(0, 5).filter(Boolean).map(function(m, ti) { return m.avatar_url ? <img key={ti} src={m.avatar_url} className="w-6 h-6 rounded-full border-2 border-white object-cover" title={m.full_name} /> : <div key={ti} className="w-6 h-6 rounded-full bg-violet-500 flex items-center justify-center text-white text-[10px] font-bold border-2 border-white" title={m.full_name}>{m.initials}</div>; })}{resolved.length > 5 && <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-[10px] font-bold border-2 border-white">+{resolved.length - 5}</div>}</div>; })()}                                    </div>
                                     <div className="w-full h-1.5 bg-gray-100 rounded-full"><div className={'h-full rounded-full transition-all ' + (autoP !== null ? 'bg-violet-500' : 'bg-blue-300')} style={{width: displayProgress + '%'}}></div></div>
                                 </div>
                                 {(() => {
@@ -3160,7 +3216,7 @@ const NuOperandi = () => {
     const allDelegated = delegatedByMe || [];
     
     // Build memberList from ALL profiles (auto-populated from Supabase)
-    const memberList = allProfiles.map(prof => {
+    const memberList = allProfiles.filter(Boolean).map(prof => {
       const key = prof.username.toLowerCase();
       const memberTasks = allDelegated.filter(d => (d.recipient_username || '').toLowerCase() === key);
       const assigned = memberTasks.length;
@@ -3187,10 +3243,10 @@ const NuOperandi = () => {
     const eomNow = new Date();
     const monthStart = new Date(eomNow.getFullYear(), eomNow.getMonth(), 1).toISOString();
     const monthlyDelegated = allDelegated.filter(d => d.status === 'completed' && d.created_at >= monthStart);
-    const monthlyStats = allProfiles.map(prof => {
+    const monthlyStats = allProfiles.filter(Boolean).map(prof => {
       const key = prof.username.toLowerCase();
       const monthTasks = monthlyDelegated.filter(d => (d.recipient_username || '').toLowerCase() === key);
-      return { name: prof.full_name || prof.username, key, avatar_url: prof.avatar_url, initials: prof.initials || (prof.full_name || prof.username).split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2), completed: monthTasks.length };
+      return { name: prof.full_name || prof.username, key, avatar_url: prof.avatar_url, initials: prof.initials || (prof.full_name || prof.username).split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2), completed: monthTasks.length };
     }).filter(m => m.completed > 0).sort((a, b) => b.completed - a.completed);
     const employeeOfMonth = monthlyStats.length > 0 ? monthlyStats[0] : null;
 
@@ -3216,7 +3272,7 @@ const NuOperandi = () => {
       return new Date(a.deadline) - new Date(b.deadline);
     });
     
-    const maxAssigned = Math.max(...memberList.map(m => m.assigned), 1);
+    const maxAssigned = Math.max(...memberList.filter(Boolean).map(m => m.assigned), 1);
     
     // Unique team members count - use allProfiles directly
     const uniqueMembers = new Set();
@@ -3238,7 +3294,7 @@ const NuOperandi = () => {
       });
       weeks.push({ label: weekLabel, count });
     }
-    const maxWeekCount = Math.max(...weeks.map(w => w.count), 1);
+    const maxWeekCount = Math.max(...weeks.filter(Boolean).map(w => w.count), 1);
 
 
     // Determine if current user is admin (has local projects) or team member
@@ -3280,7 +3336,7 @@ const NuOperandi = () => {
             <div className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
                 <div className="px-5 py-4 border-b border-gray-100"><h2 className="text-base font-semibold text-gray-900">Active Tasks</h2>
                 <p className="text-xs text-gray-400 mt-0.5">Tasks you have accepted and are working on</p></div>
-                <div className="divide-y divide-violet-50/50">{myAccepted.map((d, i) => (
+                <div className="divide-y divide-violet-50/50">{myAccepted.filter(Boolean).map((d, i) => (
                     <div key={d.id || i} className="px-5 py-3 flex items-center justify-between gap-2">
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-800">{d.task_text}</p>
@@ -3298,7 +3354,7 @@ const NuOperandi = () => {
             <div className="bg-white rounded-xl border border-purple-200 card-shadow overflow-hidden">
                 <div className="px-5 py-4 border-b border-purple-50 bg-purple-50/30"><h2 className="text-base font-semibold text-purple-900">Pending Acceptance</h2>
                 <p className="text-xs text-purple-400 mt-0.5">Tasks waiting for you to accept</p></div>
-                <div className="divide-y divide-purple-50">{myPending.map((d, i) => (
+                <div className="divide-y divide-purple-50">{myPending.filter(Boolean).map((d, i) => (
                     <div key={d.id || i} className="px-5 py-3 flex items-center justify-between gap-2">
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-800">{d.task_text}</p>
@@ -3316,7 +3372,7 @@ const NuOperandi = () => {
             <div className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
                 <div className="px-5 py-4 border-b border-gray-100"><h2 className="text-base font-semibold text-gray-900">Completed</h2>
                 <p className="text-xs text-gray-400 mt-0.5">Tasks you have finished</p></div>
-                <div className="divide-y divide-violet-50/50">{myCompleted.slice(0, 10).map((d, i) => (
+                <div className="divide-y divide-violet-50/50">{myCompleted.slice(0, 10).filter(Boolean).map((d, i) => (
                     <div key={d.id || i} className="px-5 py-3 flex items-center gap-3 opacity-70">
                         {I.check("#10B981")}
                         <div className="flex-1 min-w-0">
@@ -3371,7 +3427,7 @@ const NuOperandi = () => {
               <div className="mt-4 pt-3 border-t border-amber-200">
                 <p className="text-xs text-amber-600 font-semibold mb-2">Runners Up</p>
                 <div className="flex gap-3">
-                  {monthlyStats.slice(1, 4).map((m, i) => (
+                  {monthlyStats.slice(1, 4).filter(Boolean).map((m, i) => (
                     <div key={i} className="flex items-center gap-2 bg-white/60 rounded-lg px-3 py-1.5">
                       {m.avatar_url ? <img src={m.avatar_url} className="w-6 h-6 rounded-full object-cover" /> : <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-700">{m.initials}</div>}
                       <span className="text-xs text-amber-800">{m.name}</span>
@@ -3389,13 +3445,13 @@ const NuOperandi = () => {
             <h2 className="text-base font-semibold text-gray-900">Project Leaderboard</h2>
             <select value={leaderboardProject} onChange={e => setLeaderboardProject(e.target.value)} className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 bg-white">
               <option value="all">All Members</option>
-              {projectsWithMembers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+              {projectsWithMembers.filter(Boolean).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
           <div className="p-4">
             {leaderboardList.length === 0 ? <p className="text-sm text-gray-400 text-center py-4">No members to rank</p> : (
               <div className="space-y-2">
-                {leaderboardList.map((m, i) => {
+                {leaderboardList.filter(Boolean).map((m, i) => {
                   const medal = i === 0 ? '\uD83E\uDD47' : i === 1 ? '\uD83E\uDD48' : i === 2 ? '\uD83E\uDD49' : (i + 1);
                   const medalBg = i === 0 ? 'bg-amber-50' : i === 1 ? 'bg-gray-50' : i === 2 ? 'bg-orange-50' : 'bg-white';
                   return (
@@ -3425,7 +3481,7 @@ const NuOperandi = () => {
                   <th className="text-center px-3 py-3 font-medium">Accepted</th>
                   <th className="text-center px-3 py-3 font-medium">Pending</th>
                   <th className="text-left px-3 py-3 font-medium">Completion Rate</th></tr></thead>
-              <tbody>{memberList.map((m, i) => (<tr key={m.key} className={i % 2 === 0 ? 'bg-gray-50/50' : ''}>
+              <tbody>{memberList.filter(Boolean).map((m, i) => (<tr key={m.key} className={i % 2 === 0 ? 'bg-gray-50/50' : ''}>
                     <td className="px-5 py-3"><div className="flex items-center gap-2">
                         {m.avatar_url ? <img src={m.avatar_url} className="w-8 h-8 rounded-full object-cover" /> : <div className="w-8 h-8 rounded-full bg-violet-50 flex items-center justify-center text-violet-700 font-semibold text-sm">{m.name.charAt(0).toUpperCase()}</div>}
                         <span className="text-sm font-medium text-gray-800">{m.name}</span></div></td>
@@ -3445,7 +3501,7 @@ const NuOperandi = () => {
               <span className="text-xs text-gray-400">sorted by deadline</span></div>
             <div className="divide-y divide-violet-50/50 max-h-80 overflow-y-auto">
               {allPendingTasks.length === 0 ? (<div className="p-6 text-center"><p className="text-sm text-gray-400">All tasks completed!</p></div>
-              ) : allPendingTasks.slice(0, 12).map((d, i) => (<div key={d.id || i} className="px-5 py-3 flex items-center justify-between gap-2">
+              ) : allPendingTasks.slice(0, 12).filter(Boolean).map((d, i) => (<div key={d.id || i} className="px-5 py-3 flex items-center justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-800 truncate">{d.task_text}</p>
                     <div className="flex items-center gap-2 mt-0.5">
@@ -3479,7 +3535,7 @@ const NuOperandi = () => {
           <div className="bg-white rounded-xl border border-violet-100/60 card-shadow">
             <div className="px-5 py-4 border-b border-gray-100"><h2 className="text-base font-semibold text-gray-900">Assigned vs Completed</h2></div>
             <div className="p-5">{memberList.length === 0 ? (<div className="text-center py-6"><p className="text-sm text-gray-400">No data yet</p></div>
-              ) : (<div className="space-y-3">{memberList.map(m => (<div key={m.key} className="space-y-1">
+              ) : (<div className="space-y-3">{memberList.filter(Boolean).map(m => (<div key={m.key} className="space-y-1">
                       <p className="text-xs text-gray-600">{m.name}</p>
                       <div className="flex items-center gap-2"><div className="flex-1 flex gap-1">
                           <div className="h-5 rounded-l bg-blue-400 flex items-center justify-center" style={{width: Math.max((m.assigned / maxAssigned) * 100, 8) + '%'}}><span className="text-[10px] text-white font-medium">{m.assigned}</span></div>
@@ -3491,7 +3547,7 @@ const NuOperandi = () => {
         <div className="bg-white rounded-xl border border-violet-100/60 card-shadow">
           <div className="px-5 py-4 border-b border-gray-100"><h2 className="text-base font-semibold text-gray-900">Productivity Overview</h2>
             <p className="text-xs text-gray-400 mt-0.5">Tasks completed per week (last 12 weeks)</p></div>
-          <div className="p-5"><div className="flex items-end gap-2">{weeks.map((w, i) => {
+          <div className="p-5"><div className="flex items-end gap-2">{weeks.filter(Boolean).map((w, i) => {
                 const intensity = w.count > 0 ? Math.max(0.15, w.count / maxWeekCount) : 0;
                 return (<div key={i} className="flex-1 flex flex-col items-center gap-1">
                     <div className="w-full rounded-md" style={{height: Math.max(w.count > 0 ? 20 : 8, (w.count / maxWeekCount) * 80) + 'px', backgroundColor: w.count > 0 ? 'rgba(59,130,246,' + intensity + ')' : '#F3F4F6'}} title={w.count + ' tasks'}></div>
@@ -3522,12 +3578,12 @@ const NuOperandi = () => {
     }, [supaUser]);
 
     const isOwner = projects.length > 0;
-    const activeProjects = isOwner ? projects : cloudProjects.map(sp => ({
+    const activeProjects = isOwner ? projects : cloudProjects.filter(Boolean).map(sp => ({
       id: sp.local_id, name: sp.name, desc: sp.description, progress: sp.progress,
       status: sp.status, start: sp.start_date, launch: sp.launch_date,
       team: sp.team_size, next: sp.next_step, teamMembers: sp.teamMembers
     }));
-    const activeTasks = isOwner ? weeklyPlan : cloudTasks.map(st => ({
+    const activeTasks = isOwner ? weeklyPlan : cloudTasks.filter(Boolean).map(st => ({
       id: st.local_id, task: st.task_text, projectId: st.project_local_id,
       subtasks: st.subtasks || [], deadline: st.deadline,
       delegatedTo: st.delegated_to, completed: st.completed
@@ -3541,13 +3597,13 @@ const NuOperandi = () => {
         id: Date.now() + Math.floor(Math.random() * 1000),
         task: task.task, projectId: task.projectId,
         deadline: task.deadline || null,
-        subtasks: task.subtasks ? task.subtasks.map(s => ({...s, id: Date.now() + Math.floor(Math.random() * 10000)})) : []
+        subtasks: task.subtasks ? task.subtasks.filter(Boolean).map(s => ({...s, id: Date.now() + Math.floor(Math.random() * 10000)})) : []
       };
       setWeeklyPlan(prev => [...prev, newTask]);
       setAddedTasks(prev => ({...prev, [task.id]: true}));
     };
 
-    const projectStatusData = activeProjects.map(p => {
+    const projectStatusData = activeProjects.filter(Boolean).map(p => {
       const pTasks = activeTasks.filter(w => w.projectId === p.id);
       const completedCount = pTasks.filter(w => activeCompleted[w.id]).length;
       const delegatedTasks = pTasks.filter(w => w.delegatedTo);
@@ -3561,7 +3617,7 @@ const NuOperandi = () => {
       <div>
         <h2 className="text-base font-semibold text-gray-900 mb-4">Project Status Board</h2>
         <div className="space-y-3">
-          {projectStatusData.map(p => (
+          {projectStatusData.filter(Boolean).map(p => (
             <div key={p.id} className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
               <div className="px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => setExpandedProject(expandedProject === p.id ? null : p.id)}>
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -3586,7 +3642,7 @@ const NuOperandi = () => {
               {expandedProject === p.id && (
                 <div className="border-t border-gray-100">
                   <div className="divide-y divide-violet-50/50">
-                    {p.tasks.map(tk => (
+                    {p.tasks.filter(Boolean).map(tk => (
                       <div key={tk.id} className={"px-5 py-3 flex items-center justify-between " + (activeCompleted[tk.id] ? "opacity-50" : "")}>
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           <div className={"w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center " + (activeCompleted[tk.id] ? "bg-green-100 border-green-400" : "border-gray-300")}>
@@ -3675,7 +3731,7 @@ const NuOperandi = () => {
                         </div>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
                             {!completedWeekly[w.id] && context === 'goals' && (
-                                <button onClick={() => setWeeklyPlan(prev => prev.map(t => t.id === w.id ? {...t, thisWeek: true} : t))} className="p-1.5 rounded-lg hover:bg-amber-50 transition text-amber-500" title="Move to This Week">
+                                <button onClick={() => setWeeklyPlan(prev => prev.filter(Boolean).map(t => t.id === w.id ? {...t, thisWeek: true} : t))} className="p-1.5 rounded-lg hover:bg-amber-50 transition text-amber-500" title="Move to This Week">
                                     {I.arrowRight("#F59E0B")}
                                 </button>
                             )}
@@ -3685,7 +3741,7 @@ const NuOperandi = () => {
                                 </button>
                             )}
                             {!completedWeekly[w.id] && context === 'thisWeek' && (
-                                <button onClick={() => setWeeklyPlan(prev => prev.map(t => t.id === w.id ? {...t, thisWeek: false} : t))} className="p-1.5 rounded-lg hover:bg-violet-50 transition text-gray-400" title="Back to Goals">
+                                <button onClick={() => setWeeklyPlan(prev => prev.filter(Boolean).map(t => t.id === w.id ? {...t, thisWeek: false} : t))} className="p-1.5 rounded-lg hover:bg-violet-50 transition text-gray-400" title="Back to Goals">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
                                 </button>
                             )}
@@ -3695,7 +3751,7 @@ const NuOperandi = () => {
                     </div>
                     {w.subtasks && w.subtasks.length > 0 && !completedWeekly[w.id] && (
                         <div className="pl-12 pr-5 pb-3 space-y-1">
-                            {w.subtasks.map(s => (
+                            {w.subtasks.filter(Boolean).map(s => (
                                 <div key={s.id} className="flex items-center gap-2.5 py-1 cursor-pointer group/sub" onClick={() => toggleSubtask(w.id, s.id)}>
                                     <div className={'w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition ' + (s.done ? 'bg-emerald-500 border-emerald-500' : 'border-gray-300 group-hover/sub:border-blue-400')}>
                                         {s.done && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
@@ -3717,7 +3773,7 @@ const NuOperandi = () => {
                     { id: 'weekly', label: 'This Week', count: weeklyPlan.filter(w => w.thisWeek && !completedWeekly[w.id]).length },
                     { id: 'daily', label: 'Today', count: dailyTotal - dailyDone },
                     { id: 'schedule', label: 'Schedule', count: timeBlocks.filter(b => !completedTimeBlocks[b.id]).length },
-                ].map(tab => (
+                ].filter(Boolean).map(tab => (
                     <button key={tab.id} onClick={() => setPlannerTab(tab.id)}
                         className={'px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ' + (plannerTab === tab.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700')}>
                         {tab.label}
@@ -3754,7 +3810,7 @@ const NuOperandi = () => {
                         </div>
                     ) : (
                         <div className="space-y-6">
-                            {Object.keys(weeklyByProject.grouped).map(pid => {
+                            {Object.keys(weeklyByProject.grouped).filter(Boolean).map(pid => {
                                 const proj = projects.find(p => p.id === Number(pid));
                                 const tasks = weeklyByProject.grouped[pid];
                                 let projTotal = 0, projDone = 0;
@@ -3829,7 +3885,7 @@ const NuOperandi = () => {
                         </div>
                     ) : (
                         <div className="space-y-6">
-                            {Object.keys(thisWeekByProject.grouped).map(pid => {
+                            {Object.keys(thisWeekByProject.grouped).filter(Boolean).map(pid => {
                                 const proj = projects.find(p => p.id === Number(pid));
                                 const tasks = thisWeekByProject.grouped[pid];
                                 const activeTasks = tasks.filter(w => !completedWeekly[w.id]);
@@ -3846,7 +3902,7 @@ const NuOperandi = () => {
                                             </div>
                                         </div>
                                         <div className="divide-y divide-violet-50/50">
-                                            {activeTasks.map(w => <WeeklyTaskRow key={w.id} w={w} context="thisWeek" />)}
+                                            {activeTasks.filter(Boolean).map(w => <WeeklyTaskRow key={w.id} w={w} context="thisWeek" />)}
                                         </div>
                                     </div>
                                 );
@@ -3931,7 +3987,7 @@ const NuOperandi = () => {
                                     <div className="space-y-2">
                                         {quickTasks.filter(t => t.delegatedTo && !completedTasks[t.id]).map(t => (
                                             <div key={'del-'+t.id} className="bg-purple-50/50 rounded-xl border border-purple-100 p-4 flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-semibold text-xs flex-shrink-0">{t.delegatedTo.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)}</div>
+                                                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-semibold text-xs flex-shrink-0">{t.delegatedTo.split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0,2)}</div>
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm font-medium text-gray-900">{t.task}</p>
                                                     <p className="text-xs text-purple-500 mt-0.5">Assigned to {t.delegatedTo}</p>
@@ -3983,7 +4039,7 @@ const NuOperandi = () => {
                                     </div>
                                     {ideas.length === 0 ? <p className="text-sm text-gray-400 italic">No ideas captured yet. Click + to add one.</p> : (
                                         <div className="space-y-2">
-                                            {ideas.map(idea => (
+                                            {ideas.filter(Boolean).map(idea => (
                                                 <div key={idea.id} className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg group">
                                                     <div className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-2 flex-shrink-0"></div>
                                                     <div className="flex-1"><p className="text-sm text-gray-800">{idea.text}</p><p className="text-xs text-gray-400 mt-0.5">{idea.t}</p></div>
@@ -4000,7 +4056,7 @@ const NuOperandi = () => {
                                     </div>
                                     {learning.length === 0 ? <p className="text-sm text-gray-400 italic">No learning goals yet. Click + to add one.</p> : (
                                         <div className="space-y-2">
-                                            {learning.map((item, i) => (
+                                            {learning.filter(Boolean).map((item, i) => (
                                                 <div key={i} className="flex items-center gap-3 p-3 bg-violet-50 rounded-lg group">
                                                     <div className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0"></div>
                                                     <p className="text-sm text-gray-800 flex-1">{item}</p>
@@ -4052,7 +4108,7 @@ const NuOperandi = () => {
                             </div>
                         ) : (
                             <div className="space-y-2">
-                                {timeBlocks.map(b => (
+                                {timeBlocks.filter(Boolean).map(b => (
                                     <div key={b.id} className={(catColors[b.cat] || catColors.blue) + ' border rounded-xl px-5 py-3.5 transition-all hover:shadow-sm ' + (completedTimeBlocks[b.id] ? 'opacity-50' : '')}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-4 cursor-pointer flex-1" onClick={() => toggleBlock(b.id)}>
@@ -4092,7 +4148,7 @@ const NuOperandi = () => {
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        {sortedHistory.map(entry => (
+                        {sortedHistory.filter(Boolean).map(entry => (
                             <div key={entry.date} className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
                                 <div className="px-5 py-3.5 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
                                     <div className="flex items-center gap-3">
@@ -4102,7 +4158,7 @@ const NuOperandi = () => {
                                     <span className="text-xs text-gray-400">{entry.tasks.length} task{entry.tasks.length !== 1 ? 's' : ''}</span>
                                 </div>
                                 <div className="divide-y divide-violet-50/50">
-                                    {entry.tasks.map((t, i) => (
+                                    {entry.tasks.filter(Boolean).map((t, i) => (
                                         <div key={t.id || i} className="px-5 py-3 flex items-center gap-3">
                                             {I.check("#10B981")}
                                             <div className="flex-1 min-w-0">
@@ -4203,7 +4259,7 @@ const NuOperandi = () => {
             </div>
             <div className="divide-y divide-violet-50/50 max-h-64 overflow-y-auto">
               {projectTasks.length === 0 && <p className="p-4 text-sm text-gray-400 text-center">No tasks for this project</p>}
-              {projectTasks.map((task, i) => (
+              {projectTasks.filter(Boolean).map((task, i) => (
                 <div key={i} className="px-5 py-3 flex items-center gap-3 hover:bg-violet-50/30 transition">
                   <button onClick={() => { const nc = {...completedTasks}; nc[task.id] ? delete nc[task.id] : nc[task.id] = true; setCompletedTasks(nc); save('completedTasks', nc); }} className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${completedTasks[task.id] ? 'bg-violet-500 border-violet-500' : 'border-gray-300 hover:border-violet-400'}`}>
                     {completedTasks[task.id] && I.check("#fff")}
@@ -4221,7 +4277,7 @@ const NuOperandi = () => {
               <h3 className="text-sm font-semibold text-gray-900">Team Members</h3>
             </div>
             <div className="p-5 space-y-3">
-              {project.members && project.members.length > 0 ? project.members.map((member, i) => (
+              {project.members && project.members.length > 0 ? project.members.filter(Boolean).map((member, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 text-xs font-semibold">{(member.name || member).substring(0,2).toUpperCase()}</div>
                   <div className="flex-1 min-w-0">
@@ -4252,11 +4308,11 @@ const NuOperandi = () => {
                 <main className="flex-1 overflow-auto px-8 py-6">
                 {EODReportModal()}
                     {activeModule === 'command' && CommandCentre()}
-                    {activeModule === 'income' && <IncomeModule />}
-                    {activeModule === 'planner' && <PlannerModule />}
-                    {activeModule === 'history' && <HistoryModule />}
-              {activeModule === 'boardroom' && <BoardroomModule />}
-              {activeProjectId && <ProjectDashboard />}
+                    {activeModule === 'income' && <ModuleBoundary name='income'><IncomeModule /></ModuleBoundary>}
+                    {activeModule === 'planner' && <ModuleBoundary name='planner'><PlannerModule /></ModuleBoundary>}
+                    {activeModule === 'history' && <ModuleBoundary name='history'><HistoryModule /></ModuleBoundary>}
+              {activeModule === 'boardroom' && <ModuleBoundary name='boardroom'><BoardroomModule /></ModuleBoundary>}
+              {activeProjectId && <ModuleBoundary name='project'><ProjectDashboard /></ModuleBoundary>}
                 </main>
             </div>
 
