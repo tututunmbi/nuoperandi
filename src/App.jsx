@@ -1203,6 +1203,11 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
     const [showTagSection, setShowTagSection] = useState(false);
     const [tagSearch, setTagSearch] = useState('');
     const [tagSuggestions, setTagSuggestions] = useState([]);
+  const [entries, setEntries] = useState(item && item.entries ? item.entries : []);
+  const addEntry = () => setEntries(prev => [...prev, { id: Date.now(), label: '', amount: '', date: '', paid: false }]);
+  const updateEntry = (id, field, val) => setEntries(prev => prev.map(en => en.id === id ? { ...en, [field]: val } : en));
+  const removeEntry = (id) => setEntries(prev => prev.filter(en => en.id !== id));
+  const toggleEntryPaid = (id) => setEntries(prev => prev.map(en => en.id === id ? { ...en, paid: !en.paid, paidDate: !en.paid ? new Date().toISOString().slice(0,10) : null } : en));
     const searchTagUser = async (query) => {
         if (!query || query.length < 2 || !supabase) { setTagSuggestions([]); return; }
         const clean = query.replace('@', '').toLowerCase();
@@ -1224,7 +1229,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
         if (!name || !amount) return;
         const val = Number(amount.replace(/[^0-9.]/g, ''));
         const lsid = linkedStreamId ? Number(linkedStreamId) : null;
-        const data = { name, amount: val, category, frequency, linkedStreamId: lsid, note, dueDate: dueDate || null , project_id: projectId || null};
+        const data = { name, amount: val, category, frequency, linkedStreamId: lsid, note, dueDate: dueDate || null , project_id: projectId || null, entries: entries.filter(Boolean).map(en => ({ ...en, amount: Number(String(en.amount).replace(/[^0-9.]/g, '')) || 0 }))};
         let expenseId;
         if (item) {
             setExpenses(prev => prev.filter(Boolean).map(e => e.id === item.id ? { ...e, ...data } : e));
@@ -1296,6 +1301,28 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
                 <Field label="Note (optional)"><input className={inputCls} value={note} onChange={e => setNote(e.target.value)} placeholder="e.g. 2 staff members" /></Field>
             </div>
       <div><label className="block text-sm font-medium text-gray-600 mb-1">Project</label><select className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-violet-300 outline-none" value={projectId} onChange={e => setProjectId(e.target.value)}><option value="">No project</option>{safe(activeProjects).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></div>
+            {/* Expense Entries / Sub-items */}
+            <div className="mt-4 border-t border-gray-100 pt-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Expense Entries</span>
+                <button type="button" onClick={addEntry} className="text-xs text-violet-600 hover:text-violet-800 font-medium flex items-center gap-1">{I.plus("#7c3aed")} Add Entry</button>
+              </div>
+              {entries.length === 0 && <p className="text-xs text-gray-400 italic mb-2">No entries yet. Track individual costs under this expense.</p>}
+              {entries.map((en, idx) => (
+                <div key={en.id} className="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <button type="button" onClick={() => toggleEntryPaid(en.id)} className={"w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 " + (en.paid ? "bg-green-500 border-green-500 text-white" : "border-gray-300")}>{en.paid ? I.check("#fff") : null}</button>
+                    <input type="text" placeholder="Entry label (e.g. Oil Change)" value={en.label} onChange={e => updateEntry(en.id, 'label', e.target.value)} className={"flex-1 text-sm border border-gray-200 rounded px-2 py-1 " + (en.paid ? "line-through text-gray-400" : "")} />
+                    <button type="button" onClick={() => removeEntry(en.id)} className="text-gray-400 hover:text-red-500">{I.trash("#9ca3af")}</button>
+                  </div>
+                  <div className="flex gap-2">
+                    <input type="number" placeholder="Amount" value={en.amount} onChange={e => updateEntry(en.id, 'amount', e.target.value)} className="w-1/2 text-sm border border-gray-200 rounded px-2 py-1" />
+                    <input type="date" value={en.date || ''} onChange={e => updateEntry(en.id, 'date', e.target.value)} className="w-1/2 text-sm border border-gray-200 rounded px-2 py-1" />
+                  </div>
+                </div>
+              ))}
+              {entries.length > 0 && <div className="text-right text-xs font-semibold text-gray-600 mt-1">Entries Total: {fmt(entries.reduce((s, en) => s + (parseFloat(en.amount) || 0), 0))}</div>}
+            </div>
             {/* Tag Team Members Section */}
             <div className="mt-4 border border-violet-100 rounded-lg">
                 <button onClick={() => setShowTagSection(!showTagSection)} className="w-full flex items-center justify-between px-4 py-3 bg-violet-50/50 hover:bg-violet-50 transition text-left">
@@ -1481,7 +1508,7 @@ const NuOperandi = () => {
 
         const { data: cloudExpenses } = await supabase.from('expenses').select('*');
         if (cloudExpenses && cloudExpenses.length > 0) {
-          const mapped = cloudExpenses.filter(Boolean).map(e => ({ id: e.local_id, name: e.name, amount: e.amount, category: e.category, frequency: e.frequency, linkedStreamId: e.linked_stream_id, note: e.note, dueDate: e.due_date }));
+          const mapped = cloudExpenses.filter(Boolean).map(e => ({ id: e.local_id, name: e.name, amount: e.amount, category: e.category, frequency: e.frequency, linkedStreamId: e.linked_stream_id, note: e.note, dueDate: e.due_date, entries: (e.extra_data && e.extra_data.entries) || [], project_id: (e.extra_data && e.extra_data.project_id) || e.project_id || null }));
           setExpenses(mapped);
         }
 
@@ -1629,7 +1656,7 @@ const NuOperandi = () => {
           amount: e.amount || 0, category: e.category || '',
           frequency: e.frequency || 'Monthly',
           linked_stream_id: e.linkedStreamId || null,
-          note: e.note || '', due_date: e.dueDate || null
+          note: e.note || '', due_date: e.dueDate, extra_data: { entries: e.entries || [], project_id: e.project_id || e.projectId || null } || null
         }));
         if (rows.length > 0) await supabase.from('expenses').insert(rows);
       } catch(err) { console.log('Expenses sync error:', err); }
@@ -3178,7 +3205,27 @@ const NuOperandi = () => {
                                             <span className="text-xs text-gray-400 mr-1">Tagged:</span>
                                             {paymentTags.filter(t => t.expense_id === String(e.id)).filter(Boolean).map(t => <span key={t.id} className={"text-xs px-2 py-0.5 rounded-full font-medium " + (t.status === 'accepted' ? "bg-emerald-50 text-emerald-600" : t.status === 'declined' ? "bg-gray-100 text-gray-400 line-through" : "bg-amber-50 text-amber-600")}>{t.status === 'accepted' ? String.fromCharCode(10003) : t.status === 'declined' ? String.fromCharCode(10007) : String.fromCharCode(9203)} @{t.recipient_username}</span>)}
                                         </div>}
-                                </div>
+                                
+                                  {e.entries && e.entries.length > 0 && (
+                                    <div className="mt-3 border-t border-gray-100 pt-3">
+                                      <div className="flex items-center justify-between mb-2">
+                                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{e.entries.length} {e.entries.length === 1 ? 'Entry' : 'Entries'}</span>
+                                        <span className="text-xs font-bold text-gray-700">{(() => { try { return new Intl.NumberFormat('en-NG', {style:'currency',currency:'NGN'}).format(e.entries.reduce((s,en) => s + (parseFloat(en.amount)||0), 0)); } catch(err) { return e.entries.reduce((s,en) => s + (parseFloat(en.amount)||0), 0); } })()}</span>
+                                      </div>
+                                      {e.entries.map((en, idx) => (
+                                        <div key={en.id || idx} className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">
+                                          <div className="flex items-center gap-2">
+                                            <span className={"w-2 h-2 rounded-full flex-shrink-0 " + (en.paid ? "bg-green-400" : "bg-orange-400")}></span>
+                                            <span className={"text-xs " + (en.paid ? "line-through text-gray-400" : "text-gray-700")}>{en.label || 'Untitled'}</span>
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                            {en.date && <span className="text-xs text-gray-400">{en.date}</span>}
+                                            <span className={"text-xs font-medium " + (en.paid ? "text-gray-400" : "text-gray-700")}>{(() => { try { return new Intl.NumberFormat('en-NG', {style:'currency',currency:'NGN'}).format(parseFloat(en.amount)||0); } catch(err) { return en.amount; } })()}</span>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}</div>
                                 );
                             })}
                         </div>
