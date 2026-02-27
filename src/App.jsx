@@ -1321,7 +1321,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
                   </div>
                 </div>
               ))}
-              {entries.length > 0 && <div className="text-right text-xs font-semibold text-gray-600 mt-1">Entries Total: {fmt(entries.reduce((s, en) => s + (parseFloat(en.amount) || 0), 0))}</div>}
+              {entries.length > 0 && <div className="text-right text-xs font-semibold text-gray-600 mt-1">Entries Total: {(() => { const t = entries.reduce((s, en) => s + (parseFloat(en.amount) || 0), 0); try { return new Intl.NumberFormat('en-NG', {style:'currency',currency:'NGN'}).format(t); } catch(e) { return t; } })()}</div>}
             </div>
             {/* Tag Team Members Section */}
             <div className="mt-4 border border-violet-100 rounded-lg">
