@@ -1,4 +1,113 @@
-/* build: 1772120819651 */
+};
+
+  const MeetingForm = ({ onClose, setMeetings, supaUser }) => {
+    const [title, setTitle] = useState('');
+    const [meetDate, setMeetDate] = useState(new Date().toISOString().split('T')[0]);
+    const [startTime, setStartTime] = useState('09:00');
+    const [endTime, setEndTime] = useState('10:00');
+    const [notes, setNotes] = useState('');
+    const [attendees, setAttendees] = useState([]);
+    const [attendeeSearch, setAttendeeSearch] = useState('');
+    const [attendeeSuggestions, setAttendeeSuggestions] = useState([]);
+    const [showAttendeeDrop, setShowAttendeeDrop] = useState(false);
+
+    const searchAttendees = async (q) => {
+      setAttendeeSearch(q);
+      if (q.length < 2) { setAttendeeSuggestions([]); setShowAttendeeDrop(false); return; }
+      try {
+        const { data } = await supabase.from('profiles').select('id, username, full_name, avatar_url').ilike('full_name', '%' + q + '%').limit(8);
+        if (data) { setAttendeeSuggestions(data.filter(p => !attendees.find(a => a.id === p.id))); setShowAttendeeDrop(true); }
+      } catch(e) { console.error(e); }
+    };
+
+    const addAttendee = (prof) => {
+      setAttendees(prev => [...prev, prof]);
+      setAttendeeSearch('');
+      setAttendeeSuggestions([]);
+      setShowAttendeeDrop(false);
+    };
+
+    const removeAttendee = (id) => setAttendees(prev => prev.filter(a => a.id !== id));
+
+    const handleSave = () => {
+      if (!title.trim()) return;
+      const meeting = {
+        id: Date.now(),
+        title: title.trim(),
+        date: meetDate,
+        startTime,
+        endTime,
+        notes: notes.trim(),
+        attendees: attendees.map(a => ({ id: a.id, username: a.username, full_name: a.full_name, avatar_url: a.avatar_url })),
+        createdBy: supaUser ? supaUser.id : null,
+        createdAt: new Date().toISOString(),
+        status: 'scheduled'
+      };
+      setMeetings(prev => [...prev, meeting]);
+      onClose();
+    };
+
+    return (
+      <Modal title="Request a Meeting" onClose={onClose}>
+        <div className="p-5 space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Meeting Title</label>
+            <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Project sync, Weekly standup..." className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent" autoFocus />
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Date</label>
+              <input type="date" value={meetDate} onChange={e => setMeetDate(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Start</label>
+              <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">End</label>
+              <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Attendees</label>
+            {attendees.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {attendees.map(a => (
+                  <span key={a.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-violet-100 text-violet-700 text-xs">
+                    {a.full_name || a.username}
+                    <button onClick={() => removeAttendee(a.id)} className="hover:text-red-500">×</button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="relative">
+              <input type="text" value={attendeeSearch} onChange={e => searchAttendees(e.target.value)} placeholder="Search team members..." className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500" />
+              {showAttendeeDrop && attendeeSuggestions.length > 0 && (
+                <div className="absolute z-20 left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                  {attendeeSuggestions.map(p => (
+                    <button key={p.id} onClick={() => addAttendee(p)} className="w-full text-left px-3 py-2 hover:bg-violet-50 text-sm flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-violet-200 flex items-center justify-center text-xs font-bold text-violet-700">
+                        {(p.full_name || p.username || '?').charAt(0).toUpperCase()}
+                      </div>
+                      {p.full_name || p.username}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Notes (optional)</label>
+            <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Meeting agenda or notes..." rows={3} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 resize-none" />
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button onClick={onClose} className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50">Cancel</button>
+            <button onClick={handleSave} disabled={!title.trim()} className="flex-1 px-4 py-2.5 bg-violet-600 text-white rounded-lg text-sm font-medium hover:bg-violet-700 disabled:opacity-40">Schedule Meeting</button>
+          </div>
+        </div>
+      </Modal>
+    );
+  /* build: 1772120819651 */
 
 // Global error safety net
 if (typeof window !== 'undefined') {
@@ -1426,6 +1535,7 @@ const NuOperandi = () => {
   const [paymentTags, setPaymentTags] = useState([]);
   const [incomingPayments, setIncomingPayments] = useState([]);
     const [delegatedByMe, setDelegatedByMe] = useState([]);
+    const [allOrgDelegated, setAllOrgDelegated] = useState([]);
   const [acceptingTask, setAcceptingTask] = useState(null);
   const [allProfiles, setAllProfiles] = useState([]);
 
@@ -1436,6 +1546,8 @@ const NuOperandi = () => {
   const [sharedTaskCompletions, setSharedTaskCompletions] = useState([]);
     const [quickTasks, setQuickTasks] = useState(() => load('tasks', defaultTasks));
     const [timeBlocks, setTimeBlocks] = useState(() => load('timeblocks', defaultTimeBlocks));
+    const [meetings, setMeetings] = useState(() => load('meetings', []));
+    const [showBriefing, setShowBriefing] = useState(true);
     const [ideas, setIdeas] = useState(() => load('ideas', defaultIdeas));
     const [learning, setLearning] = useState(() => load('learning', defaultLearning));
     const [teamMembers, setTeamMembers] = useState(() => load('team', defaultTeam));
@@ -1501,6 +1613,7 @@ const NuOperandi = () => {
     useEffect(() => { save('projects', projects); }, [projects]);
     useEffect(() => { save('tasks', quickTasks); }, [quickTasks]);
     useEffect(() => { save('timeblocks', timeBlocks); }, [timeBlocks]);
+    useEffect(() => { save('meetings', meetings); }, [meetings]);
     useEffect(() => { save('ideas', ideas); }, [ideas]);
     useEffect(() => { save('learning', learning); }, [learning]);
     useEffect(() => { save('team', teamMembers); }, [teamMembers]);
@@ -1856,6 +1969,13 @@ const NuOperandi = () => {
             if (data) setDelegatedByMe(data || []);
         } catch(_loadErr) { console.error('Data load error:', _loadErr); }};
         fetchDelegatedByMe();
+    const fetchAllOrgDelegated = async () => {
+      try {
+        const { data } = await supabase.from('delegated_tasks').select('*').order('created_at', { ascending: false });
+        if (data) setAllOrgDelegated(data || []);
+      } catch(_loadErr) { console.error('Org delegated load error:', _loadErr); }
+    };
+    fetchAllOrgDelegated();
     // Fetch all profiles for Team section (excluding current admin user)
     const fetchAllProfiles = async () => {
     try {
@@ -1866,7 +1986,7 @@ const NuOperandi = () => {
     fetchAllProfiles();
         const channel = supabase.channel('delegated-' + userProfile.username).on('postgres_changes', { event: '*', schema: 'public', table: 'delegated_tasks', filter: 'recipient_username=eq.' + userProfile.username }, () => { try { fetchDelegated(); } catch(_re) { console.error('Realtime error:', _re); }}).subscribe();
         // Also subscribe to changes on tasks delegated BY me (so boardroom auto-updates)
-        const delegatorChannel = supabase.channel('delegator-' + supaUser.id).on('postgres_changes', { event: '*', schema: 'public', table: 'delegated_tasks', filter: 'delegator_id=eq.' + supaUser.id }, () => { try { fetchDelegatedByMe(); } catch(_re) { console.error('Realtime error:', _re); }}).subscribe();
+        const delegatorChannel = supabase.channel('delegator-' + supaUser.id).on('postgres_changes', { event: '*', schema: 'public', table: 'delegated_tasks', filter: 'delegator_id=eq.' + supaUser.id }, () => { try { fetchDelegatedByMe(); fetchAllOrgDelegated(); } catch(_re) { console.error('Realtime error:', _re); }}).subscribe();
 
       const fetchPaymentTags = async () => {
     try {
@@ -2659,6 +2779,35 @@ const NuOperandi = () => {
 
         return (
         <div className="space-y-6 max-w-6xl">
+            {showBriefing && (
+              <div className="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl p-5 text-white relative overflow-hidden">
+                <button onClick={() => setShowBriefing(false)} className="absolute top-3 right-3 text-white/60 hover:text-white text-lg">×</button>
+                <div className="relative z-10">
+                  <p className="text-violet-200 text-xs font-medium uppercase tracking-wider mb-1">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                  <h2 className="text-xl font-bold mb-4">Good morning{userProfile && userProfile.full_name ? ', ' + userProfile.full_name.split(' ')[0] : ''} ☕</h2>
+                  <div className="grid grid-cols-4 gap-3">
+                    <div className="bg-white/15 backdrop-blur rounded-xl p-3 text-center">
+                      <p className="text-2xl font-bold">{pendingTasks.length}</p>
+                      <p className="text-xs text-violet-200 mt-0.5">Tasks Today</p>
+                    </div>
+                    <div className="bg-white/15 backdrop-blur rounded-xl p-3 text-center">
+                      <p className="text-2xl font-bold">{meetings.filter(m => m.date === new Date().toISOString().split('T')[0]).length}</p>
+                      <p className="text-xs text-violet-200 mt-0.5">Meetings</p>
+                    </div>
+                    <div className="bg-white/15 backdrop-blur rounded-xl p-3 text-center">
+                      <p className="text-2xl font-bold">{(delegatedToMe || []).filter(d => d.status === 'pending').length}</p>
+                      <p className="text-xs text-violet-200 mt-0.5">Pending Tasks</p>
+                    </div>
+                    <div className="bg-white/15 backdrop-blur rounded-xl p-3 text-center">
+                      <p className="text-2xl font-bold">{activeProjects.length}</p>
+                      <p className="text-xs text-violet-200 mt-0.5">Active Projects</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/5 rounded-full"></div>
+                <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-white/5 rounded-full"></div>
+              </div>
+            )}
             <div className="space-y-5">
           {/* Row 1: Balance + Right Stack */}
           <div className="grid grid-cols-3 gap-5">
@@ -2815,6 +2964,24 @@ const NuOperandi = () => {
                                 </div>
                             </div>
                         )}
+            {/* Today's Meetings */}
+            {meetings.filter(m => m.date === new Date().toISOString().split('T')[0]).length > 0 && (
+              <div className="border-t border-blue-100">
+                <div className="px-5 py-2 bg-blue-50/50">
+                  <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Meetings</p>
+                </div>
+                {meetings.filter(m => m.date === new Date().toISOString().split('T')[0]).map(m => (
+                  <div key={m.id} className="px-5 py-3 flex items-center gap-4 hover:bg-blue-50/30 transition">
+                    <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0"></div>
+                    <span className="text-xs font-medium text-blue-500 w-28 flex-shrink-0">{m.startTime} - {m.endTime}</span>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm text-gray-900">{m.title}</span>
+                      {m.attendees && m.attendees.length > 0 && <p className="text-xs text-gray-400 truncate">{m.attendees.map(a => a.full_name || a.username).join(', ')}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
                     </div>
 
                     <div className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
@@ -2945,11 +3112,11 @@ const NuOperandi = () => {
                     {I.calendar("#7C3AED")}
                     <h3 className="text-sm font-semibold text-gray-900">Calendar</h3>
                   </div>
-                  <span className="text-xs text-gray-400">{new Date().toLocaleDateString('en-US', {month:'short', year:'numeric'})}</span>
+                  <div className="flex items-center gap-2"><button onClick={() => setModal('requestMeeting')} className="text-xs px-2 py-1 bg-violet-100 text-violet-600 rounded-lg hover:bg-violet-200 font-medium">+ Meeting</button><span className="text-xs text-gray-400">{new Date().toLocaleDateString('en-US', {month:'short', year:'numeric'})}</span></div>
                 </div>
                 <div className="px-4 py-3">
                   <div className="flex items-center gap-1 mb-3">
-                    {(() => { const today = new Date(); const dow = today.getDay(); const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']; return days.filter(Boolean).map((d, i) => { const dt = new Date(today); dt.setDate(today.getDate() - dow + i); const isT = dt.toDateString() === today.toDateString(); const hasE = timeBlocks.some(b => b.date === dt.toISOString().split('T')[0]); return (<div key={i} className={`flex-1 flex flex-col items-center py-1.5 rounded-lg ${isT ? 'bg-violet-500 text-white' : 'hover:bg-gray-50'}`}><span className={`text-xs ${isT ? 'text-violet-200' : 'text-gray-400'}`}>{d.substring(0,2)}</span><span className={`text-sm font-medium ${isT ? 'text-white' : 'text-gray-700'}`}>{dt.getDate()}</span>{hasE && !isT && <span className="w-1 h-1 rounded-full bg-violet-400 mt-0.5"></span>}</div>); }); })()}
+                    {(() => { const today = new Date(); const dow = today.getDay(); const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']; return days.filter(Boolean).map((d, i) => { const dt = new Date(today); dt.setDate(today.getDate() - dow + i); const isT = dt.toDateString() === today.toDateString(); const dayStr = dt.toISOString().split('T')[0]; const hasE = timeBlocks.some(b => b.date === dayStr); const hasMeeting = meetings.some(m => m.date === dayStr); return (<div key={i} className={`flex-1 flex flex-col items-center py-1.5 rounded-lg ${isT ? 'bg-violet-500 text-white' : 'hover:bg-gray-50'}`}><span className={`text-xs ${isT ? 'text-violet-200' : 'text-gray-400'}`}>{d.substring(0,2)}</span><span className={`text-sm font-medium ${isT ? 'text-white' : 'text-gray-700'}`}>{dt.getDate()}</span>{(hasE || hasMeeting) && !isT && <span className={"w-1 h-1 rounded-full mt-0.5 " + (hasMeeting ? "bg-blue-400" : "bg-violet-400")}></span>}</div>); }); })()}
                   </div>
                   {timeBlocks.filter(b => b.date === new Date().toISOString().split('T')[0]).slice(0, 2).filter(Boolean).map((b, i) => (
                     <div key={i} className="flex items-center gap-2 py-2 border-t border-gray-50">
@@ -2960,7 +3127,16 @@ const NuOperandi = () => {
                       </div>
                     </div>
                   ))}
-                  {timeBlocks.filter(b => b.date === new Date().toISOString().split('T')[0]).length === 0 && <p className="text-xs text-gray-400 text-center py-2">No appointments today</p>}
+                  {meetings.filter(m => m.date === new Date().toISOString().split('T')[0]).map((m, mi) => (
+              <div key={'mt'+mi} className="flex items-center gap-2 py-2 border-t border-gray-50">
+                <div className="w-1 h-8 rounded-full bg-blue-400"></div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-blue-700 truncate">{m.title}</p>
+                  <p className="text-xs text-gray-400">{m.startTime} - {m.endTime}{m.attendees && m.attendees.length > 0 ? ' · ' + m.attendees.map(a => a.full_name || a.username).join(', ') : ''}</p>
+                </div>
+              </div>
+            ))}
+            {timeBlocks.filter(b => b.date === new Date().toISOString().split('T')[0]).length === 0 && meetings.filter(m => m.date === new Date().toISOString().split('T')[0]).length === 0 && <p className="text-xs text-gray-400 text-center py-2">No appointments today</p>}
                 </div>
               </div>
               {/* My Goals */}
@@ -3350,7 +3526,7 @@ const NuOperandi = () => {
     const taskHistory = JSON.parse(localStorage.getItem('nuop_taskHistory') || '[]');
     
     // Use delegatedByMe from Supabase (the full list of tasks YOU delegated)
-    const allDelegated = delegatedByMe || [];
+    const allDelegated = allOrgDelegated || [];
     
     // Build memberList from ALL profiles (auto-populated from Supabase)
     const memberList = allProfiles.filter(Boolean).map(prof => {
@@ -4466,6 +4642,7 @@ const NuOperandi = () => {
             {modal === 'editProject' && <ProjectForm item={editItem} setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }}  supaUser={supaUser} weeklyPlan={weeklyPlan} quickTasks={quickTasks}/>}
             {acceptingTask && <AcceptTaskModal task={acceptingTask} onChooseDaily={acceptToDaily} onChooseWeekly={acceptToWeekly} onCancel={() => setAcceptingTask(null)}             />}
       {modal === 'addGoal' && <GoalForm setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} team={teamMembers} supaUser={supaUser} onClose={() => { setModal(null); setEditItem(null); }} />}
+      {modal === 'requestMeeting' && <MeetingForm setMeetings={setMeetings} supaUser={supaUser} onClose={() => { setModal(null); }} />}
       {modal === 'addWeekly' && <WeeklyTaskForm setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'editWeekly' && <WeeklyTaskForm item={editItem} setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'addTask' && <TaskForm setQuickTasks={setQuickTasks} activeProjects={activeProjects} onDelegate={handleDelegate} onClose={() => { setModal(null); setEditItem(null); }} />}
