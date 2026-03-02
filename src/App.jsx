@@ -1697,7 +1697,7 @@ const NuOperandi = () => {
         const { data: cloudProjects } = await supabase.from('projects').select('*');
         if (cloudProjects && cloudProjects.length > 0) {
           const mapped = cloudProjects.filter(Boolean).map(p => ({ id: p.local_id, name: p.name, desc: p.description, progress: p.progress, status: p.status, start: p.start_date, launch: p.launch_date, team: p.team_size, next: p.next_step, teamMembers: p.team_members || [] }));
-          setProjects(prev => { const localIds = new Set(prev.map(p => p.id)); const cloudOnly = mapped.filter(m => !localIds.has(m.id)); return [...prev, ...cloudOnly]; });
+          setProjects(mapped);
         }
 
         const { data: cloudWeekly } = await supabase.from('weekly_tasks').select('*');
@@ -1733,7 +1733,7 @@ const NuOperandi = () => {
             }
           });
           // Upsert projects instead of destructive delete+insert
-          const rows = projects.filter(Boolean).map(p => ({
+          const seen = new Set(); const rows = projects.filter(Boolean).filter(p => { const key = p.id; if (seen.has(key)) return false; seen.add(key); return true; }).map(p => ({
             local_id: p.id,
             owner_id: supaUser.id,
             name: p.name,
@@ -2508,7 +2508,8 @@ const NuOperandi = () => {
 
     const Sidebar = () => {
     const projectColors = ['#7C3AED', '#F59E0B', '#10B981', '#EF4444', '#3B82F6', '#EC4899', '#8B5CF6', '#14B8A6'];
-    const sidebarProjects = projects.slice(0, 5);
+  const [showAllSidebarProjects, setShowAllSidebarProjects] = useState(false);
+    const sidebarProjects = showAllSidebarProjects ? projects : projects.slice(0, 5);
     return (
       <div className={`fixed left-0 top-0 h-screen flex flex-col z-10 bg-white/90 backdrop-blur-sm border-r border-violet-100/50 sidebar-shadow transition-all duration-300 ${sidebarOpen ? 'w-60' : 'w-16'}`}>
         {/* Brand + Online Status */}
@@ -2582,7 +2583,7 @@ const NuOperandi = () => {
                 </button>
               ))}
               {projects.length > 5 && (
-                <button onClick={() => setActiveModule('income')} className="w-full px-3 py-1.5 text-xs text-violet-500 hover:text-violet-700 text-left">View all ({projects.length})</button>
+                <button onClick={() => setShowAllSidebarProjects(prev => !prev)} className="w-full px-3 py-1.5 text-xs text-violet-500 hover:text-violet-700 text-left">{showAllSidebarProjects ? 'Show less' : `View all (${projects.length})`}</button>
               )}
             </div>
           )}
