@@ -2777,7 +2777,12 @@ const NuOperandi = () => {
     };
 
     const CommandCentre = () => {
-        const pendingTasks = quickTasks.filter(t => !completedTasks[t.id]);
+    const today = new Date().toISOString().split('T')[0];
+    const pendingDaily = quickTasks.filter(t => !completedTasks[t.id]).map(t => ({ ...t, sourceType: 'daily' }));
+    const pendingDelegated = (delegatedToMe || []).filter(d => d.status !== 'completed' && d.status !== 'done').map(d => ({ id: d.id || ('del-' + Math.random()), task: d.task_text || d.task || 'Delegated task', sourceType: 'delegated', delegatedFrom: d.delegator_name || 'Team', priority: d.priority || 'medium', due: d.deadline || '' }));
+    const pendingWeekly = (weeklyPlan || []).filter(w => !w.completed && w.deadline && w.deadline <= today).map(w => ({ id: w.id || ('wk-' + Math.random()), task: w.task_text || w.task || w.name || 'Weekly task', sourceType: 'weekly', projectId: w.project_local_id || w.projectId, priority: w.priority || 'medium', due: w.deadline || '' }));
+    const pendingMeetings = (meetings || []).filter(m => m.date === today && m.status !== 'cancelled').map(m => ({ id: m.id || ('mt-' + Math.random()), task: m.title + ' (' + m.startTime + (m.endTime ? '-' + m.endTime : '') + ')', sourceType: 'meeting', due: m.date, priority: 'high' }));
+    const pendingTasks = [...pendingDaily, ...pendingDelegated, ...pendingWeekly, ...pendingMeetings].sort((a, b) => { const p = { high: 0, medium: 1, low: 2 }; return (p[a.priority] || 1) - (p[b.priority] || 1); });
         const todayDone = quickTasks.length - pendingTasks.length;
         const weeklyDoneCC = (() => { let d = 0, t = 0; weeklyPlan.forEach(w => { if (w.subtasks && w.subtasks.length > 0) { t += w.subtasks.length; d += w.subtasks.filter(s => s.done).length; } else { t += 1; if (completedWeekly[w.id]) d += 1; } }); return { done: d, total: t }; })();
         const upcomingBlocks = timeBlocks.filter(b => !completedTimeBlocks[b.id]);
@@ -3015,6 +3020,7 @@ const NuOperandi = () => {
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm text-gray-900 truncate">{t.task}</p>
                                             {proj && <p className="text-xs text-gray-400 truncate">{proj.name}</p>}
+                              {t.sourceType && t.sourceType !== 'daily' && <span className={"text-xs px-1.5 py-0.5 rounded-full font-medium " + (t.sourceType === 'delegated' ? "bg-orange-100 text-orange-600" : t.sourceType === 'weekly' ? "bg-blue-100 text-blue-600" : t.sourceType === 'meeting' ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-500")}>{t.sourceType === 'delegated' ? 'Delegated' : t.sourceType === 'weekly' ? 'Weekly' : t.sourceType === 'meeting' ? 'Meeting' : t.sourceType}</span>}
                                             {t.delegatedFrom && <span className="text-xs px-1.5 py-0.5 rounded bg-purple-100 text-purple-600 font-medium">from {t.delegatedFrom}</span>}
                                         </div>
                                         {t.priority === 'high' && <span className="text-xs px-1.5 py-0.5 rounded bg-red-50 text-red-500 font-medium flex-shrink-0">High</span>}
