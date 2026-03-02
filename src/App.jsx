@@ -1,121 +1,3 @@
-};
-
-  const MeetingForm = ({ onClose, setMeetings, supaUser }) => {
-    const [title, setTitle] = useState('');
-    const [meetDate, setMeetDate] = useState(new Date().toISOString().split('T')[0]);
-    const [startTime, setStartTime] = useState('09:00');
-    const [endTime, setEndTime] = useState('10:00');
-    const [notes, setNotes] = useState('');
-    const [attendees, setAttendees] = useState([]);
-    const [attendeeSearch, setAttendeeSearch] = useState('');
-    const [attendeeSuggestions, setAttendeeSuggestions] = useState([]);
-    const [showAttendeeDrop, setShowAttendeeDrop] = useState(false);
-
-    const searchAttendees = async (q) => {
-      setAttendeeSearch(q);
-      if (q.length < 2) { setAttendeeSuggestions([]); setShowAttendeeDrop(false); return; }
-      try {
-        const { data } = await supabase.from('profiles').select('id, username, full_name, avatar_url').ilike('full_name', '%' + q + '%').limit(8);
-        if (data) { setAttendeeSuggestions(data.filter(p => !attendees.find(a => a.id === p.id))); setShowAttendeeDrop(true); }
-      } catch(e) { console.error(e); }
-    };
-
-    const addAttendee = (prof) => {
-      setAttendees(prev => [...prev, prof]);
-      setAttendeeSearch('');
-      setAttendeeSuggestions([]);
-      setShowAttendeeDrop(false);
-    };
-
-    const removeAttendee = (id) => setAttendees(prev => prev.filter(a => a.id !== id));
-
-    const handleSave = () => {
-      if (!title.trim()) return;
-      const meeting = {
-        id: Date.now(),
-        title: title.trim(),
-        date: meetDate,
-        startTime,
-        endTime,
-        notes: notes.trim(),
-        attendees: attendees.map(a => ({ id: a.id, username: a.username, full_name: a.full_name, avatar_url: a.avatar_url })),
-        createdBy: supaUser ? supaUser.id : null,
-        createdAt: new Date().toISOString(),
-        status: 'scheduled'
-      };
-      setMeetings(prev => [...prev, meeting]);
-      onClose();
-    };
-
-    return (
-      <Modal title="Request a Meeting" onClose={onClose}>
-        <div className="p-5 space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Meeting Title</label>
-            <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Project sync, Weekly standup..." className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent" autoFocus />
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Date</label>
-              <input type="date" value={meetDate} onChange={e => setMeetDate(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Start</label>
-              <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">End</label>
-              <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500" />
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Attendees</label>
-            {attendees.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mb-2">
-                {attendees.map(a => (
-                  <span key={a.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-violet-100 text-violet-700 text-xs">
-                    {a.full_name || a.username}
-                    <button onClick={() => removeAttendee(a.id)} className="hover:text-red-500">×</button>
-                  </span>
-                ))}
-              </div>
-            )}
-            <div className="relative">
-              <input type="text" value={attendeeSearch} onChange={e => searchAttendees(e.target.value)} placeholder="Search team members..." className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500" />
-              {showAttendeeDrop && attendeeSuggestions.length > 0 && (
-                <div className="absolute z-20 left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
-                  {attendeeSuggestions.map(p => (
-                    <button key={p.id} onClick={() => addAttendee(p)} className="w-full text-left px-3 py-2 hover:bg-violet-50 text-sm flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-violet-200 flex items-center justify-center text-xs font-bold text-violet-700">
-                        {(p.full_name || p.username || '?').charAt(0).toUpperCase()}
-                      </div>
-                      {p.full_name || p.username}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Notes (optional)</label>
-            <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Meeting agenda or notes..." rows={3} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 resize-none" />
-          </div>
-          <div className="flex gap-2 pt-2">
-            <button onClick={onClose} className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50">Cancel</button>
-            <button onClick={handleSave} disabled={!title.trim()} className="flex-1 px-4 py-2.5 bg-violet-600 text-white rounded-lg text-sm font-medium hover:bg-violet-700 disabled:opacity-40">Schedule Meeting</button>
-          </div>
-        </div>
-      </Modal>
-    );
-  /* build: 1772120819651 */
-
-// Global error safety net
-if (typeof window !== 'undefined') {
-  window.addEventListener('unhandledrejection', (e) => {
-    console.error('Unhandled promise rejection:', e.reason);
-    e.preventDefault();
-  });
-}
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -959,6 +841,115 @@ const TaskForm = ({ item, onClose, setQuickTasks, activeProjects, onDelegate }) 
             </div>
         </Modal>
     );
+};
+
+const MeetingForm = ({ onClose, setMeetings, supaUser }) => {
+  const [title, setTitle] = useState('');
+  const [meetDate, setMeetDate] = useState(new Date().toISOString().split('T')[0]);
+  const [startTime, setStartTime] = useState('09:00');
+  const [endTime, setEndTime] = useState('10:00');
+  const [notes, setNotes] = useState('');
+  const [attendees, setAttendees] = useState([]);
+  const [attendeeSearch, setAttendeeSearch] = useState('');
+  const [attendeeSuggestions, setAttendeeSuggestions] = useState([]);
+  const [showAttendeeDrop, setShowAttendeeDrop] = useState(false);
+
+  const searchAttendees = async (q) => {
+    setAttendeeSearch(q);
+    if (q.length < 2) { setAttendeeSuggestions([]); setShowAttendeeDrop(false); return; }
+    try {
+      const { data } = await supabase.from('profiles').select('id, username, full_name, avatar_url').ilike('full_name', '%' + q + '%').limit(8);
+      if (data) { setAttendeeSuggestions(data.filter(p => !attendees.find(a => a.id === p.id))); setShowAttendeeDrop(true); }
+    } catch(e) { console.error(e); }
+  };
+
+  const addAttendee = (prof) => {
+    setAttendees(prev => [...prev, prof]);
+    setAttendeeSearch('');
+    setAttendeeSuggestions([]);
+    setShowAttendeeDrop(false);
+  };
+
+  const removeAttendee = (id) => setAttendees(prev => prev.filter(a => a.id !== id));
+
+  const handleSave = () => {
+    if (!title.trim()) return;
+    const meeting = {
+      id: Date.now(),
+      title: title.trim(),
+      date: meetDate,
+      startTime,
+      endTime,
+      notes: notes.trim(),
+      attendees: attendees.map(a => ({ id: a.id, username: a.username, full_name: a.full_name, avatar_url: a.avatar_url })),
+      createdBy: supaUser ? supaUser.id : null,
+      createdAt: new Date().toISOString(),
+      status: 'scheduled'
+    };
+    setMeetings(prev => [...prev, meeting]);
+    onClose();
+  };
+
+  return (
+    <Modal title="Request a Meeting" onClose={onClose}>
+      <div className="p-5 space-y-4">
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1">Meeting Title</label>
+          <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Project sync, Weekly standup..." className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent" autoFocus />
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Date</label>
+            <input type="date" value={meetDate} onChange={e => setMeetDate(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Start</label>
+            <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">End</label>
+            <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500" />
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1">Attendees</label>
+          {attendees.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {attendees.map(a => (
+                <span key={a.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-violet-100 text-violet-700 text-xs">
+                  {a.full_name || a.username}
+                  <button onClick={() => removeAttendee(a.id)} className="hover:text-red-500">×</button>
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="relative">
+            <input type="text" value={attendeeSearch} onChange={e => searchAttendees(e.target.value)} placeholder="Search team members..." className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500" />
+            {showAttendeeDrop && attendeeSuggestions.length > 0 && (
+              <div className="absolute z-20 left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                {attendeeSuggestions.map(p => (
+                  <button key={p.id} onClick={() => addAttendee(p)} className="w-full text-left px-3 py-2 hover:bg-violet-50 text-sm flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-violet-200 flex items-center justify-center text-xs font-bold text-violet-700">
+                      {(p.full_name || p.username || '?').charAt(0).toUpperCase()}
+                    </div>
+                    {p.full_name || p.username}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1">Notes (optional)</label>
+          <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Meeting agenda or notes..." rows={3} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 resize-none" />
+        </div>
+        <div className="flex gap-2 pt-2">
+          <button onClick={onClose} className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50">Cancel</button>
+          <button onClick={handleSave} disabled={!title.trim()} className="flex-1 px-4 py-2.5 bg-violet-600 text-white rounded-lg text-sm font-medium hover:bg-violet-700 disabled:opacity-40">Schedule Meeting</button>
+        </div>
+      </div>
+    </Modal>
+  );
 };
 
 const TimeBlockForm = ({ item, onClose, setTimeBlocks }) => {
@@ -4658,7 +4649,7 @@ const NuOperandi = () => {
             {modal === 'addLearning' && <LearningForm setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal && modal.startsWith('editLearning_') && <LearningForm item={editItem} idx={parseInt(modal.split('_')[1])} setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'settings' && <ProfileEditModal userProfile={userProfile} setUserProfile={setUserProfile} supaUser={supaUser} onClose={() => { setModal(null); }} />}
-            {notificationsOpen && <NotificationsPanel notifications={notifications} onMarkRead={markNotifRead} onClose={() => setNotificationsOpen(false)} delegatedToMe={delegatedToMe} onAcceptTask={setAcceptingTask} quickTasks={quickTasks} weeklyPlan={weeklyPlan} setActiveModule={setActiveModule} setPlannerTab={setPlannerTab} />}}
+            {notificationsOpen && <NotificationsPanel notifications={notifications} onMarkRead={markNotifRead} onClose={() => setNotificationsOpen(false)} delegatedToMe={delegatedToMe} onAcceptTask={setAcceptingTask} quickTasks={quickTasks} weeklyPlan={weeklyPlan} setActiveModule={setActiveModule} setPlannerTab={setPlannerTab} />}
         </div>
     );
 };
