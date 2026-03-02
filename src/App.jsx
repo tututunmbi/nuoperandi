@@ -1032,6 +1032,7 @@ const AuthFlow = ({ onAuth }) => {
     const [username, setUsername] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [resetSent, setResetSent] = useState(false);
     const [usernameStatus, setUsernameStatus] = useState('');
     const autoInitials = name.trim() ? name.trim().split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2) : '';
 
@@ -1073,14 +1074,26 @@ const AuthFlow = ({ onAuth }) => {
         setLoading(false);
     };
 
-    return (
+    const handleForgotPassword = async () => {
+    if (!email) { setError('Please enter your email address'); return; }
+    setLoading(true); setError(''); setResetSent(false);
+    try {
+      const { error: resetErr } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin
+      });
+      if (resetErr) { setError(resetErr.message); }
+      else { setResetSent(true); setError(''); }
+    } catch(e) { setError('Something went wrong. Please try again.'); }
+    setLoading(false);
+  };
+  return (
         <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-white to-gray-50 z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl w-full max-w-md card-shadow p-8 text-center">
-                <div className="mb-6"><Emblem size={48} /><h1 className="text-2xl font-bold text-gray-900 mt-3">Welcome to NuOperandi</h1><p className="text-sm text-gray-500 mt-2">Your personal operating system.</p></div>
-                <div className="flex rounded-lg bg-gray-100 p-1 mb-6">
+                <div className="mb-6"><Emblem size={48} /><h1 className="text-2xl font-bold text-gray-900 mt-3">{mode === 'forgot' ? 'Reset Password' : 'Welcome to NuOperandi'}</h1><p className="text-sm text-gray-500 mt-2">{mode === 'forgot' ? 'Enter your email and we\'ll send you a reset link.' : 'Your personal operating system.'}</p></div>
+                {mode !== 'forgot' && <div className="flex rounded-lg bg-gray-100 p-1 mb-6">
                     <button onClick={() => { setMode('login'); setError(''); }} className={'flex-1 py-2 text-sm font-medium rounded-md transition ' + (mode === 'login' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500')}>Log In</button>
                     <button onClick={() => { setMode('signup'); setError(''); }} className={'flex-1 py-2 text-sm font-medium rounded-md transition ' + (mode === 'signup' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500')}>Sign Up</button>
-                </div>
+                </div>}
                 <div className="text-left space-y-3">
                     {mode === 'signup' && (
                         <>
@@ -1093,7 +1106,8 @@ const AuthFlow = ({ onAuth }) => {
                         </>
                     )}
                     <Field label="Email"><input type="email" className={inputCls} value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" /></Field>
-                    <Field label="Password"><input type="password" className={inputCls} value={password} onChange={e => setPassword(e.target.value)} placeholder={mode === 'signup' ? 'Min 6 characters' : 'Your password'} /></Field>
+                    {mode !== 'forgot' && <Field label="Password"><input type="password" className={inputCls} value={password} onChange={e => setPassword(e.target.value)} placeholder={mode === 'signup' ? 'Min 6 characters' : 'Your password'} /></Field>}
+          {mode === 'login' && <div className="text-right -mt-1"><button type="button" onClick={() => { setMode('forgot'); setError(''); setResetSent(false); }} className="text-xs text-violet-600 hover:underline">Forgot password?</button></div>}
                     {mode === 'signup' && autoInitials && username && (
                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                             <div className="w-10 h-10 rounded-full bg-violet-500 flex items-center justify-center text-white font-semibold text-sm">{autoInitials}</div>
@@ -1101,11 +1115,12 @@ const AuthFlow = ({ onAuth }) => {
                         </div>
                     )}
                 </div>
-                {error && <p className="text-sm text-red-500 mt-3 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
-                <button className={btnPrimary + ' mt-6 w-full'} onClick={mode === 'signup' ? handleSignUp : handleLogin} disabled={loading}>
-                    {loading ? 'Please wait...' : (mode === 'signup' ? 'Create Account' : 'Log In')}
+                {resetSent && <p className="text-sm text-green-600 mt-3 bg-green-50 rounded-lg px-3 py-2">Password reset link sent! Check your email inbox (and spam folder).</p>}
+          {error && <p className="text-sm text-red-500 mt-3 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+                <button className={btnPrimary + ' mt-6 w-full'} onClick={mode === 'signup' ? handleSignUp : mode === 'forgot' ? handleForgotPassword : handleLogin} disabled={loading}>
+                    {loading ? 'Please wait...' : (mode === 'signup' ? 'Create Account' : mode === 'forgot' ? 'Send Reset Link' : 'Log In')}
                 </button>
-                <p className="text-xs text-gray-400 mt-4">{mode === 'login' ? "Don't have an account?" : 'Already have an account?'} <button onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); }} className="text-violet-600 hover:underline">{mode === 'login' ? 'Sign up' : 'Log in'}</button></p>
+                <p className="text-xs text-gray-400 mt-4">{mode === 'forgot' ? '' : (mode === 'login' ? "Don't have an account?" : 'Already have an account?')} <button onClick={() => { setMode(mode === 'forgot' ? 'login' : mode === 'login' ? 'signup' : 'login'); setError(''); setResetSent(false); }} className="text-violet-600 hover:underline">{mode === 'forgot' ? 'Back to Log In' : mode === 'login' ? 'Sign up' : 'Log in'}</button></p>
             </div>
         </div>
     );
