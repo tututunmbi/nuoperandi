@@ -1079,7 +1079,7 @@ const AuthFlow = ({ onAuth }) => {
     setLoading(true); setError(''); setResetSent(false);
     try {
       const { error: resetErr } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin
+        redirectTo: 'https://nuoperandi.vercel.app'
       });
       if (resetErr) { setError(resetErr.message); }
       else { setResetSent(true); setError(''); }
