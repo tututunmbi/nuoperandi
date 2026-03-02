@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from './supabaseClient';
 
+let cloudDataLoaded = false;
+
 /* ====== STORAGE ====== */
 const save = (key, data) => { try { localStorage.setItem('nuoperandi_' + key, JSON.stringify(data)); } catch(e) {} };
 const load = (key, fallback) => { try { const d = localStorage.getItem('nuoperandi_' + key); return d ? JSON.parse(d) : fallback; } catch(e) { return fallback; } };
@@ -333,7 +335,7 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
                         <option value="Active">Active</option><option value="Passive">Passive</option>
                     </select>
                 </Field>
-                <Field label="Monthly Amount ( ₦)"><input className={inputCls} value={monthly} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setMonthly(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setMonthly(parts.join('.')); }} placeholder="e.g. 1,000,000" type="text" inputMode="numeric" /></Field>
+                <Field label="Monthly Amount ( â¦)"><input className={inputCls} value={monthly} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setMonthly(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setMonthly(parts.join('.')); }} placeholder="e.g. 1,000,000" type="text" inputMode="numeric" /></Field>
             </div>
             <div className="grid grid-cols-2 gap-3">
                 <Field label="Next Payment Due"><input className={inputCls} type="date" value={nextPayment} onChange={e => setNextPayment(e.target.value)} /></Field>
@@ -402,12 +404,12 @@ const AcceptTaskModal = ({ task, onChooseDaily, onChooseWeekly, onCancel }) => {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <button onClick={() => onChooseDaily(task)} className={"flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition hover:shadow-md " + (task.task_type === "quick" ? "border-blue-400 bg-violet-50" : "border-gray-200 hover:border-blue-300")}>
-              <span className="text-2xl">📋</span>
+              <span className="text-2xl">ð</span>
               <span className="text-sm font-medium text-gray-900">Daily Tasks</span>
               <span className="text-xs text-gray-500">Add to today's plan</span>
             </button>
             <button onClick={() => onChooseWeekly(task)} className={"flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition hover:shadow-md " + (task.task_type === "weekly" ? "border-blue-400 bg-violet-50" : "border-gray-200 hover:border-blue-300")}>
-              <span className="text-2xl">📅</span>
+              <span className="text-2xl">ð</span>
               <span className="text-sm font-medium text-gray-900">Weekly Plan</span>
               <span className="text-xs text-gray-500">Add to this week</span>
             </button>
@@ -471,7 +473,7 @@ const DelegateLaunchpad = ({ supabase, supaUser, userProfile, onDelegate, I }) =
   return (
     <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-purple-50 via-blue-50 to-indigo-50 border border-purple-100">
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-lg">🚀</span>
+        <span className="text-lg">ð</span>
         <h3 className="text-sm font-semibold text-purple-900">Delegate Launchpad</h3>
         {sent && <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-600 animate-pulse">Launched!</span>}
       </div>
@@ -501,7 +503,7 @@ const DelegateLaunchpad = ({ supabase, supaUser, userProfile, onDelegate, I }) =
         {taskType === "weekly" && <input type="date" value={deadline} onChange={e => setDeadline(e.target.value)} className="ml-auto text-xs border border-gray-200 rounded-lg px-2 py-1" />}
       </div>
       <button onClick={launch} disabled={!taskText.trim() || !selectedUser || sending} className={"w-full py-2.5 rounded-xl text-sm font-semibold transition " + (taskText.trim() && selectedUser && !sending ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-md" : "bg-gray-200 text-gray-400 cursor-not-allowed")}>
-        {sent ? "' Launched!" : sending ? "Launching..." : "🚀 Launch Task"}
+        {sent ? "' Launched!" : sending ? "Launching..." : "ð Launch Task"}
       </button>
     </div>
   );
@@ -610,7 +612,7 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
                             {selectedMembers.filter(Boolean).map(u => (
                                 <span key={u} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
                                     @{u}
-                                    <button type="button" onClick={() => removeMember(u)} className="ml-0.5 hover:text-purple-900">×</button>
+                                    <button type="button" onClick={() => removeMember(u)} className="ml-0.5 hover:text-purple-900">Ã</button>
                                 </span>
                             ))}
                         </div>
@@ -918,7 +920,7 @@ const MeetingForm = ({ onClose, setMeetings, supaUser }) => {
               {attendees.map(a => (
                 <span key={a.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-violet-100 text-violet-700 text-xs">
                   {a.full_name || a.username}
-                  <button onClick={() => removeAttendee(a.id)} className="hover:text-red-500">×</button>
+                  <button onClick={() => removeAttendee(a.id)} className="hover:text-red-500">Ã</button>
                 </span>
               ))}
             </div>
@@ -1422,7 +1424,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
         <Modal title={item ? 'Edit Expense' : 'Add Expense'} onClose={onClose}>
             <Field label="Expense Name"><input className={inputCls} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Staff Salaries, Office Rent" /></Field>
             <div className="grid grid-cols-2 gap-3">
-                <Field label="Amount ( ₦)"><input className={inputCls} value={amount} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setAmount(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setAmount(parts.join('.')); }} placeholder="e.g. 200,000" type="text" inputMode="numeric" /></Field>
+                <Field label="Amount ( â¦)"><input className={inputCls} value={amount} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setAmount(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setAmount(parts.join('.')); }} placeholder="e.g. 200,000" type="text" inputMode="numeric" /></Field>
                 <Field label="Frequency">
                     <select className={inputCls} value={frequency} onChange={e => setFrequency(e.target.value)}>
                         <option value="Monthly">Monthly</option><option value="Weekly">Weekly</option><option value="Quarterly">Quarterly</option><option value="Annual">Annual</option><option value="One-time">One-time</option>
@@ -1648,19 +1650,19 @@ const NuOperandi = () => {
 
         // Load cloud data and merge with local.
         const { data: cloudIncome } = await supabase.from('income_streams').select('*').eq('owner_id', supaUser.id);
-        if (cloudIncome && cloudIncome.length > 0) {
+        if (cloudIncome) {
           const mapped = cloudIncome.filter(Boolean).map(s => ({ id: s.local_id, name: s.name, type: s.type, monthly: s.monthly, status: s.status, note: s.note, ...(s.extra_data || {}) }));
           setIncomeStreams(dedupByKey(mapped, 'id'));
         }
 
         const { data: cloudExpenses } = await supabase.from('expenses').select('*');
-        if (cloudExpenses && cloudExpenses.length > 0) {
+        if (cloudExpenses) {
           const mapped = cloudExpenses.filter(Boolean).map(e => ({ id: e.local_id, name: e.name, amount: e.amount, category: e.category, frequency: e.frequency, linkedStreamId: e.linked_stream_id, note: e.note, dueDate: e.due_date, entries: (e.extra_data && e.extra_data.entries) || [], project_id: (e.extra_data && e.extra_data.project_id) || e.project_id || null }));
           setExpenses(mapped);
         }
 
         const { data: cloudTasks } = await supabase.from('daily_tasks').select('*');
-        if (cloudTasks && cloudTasks.length > 0) {
+        if (cloudTasks) {
           const mapped = cloudTasks.filter(Boolean).map(tk => ({ id: tk.local_id, task: tk.task_text, priority: tk.priority, due: tk.due, projectId: tk.project_id, weeklySourceId: tk.weekly_source_id }));
           setQuickTasks(mapped);
           const comp = {};
@@ -1669,19 +1671,19 @@ const NuOperandi = () => {
         }
 
         const { data: cloudBlocks } = await supabase.from('time_blocks').select('*');
-        if (cloudBlocks && cloudBlocks.length > 0) {
+        if (cloudBlocks) {
           const mapped = cloudBlocks.filter(Boolean).map(b => ({ id: b.local_id, task: b.task_text, time: b.start_time, end: b.end_time, cat: b.category }));
           setTimeBlocks(mapped);
         }
 
         const { data: cloudIdeas } = await supabase.from('ideas').select('*');
-        if (cloudIdeas && cloudIdeas.length > 0) {
+        if (cloudIdeas) {
           const mapped = cloudIdeas.filter(Boolean).map(i => ({ id: i.local_id, text: i.text_content }));
           setIdeas(mapped);
         }
 
         const { data: cloudTeam } = await supabase.from('team_members').select('*');
-        if (cloudTeam && cloudTeam.length > 0) {
+        if (cloudTeam) {
           const mapped = cloudTeam.filter(Boolean).map(m => ({ id: m.local_id, name: m.name, initials: m.initials, status: m.status }));
           setTeamMembers(mapped);
         }
@@ -1689,19 +1691,19 @@ const NuOperandi = () => {
 
 
         const { data: cloudHistory } = await supabase.from('task_history').select('*');
-        if (cloudHistory && cloudHistory.length > 0) {
+        if (cloudHistory) {
           const mapped = cloudHistory.filter(Boolean).map(h => ({ date: h.date, tasks: h.tasks }));
           setTaskHistory(mapped);
         }
 
         const { data: cloudProjects } = await supabase.from('projects').select('*');
-        if (cloudProjects && cloudProjects.length > 0) {
+        if (cloudProjects) {
           const mapped = cloudProjects.filter(Boolean).map(p => ({ id: p.local_id, name: p.name, desc: p.description, progress: p.progress, status: p.status, start: p.start_date, launch: p.launch_date, team: p.team_size, next: p.next_step, teamMembers: p.team_members || [] }));
-          setProjects(mapped);
-        }
+          if (localStorage.getItem("nuoperandi_reset") === "true") { await supabase.from("projects").delete().eq("owner_id", supaUser.id); await supabase.from("weekly_tasks").delete().eq("owner_id", supaUser.id); await supabase.from("time_blocks").delete().eq("owner_id", supaUser.id); await supabase.from("daily_tasks").delete().eq("owner_id", supaUser.id); localStorage.removeItem("nuoperandi_reset"); Object.keys(localStorage).filter(k => k.startsWith("nuoperandi_") || k.startsWith("nuop_")).forEach(k => localStorage.removeItem(k)); setProjects([]); cloudDataLoaded = true; return; }
+      setProjects(mapped);     }
 
         const { data: cloudWeekly } = await supabase.from('weekly_tasks').select('*');
-        if (cloudWeekly && cloudWeekly.length > 0) {
+        if (cloudWeekly) {
           const mapped = cloudWeekly.filter(Boolean).map(tk => ({ id: tk.local_id, task: tk.task_text, projectId: tk.project_local_id, subtasks: tk.subtasks || [], deadline: tk.deadline, delegatedTo: tk.delegated_to, thisWeek: !!tk.this_week }));
           setWeeklyPlan(mapped);
           const comp = {};
@@ -1710,10 +1712,11 @@ const NuOperandi = () => {
         }
 
         const { data: cloudSettings } = await supabase.from('user_settings').select('*');
-        if (cloudSettings && cloudSettings.length > 0 && cloudSettings[0].profile_data) {
+        if (cloudSettings && cloudSettings[0].profile_data) {
           setUserProfile(cloudSettings[0].profile_data);
         }
 
+      cloudDataLoaded = true;
       } catch(err) { console.log('Cloud load error:', err); }
     };
     loadFromCloud();
@@ -1723,7 +1726,8 @@ const NuOperandi = () => {
   /* -- Supabase Sync: Projects & Tasks to Cloud -- */
     useEffect(() => {
       if (!supaUser) return;
-      const timer = setTimeout(async () => {
+      if (!cloudDataLoaded) return;
+    const timer = setTimeout(async () => {
         try {
           const teamMap = {};
           weeklyPlan.forEach(tk => {
@@ -1777,6 +1781,7 @@ const NuOperandi = () => {
   /* -- Supabase Sync: Income Streams -- */
   useEffect(() => {
     if (!supaUser) return;
+    if (!cloudDataLoaded) return;
     const timer = setTimeout(async () => {
       try {
         await supabase.from('income_streams').delete().eq('owner_id', supaUser.id);
@@ -1795,6 +1800,7 @@ const NuOperandi = () => {
   /* -- Supabase Sync: Expenses -- */
   useEffect(() => {
     if (!supaUser) return;
+    if (!cloudDataLoaded) return;
     const timer = setTimeout(async () => {
       try {
         await supabase.from('expenses').delete().eq('owner_id', supaUser.id);
@@ -1814,6 +1820,7 @@ const NuOperandi = () => {
   /* -- Supabase Sync: Daily Tasks -- */
   useEffect(() => {
     if (!supaUser) return;
+    if (!cloudDataLoaded) return;
     const timer = setTimeout(async () => {
       try {
         await supabase.from('daily_tasks').delete().eq('owner_id', supaUser.id);
@@ -1834,6 +1841,7 @@ const NuOperandi = () => {
   /* -- Supabase Sync: Time Blocks -- */
   useEffect(() => {
     if (!supaUser) return;
+    if (!cloudDataLoaded) return;
     const timer = setTimeout(async () => {
       try {
         await supabase.from('time_blocks').delete().eq('owner_id', supaUser.id);
@@ -1851,6 +1859,7 @@ const NuOperandi = () => {
   /* -- Supabase Sync: Ideas -- */
   useEffect(() => {
     if (!supaUser) return;
+    if (!cloudDataLoaded) return;
     const timer = setTimeout(async () => {
       try {
         await supabase.from('ideas').delete().eq('owner_id', supaUser.id);
@@ -1867,6 +1876,7 @@ const NuOperandi = () => {
   /* -- Supabase Sync: Team Members -- */
   useEffect(() => {
     if (!supaUser) return;
+    if (!cloudDataLoaded) return;
     const timer = setTimeout(async () => {
       try {
         await supabase.from('team_members').delete().eq('owner_id', supaUser.id);
@@ -1886,6 +1896,7 @@ const NuOperandi = () => {
   /* -- Supabase Sync: Task History -- */
   useEffect(() => {
     if (!supaUser) return;
+    if (!cloudDataLoaded) return;
     const timer = setTimeout(async () => {
       try {
         await supabase.from('task_history').delete().eq('owner_id', supaUser.id);
@@ -1901,6 +1912,7 @@ const NuOperandi = () => {
   /* -- Supabase Sync: User Settings -- */
   useEffect(() => {
     if (!supaUser) return;
+    if (!cloudDataLoaded) return;
     const timer = setTimeout(async () => {
       try {
         await supabase.from('user_settings').upsert({
@@ -2792,10 +2804,10 @@ const NuOperandi = () => {
         <div className="space-y-6 max-w-6xl">
             {showBriefing && (
               <div className="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl p-5 text-white relative overflow-hidden">
-                <button onClick={() => setShowBriefing(false)} className="absolute top-3 right-3 text-white/60 hover:text-white text-lg">×</button>
+                <button onClick={() => setShowBriefing(false)} className="absolute top-3 right-3 text-white/60 hover:text-white text-lg">Ã</button>
                 <div className="relative z-10">
                   <p className="text-violet-200 text-xs font-medium uppercase tracking-wider mb-1">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
-                  <h2 className="text-xl font-bold mb-4">Good morning{userProfile && userProfile.full_name ? ', ' + userProfile.full_name.split(' ')[0] : ''} ☕</h2>
+                  <h2 className="text-xl font-bold mb-4">Good morning{userProfile && userProfile.full_name ? ', ' + userProfile.full_name.split(' ')[0] : ''} â</h2>
                   <div className="grid grid-cols-4 gap-3">
                     <div className="bg-white/15 backdrop-blur rounded-xl p-3 text-center">
                       <p className="text-2xl font-bold">{pendingTasks.length}</p>
@@ -3144,7 +3156,7 @@ const NuOperandi = () => {
                 <div className="w-1 h-8 rounded-full bg-blue-400"></div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-blue-700 truncate">{m.title}</p>
-                  <p className="text-xs text-gray-400">{m.startTime} - {m.endTime}{m.attendees && m.attendees.length > 0 ? ' · ' + m.attendees.map(a => a.full_name || a.username).join(', ') : ''}</p>
+                  <p className="text-xs text-gray-400">{m.startTime} - {m.endTime}{m.attendees && m.attendees.length > 0 ? ' Â· ' + m.attendees.map(a => a.full_name || a.username).join(', ') : ''}</p>
                 </div>
               </div>
             ))}
@@ -3237,7 +3249,7 @@ const NuOperandi = () => {
             return map;
         }, [expenses]);
 
-        const catIcons = { 'Salary': '💰', 'Rent': '🏠', 'Operations': '&₦️', 'Marketing': '📣', 'Software': '💻', 'Transport': '🚗', 'Utilities': '&₦', 'Tax': '📋', 'Other': '📌' };
+        const catIcons = { 'Salary': 'ð°', 'Rent': 'ð ', 'Operations': '&â¦ï¸', 'Marketing': 'ð£', 'Software': 'ð»', 'Transport': 'ð', 'Utilities': '&â¦', 'Tax': 'ð', 'Other': 'ð' };
 
         return (
         <div className="space-y-8 max-w-6xl">
@@ -3399,7 +3411,7 @@ const NuOperandi = () => {
                                 <div key={e.id} className={'bg-white rounded-xl border px-5 py-4 card-shadow card-shadow-hover transition-all ' + (daysUntilDue !== null && daysUntilDue < 0 ? 'border-red-200' : daysUntilDue !== null && daysUntilDue <= 3 ? 'border-amber-200' : 'border-gray-100')}>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                                            <span className="text-lg flex-shrink-0" role="img">{catIcons[e.category] || '📌'}</span>
+                                            <span className="text-lg flex-shrink-0" role="img">{catIcons[e.category] || 'ð'}</span>
                                             <div className="min-w-0">
                                                 <p className="text-sm font-medium text-gray-900">{e.name}</p>
                                                 <div className="flex gap-2 mt-0.5 flex-wrap">
@@ -3739,7 +3751,7 @@ const NuOperandi = () => {
             <div className="flex items-center gap-4">
               <div className="relative">
                 {employeeOfMonth.avatar_url ? <img src={employeeOfMonth.avatar_url} className="w-20 h-20 rounded-full object-cover border-4 border-amber-300 shadow-lg" /> : <div className="w-20 h-20 rounded-full bg-amber-200 flex items-center justify-center text-2xl font-bold text-amber-700 border-4 border-amber-300">{employeeOfMonth.initials}</div>}
-                <span className="absolute -top-2 -right-2 text-2xl">👑</span>
+                <span className="absolute -top-2 -right-2 text-2xl">ð</span>
               </div>
               <div>
                 <p className="text-xs text-amber-600 font-semibold uppercase tracking-wider mb-1">Employee of the Month</p>
@@ -3785,7 +3797,7 @@ const NuOperandi = () => {
                       {m.avatar_url ? <img src={m.avatar_url} className="w-8 h-8 rounded-full object-cover" /> : <div className="w-8 h-8 rounded-full bg-violet-50 flex items-center justify-center text-violet-700 font-semibold text-sm">{m.name.charAt(0).toUpperCase()}</div>}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{m.name}</p>
-                        <p className="text-xs text-gray-400">{m.assigned} assigned · {m.completed} completed</p>
+                        <p className="text-xs text-gray-400">{m.assigned} assigned Â· {m.completed} completed</p>
                       </div>
                       <span className="text-sm font-bold text-gray-700">{m.completionRate}%</span>
                     </div>
