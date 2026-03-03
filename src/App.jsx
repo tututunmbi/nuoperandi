@@ -1631,6 +1631,9 @@ const NuOperandi = () => {
     const [taskHistory, setTaskHistory] = useState(() => load('taskHistory', []));
     const [stateLoaded, setStateLoaded] = useState(false);
   const [clockInTime, setClockInTime] = useState(load('clockInTime', null));
+  const [todayClockLogs, setTodayClockLogs] = useState([]);
+  const [currentClockLog, setCurrentClockLog] = useState(null);
+  const [clockElapsed, setClockElapsed] = useState('');
   const [clockElapsed, setClockElapsed] = useState('');
   useEffect(() => {
     if (!clockInTime) { setClockElapsed(''); return; }
@@ -1641,13 +1644,95 @@ const NuOperandi = () => {
     const iv = setInterval(tick, 60000);
     return () => clearInterval(iv);
   }, [clockInTime]);
-  const handleClockIn = () => { const now = Date.now(); setClockInTime(now); save('clockInTime', now); };
-  const handleClockOut = () => { setClockInTime(null); save('clockInTime', null); };
+  const fetchClockLogs = async () => {
+    if (!supaUser) return;
+    const today = new Date().toISOString().split('T')[0];
+    const { data } = await supabase.from('clock_logs').select('*').eq('date', today).order('clock_in', { ascending: true });
+    if (data) {
+      setTodayClockLogs(data);
+      const myOpen = data.find(d => d.user_id === supaUser.id && !d.clock_out);
+      if (myOpen) { setCurrentClockLog(myOpen); setClockInTime(new Date(myOpen.clock_in).getTime()); }
+      else { setCurrentClockLog(null); }
+    }
+  };
+
+  const handleClockIn = async () => {
+    if (!supaUser) return;
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    const { data, error } = await supabase.from('clock_logs').insert({
+      user_id: supaUser.id, clock_in: now.toISOString(), source: 'manual', date: today
+    }).select().single();
+    if (data && !error) {
+      setClockInTime(now.getTime()); setCurrentClockLog(data); save('clockInTime', now.getTime()); fetchClockLogs();
+    }
+  };
+  const handleClockOut = async () => {
+    if (!supaUser || !currentClockLog) return;
+    const now = new Date();
+    const { error } = await supabase.from('clock_logs').update({ clock_out: now.toISOString() }).eq('id', currentClockLog.id);
+    if (!error) {
+      setClockInTime(null); setCurrentClockLog(null); setClockElapsed(''); save('clockInTime', null); fetchClockLogs();
+    }
+  };
 
     // Load persisted state from localStorage
     useEffect(() => {
       try {
-        const wp = localStorage.getItem('nuop_weeklyPlan');
+        // Clock system effects
+  useEffect(() => {
+    if (supaUser) {
+      fetchClockLogs();
+      const pending = localStorage.getItem('nuop_pendingClockOut');
+      if (pending) {
+        try { const p = JSON.parse(pending); supabase.from('clock_logs').update({ clock_out: p.time }).eq('id', p.id).then(() => fetchClockLogs()); } catch(e) {}
+        localStorage.removeItem('nuop_pendingClockOut');
+      }
+    }
+  }, [supaUser]);
+
+  useEffect(() => {
+    if (!clockInTime) { setClockElapsed(''); return; }
+    const tick = () => {
+      const diff = Date.now() - clockInTime;
+      const hrs = Math.floor(diff / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      setClockElapsed(hrs > 0 ? hrs + 'h ' + mins + 'm' : mins + 'm ' + secs + 's');
+    };
+    tick();
+    const iv = setInterval(tick, 1000);
+    return () => clearInterval(iv);
+  }, [clockInTime]);
+
+  useEffect(() => {
+    if (!supaUser) return;
+    const handleVisChange = async () => {
+      if (document.visibilityState === 'hidden' && currentClockLog && currentClockLog.source === 'auto') {
+        await supabase.from('clock_logs').update({ clock_out: new Date().toISOString() }).eq('id', currentClockLog.id);
+      }
+      if (document.visibilityState === 'visible') {
+        fetchClockLogs();
+        const today = new Date().toISOString().split('T')[0];
+        const { data } = await supabase.from('clock_logs').select('*').eq('user_id', supaUser.id).eq('date', today).is('clock_out', null);
+        if (!data || data.length === 0) {
+          const now = new Date();
+          const { data: newLog } = await supabase.from('clock_logs').insert({ user_id: supaUser.id, clock_in: now.toISOString(), source: 'auto', date: today }).select().single();
+          if (newLog) { setCurrentClockLog(newLog); setClockInTime(now.getTime()); save('clockInTime', now.getTime()); }
+        }
+      }
+    };
+    const handleBeforeUnload = () => {
+      if (currentClockLog && currentClockLog.source === 'auto') {
+        localStorage.setItem('nuop_pendingClockOut', JSON.stringify({ id: currentClockLog.id, time: new Date().toISOString() }));
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => { document.removeEventListener('visibilitychange', handleVisChange); window.removeEventListener('beforeunload', handleBeforeUnload); };
+  }, [supaUser, currentClockLog]);
+
+  const wp = localStorage.getItem('nuop_weeklyPlan');
         const th = localStorage.getItem('nuop_taskHistory');
         const qt = localStorage.getItem('nuop_quickTasks');
         if (wp) setWeeklyPlan(JSON.parse(wp));
