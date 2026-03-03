@@ -3780,7 +3780,7 @@ const handleClockIn = async () => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Departments</h2>
-            <p className="text-sm text-gray-500">Manage your organization\'s departments and teams</p>
+            <p className="text-sm text-gray-500">Manage your organization's departments and teams</p>
           </div>
           <button onClick={() => { setDeptFormData({name:'', description:'', color:'#7C3AED', head_username:''}); setModal('createDepartment'); }} className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 text-sm font-medium">
             {I.plus('#FFFFFF')} New Department
