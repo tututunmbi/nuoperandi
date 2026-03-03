@@ -1756,7 +1756,7 @@ const NuOperandi = () => {
           setTaskHistory(mapped);
         }
 
-        const { data: cloudProjects } = await supabase.from('projects').select('*');
+        const { data: cloudProjects } = await supabase.from('projects').select('*').eq('owner_id', supaUser.id);
         if (cloudProjects) {
           const mapped = cloudProjects.filter(Boolean).map(p => ({ id: p.local_id, name: p.name, desc: p.description, progress: p.progress, status: p.status, start: p.start_date, launch: p.launch_date, team: p.team_size, next: p.next_step, teamMembers: p.team_members || [] }));
           if (localStorage.getItem("nuoperandi_reset") === "true") { await supabase.from("projects").delete().eq("owner_id", supaUser.id); await supabase.from("weekly_tasks").delete().eq("owner_id", supaUser.id); await supabase.from("time_blocks").delete().eq("owner_id", supaUser.id); await supabase.from("daily_tasks").delete().eq("owner_id", supaUser.id); localStorage.removeItem("nuoperandi_reset"); Object.keys(localStorage).filter(k => k.startsWith("nuoperandi_") || k.startsWith("nuop_")).forEach(k => localStorage.removeItem(k)); setProjects([]); cloudDataLoaded = true; return; }
@@ -3967,7 +3967,7 @@ const NuOperandi = () => {
       if (!supaUser) return;
       const fetchCloud = async () => {
         try {
-          const { data: sp } = await supabase.from('projects').select('*');
+          const { data: sp } = await supabase.from('projects').select('*').eq('owner_id', supaUser.id);
           const { data: st } = await supabase.from('weekly_tasks').select('*');
           if (sp) setCloudProjects(sp);
           if (st) setCloudTasks(st);
