@@ -1634,7 +1634,6 @@ const NuOperandi = () => {
   const [todayClockLogs, setTodayClockLogs] = useState([]);
   const [currentClockLog, setCurrentClockLog] = useState(null);
   const [clockElapsed, setClockElapsed] = useState('');
-  const [clockElapsed, setClockElapsed] = useState('');
   useEffect(() => {
     if (!clockInTime) { setClockElapsed(''); return; }
     const cit = Number(clockInTime);
@@ -3910,8 +3909,8 @@ const NuOperandi = () => {
             {topContributor && <p className="text-xs text-gray-400">{topContributor.completed} completed</p>}</div>
           <div className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow">
                 <div className="flex items-center gap-2 mb-2">{I.zap("#EF4444")}<p className="text-xs font-medium text-gray-500">Inactive Members</p></div>
-                <p className="text-2xl font-bold text-gray-900">{(() => { const inactive = leaderboard.filter(m => m.completed === 0 || (m.assigned > 0 && m.completed / m.assigned < 0.2)); return inactive.length; })()}</p>
-                <p className="text-xs text-gray-400">{(() => { const inactive = leaderboard.filter(m => m.completed === 0 || (m.assigned > 0 && m.completed / m.assigned < 0.2)); return inactive.length > 0 ? inactive.slice(0, 2).map(m => m.name.split(' ')[0]).join(', ') + (inactive.length > 2 ? ' +' + (inactive.length - 2) : '') : 'All members active'; })()}</p>
+                <p className="text-2xl font-bold text-gray-900">{(() => { const inactive = memberList.filter(m => m.completed === 0 || (m.assigned > 0 && m.completed / m.assigned < 0.2)); return inactive.length; })()}</p>
+                <p className="text-xs text-gray-400">{(() => { const inactive = memberList.filter(m => m.completed === 0 || (m.assigned > 0 && m.completed / m.assigned < 0.2)); return inactive.length > 0 ? inactive.slice(0, 2).map(m => m.name.split(' ')[0]).join(', ') + (inactive.length > 2 ? ' +' + (inactive.length - 2) : '') : 'All members active'; })()}</p>
               </div>
           <div className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow">
             <div className="flex items-center gap-2 mb-2">{I.check("#10B981")}<p className="text-xs text-gray-500">Avg Completion Rate</p></div>
