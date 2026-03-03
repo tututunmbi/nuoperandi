@@ -3723,6 +3723,30 @@ const NuOperandi = () => {
 
     const [leaderboardProject, setLeaderboardProject] = useState('all');
     const [eomDismissed, setEomDismissed] = useState(false);
+  const [boardroomLogs, setBoardroomLogs] = useState([]);
+  const [inactiveMembers, setInactiveMembers] = useState([]);
+
+  useEffect(() => {
+    const fetchBoardroomData = async () => {
+      if (!supaUser) return;
+      // Fetch today's clock logs for attendance
+      const today = new Date().toISOString().split('T')[0];
+      const { data: logs } = await supabase.from('clock_logs').select('*').eq('date', today).order('clock_in', { ascending: true });
+      if (logs) {
+        // Enrich logs with user names from profiles
+        const userIds = [...new Set(logs.map(l => l.user_id))];
+        const { data: profiles } = await supabase.from('profiles').select('id, full_name').in('id', userIds);
+        const profileMap = {};
+        (profiles || []).forEach(p => { profileMap[p.id] = p.full_name; });
+        const enriched = logs.map(l => ({ ...l, username: profileMap[l.user_id] || 'Team Member' }));
+        setBoardroomLogs(enriched);
+      }
+
+      // Calculate inactive members: no tasks completed in 7 days + low completion rate
+      // We'll derive this from existing task data
+    };
+    fetchBoardroomData();
+  }, [supaUser]);
 
     const eomNow = new Date();
     const monthStart = new Date(eomNow.getFullYear(), eomNow.getMonth(), 1).toISOString();
@@ -3885,9 +3909,10 @@ const NuOperandi = () => {
             <p className="text-lg font-bold text-gray-900 truncate">{topContributor ? topContributor.name : '-'}</p>
             {topContributor && <p className="text-xs text-gray-400">{topContributor.completed} completed</p>}</div>
           <div className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow">
-            <div className="flex items-center gap-2 mb-2">{I.clipboard("#3B82F6")}<p className="text-xs text-gray-500">Total Delegated</p></div>
-            <p className="text-2xl font-bold text-gray-900">{totalAssigned}</p>
-            <p className="text-xs text-gray-400">{totalPending} pending, {totalAccepted} accepted, {totalCompleted} done</p></div>
+                <div className="flex items-center gap-2 mb-2">{I.zap("#EF4444")}<p className="text-xs font-medium text-gray-500">Inactive Members</p></div>
+                <p className="text-2xl font-bold text-gray-900">{(() => { const inactive = leaderboard.filter(m => m.completed === 0 || (m.assigned > 0 && m.completed / m.assigned < 0.2)); return inactive.length; })()}</p>
+                <p className="text-xs text-gray-400">{(() => { const inactive = leaderboard.filter(m => m.completed === 0 || (m.assigned > 0 && m.completed / m.assigned < 0.2)); return inactive.length > 0 ? inactive.slice(0, 2).map(m => m.name.split(' ')[0]).join(', ') + (inactive.length > 2 ? ' +' + (inactive.length - 2) : '') : 'All members active'; })()}</p>
+              </div>
           <div className="bg-white rounded-xl border border-violet-100/60 p-4 card-shadow">
             <div className="flex items-center gap-2 mb-2">{I.check("#10B981")}<p className="text-xs text-gray-500">Avg Completion Rate</p></div>
             <p className="text-2xl font-bold text-gray-900">{avgRate}%</p></div>
@@ -3925,7 +3950,41 @@ const NuOperandi = () => {
         )}
 
         <div className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+{/* Daily Attendance Log */}
+            <div className="bg-white rounded-xl border border-violet-100/60 p-6 card-shadow mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">{I.clock("#7C3AED")} Daily Attendance Log</h3>
+                <span className="text-xs text-gray-400">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
+              </div>
+              {boardroomLogs.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-4">No attendance records for today</p>
+              ) : (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-4 text-xs font-medium text-gray-400 pb-2 border-b border-gray-100">
+                    <span>Team Member</span><span>Clock In</span><span>Clock Out</span><span>Hours</span>
+                  </div>
+                  {boardroomLogs.map((log, i) => {
+                    const clockIn = new Date(log.clock_in);
+                    const clockOut = log.clock_out ? new Date(log.clock_out) : null;
+                    const hours = clockOut ? ((clockOut - clockIn) / 3600000).toFixed(1) : 'Active';
+                    const username = log.username || 'Team Member';
+                    return (
+                      <div key={log.id || i} className="grid grid-cols-4 text-sm py-2 border-b border-gray-50 items-center">
+                        <span className="font-medium text-gray-700 flex items-center gap-2">
+                          <span className={"w-2 h-2 rounded-full " + (clockOut ? "bg-gray-300" : "bg-green-500")}></span>
+                          {username}
+                        </span>
+                        <span className="text-gray-500">{clockIn.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span className="text-gray-500">{clockOut ? clockOut.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : <span className="text-green-500 font-medium">Active</span>}</span>
+                        <span className={"font-medium " + (clockOut ? "text-gray-700" : "text-green-600")}>{hours}{typeof hours === 'string' ? '' : 'h'}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+                      <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-base font-semibold text-gray-900">Project Leaderboard</h2>
             <select value={leaderboardProject} onChange={e => setLeaderboardProject(e.target.value)} className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 bg-white">
               <option value="all">All Members</option>
