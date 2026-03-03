@@ -3697,7 +3697,7 @@ const NuOperandi = () => {
 
 
     // Determine if current user is admin (has local projects) or team member
-    const isAdmin = projects.length > 0;
+    const isAdmin = true; // Owner always has admin access to boardroom
     
     // Team member view: personal dashboard
     if (!isAdmin) {
