@@ -3378,7 +3378,7 @@ const handleClockIn = async () => {
                 <div className="w-1 h-8 rounded-full bg-blue-400"></div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-blue-700 truncate">{m.title}</p>
-                  <p className="text-xs text-gray-400">{m.startTime} - {m.endTime}{m.attendees && m.attendees.length > 0 ? ' Â· ' + m.attendees.map(a => a.full_name || a.username).join(', ') : ''}</p>
+                  <p className="text-xs text-gray-400">{m.startTime} - {m.endTime}{m.attendees && m.attendees.length > 0 ? ' · ' + m.attendees.map(a => a.full_name || a.username).join(', ') : ''}</p>
                 </div>
               </div>
             ))}
@@ -4176,7 +4176,7 @@ const handleClockIn = async () => {
                       {m.avatar_url ? <img src={m.avatar_url} className="w-8 h-8 rounded-full object-cover" /> : <div className="w-8 h-8 rounded-full bg-violet-50 flex items-center justify-center text-violet-700 font-semibold text-sm">{m.name.charAt(0).toUpperCase()}</div>}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{m.name}</p>
-                        <p className="text-xs text-gray-400">{m.assigned} assigned Â· {m.completed} completed</p>
+                        <p className="text-xs text-gray-400">{m.assigned} assigned · {m.completed} completed</p>
                       </div>
                       <span className="text-sm font-bold text-gray-700">{m.completionRate}%</span>
                     </div>
