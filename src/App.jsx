@@ -614,7 +614,7 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
                             {selectedMembers.filter(Boolean).map(u => (
                                 <span key={u} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
                                     @{u}
-                                    <button type="button" onClick={() => removeMember(u)} className="ml-0.5 hover:text-purple-900">Ã</button>
+                                    <button type="button" onClick={() => removeMember(u)} className="ml-0.5 hover:text-purple-900">×</button>
                                 </span>
                             ))}
                         </div>
@@ -922,7 +922,7 @@ const MeetingForm = ({ onClose, setMeetings, supaUser }) => {
               {attendees.map(a => (
                 <span key={a.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-violet-100 text-violet-700 text-xs">
                   {a.full_name || a.username}
-                  <button onClick={() => removeAttendee(a.id)} className="hover:text-red-500">Ã</button>
+                  <button onClick={() => removeAttendee(a.id)} className="hover:text-red-500">×</button>
                 </span>
               ))}
             </div>
@@ -1663,7 +1663,6 @@ const NuOperandi = () => {
 
   
   const fetchDepartments = async () => {
-    if (!supaUser) return;
     const { data } = await supabase.from('departments').select('*').order('created_at', { ascending: false });
     if (data) setDepartments(data);
   };
@@ -1805,10 +1804,6 @@ const handleClockIn = async () => {
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => { document.removeEventListener('visibilitychange', handleVisChange); window.removeEventListener('beforeunload', handleBeforeUnload); };
   }, [supaUser, currentClockLog]);
-
-    useEffect(() => {
-    if (supaUser) fetchDepartments();
-  }, [supaUser]);
 
   const wp = localStorage.getItem('nuop_weeklyPlan');
         const th = localStorage.getItem('nuop_taskHistory');
@@ -2176,7 +2171,7 @@ const handleClockIn = async () => {
           console.log('NuOperandi: User signed out, cleaning up');
         }
   
-            if (session?.user) { setSupaUser(session.user); } else if (event === "SIGNED_OUT") { setSupaUser(null); }
+            if (session?.user) { setSupaUser(session.user); fetchDepartments(); } else if (event === "SIGNED_OUT") { setSupaUser(null); }
         });
         return () => subscription?.unsubscribe();
     }, []);
@@ -3031,10 +3026,10 @@ const handleClockIn = async () => {
         <div className="space-y-6 max-w-6xl">
             {showBriefing && (
               <div className="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl p-5 text-white relative overflow-hidden">
-                <button onClick={() => setShowBriefing(false)} className="absolute top-3 right-3 text-white/60 hover:text-white text-lg">Ã</button>
+                <button onClick={() => setShowBriefing(false)} className="absolute top-3 right-3 text-white/60 hover:text-white text-lg">×</button>
                 <div className="relative z-10">
                   <p className="text-violet-200 text-xs font-medium uppercase tracking-wider mb-1">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
-                  <h2 className="text-xl font-bold mb-4">Good morning{userProfile && userProfile.full_name ? ', ' + userProfile.full_name.split(' ')[0] : ''} â</h2>
+                  <h2 className="text-xl font-bold mb-4">Good morning{userProfile && userProfile.full_name ? ', ' + userProfile.full_name.split(' ')[0] : ''} ☕</h2>
                   <div className="grid grid-cols-4 gap-3">
                     <div className="bg-white/15 backdrop-blur rounded-xl p-3 text-center">
                       <p className="text-2xl font-bold">{pendingTasks.length}</p>
