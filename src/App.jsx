@@ -510,7 +510,7 @@ const DelegateLaunchpad = ({ supabase, supaUser, userProfile, onDelegate, I }) =
 };
 
 
-const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser, weeklyPlan, quickTasks }) => {
+const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser, weeklyPlan, quickTasks, departments }) => {
     const [name, setName] = useState(item ? item.name : '');
     const [desc, setDesc] = useState(item ? item.desc : '');
     const [status, setStatus] = useState(item ? item.status : 'Planning');
@@ -518,6 +518,7 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
     const [team, setTeam] = useState(item ? String(item.team) : '1');
     const [next, setNext] = useState(item ? item.next : '');
     const [selectedMembers, setSelectedMembers] = useState(item && item.teamMembers ? item.teamMembers : []);
+    const [departmentId, setDepartmentId] = useState(item ? (item.department_id || '') : '');
     const [memberSearch, setMemberSearch] = useState('');
     const [memberSuggestions, setMemberSuggestions] = useState([]);
     const searchMembers = async (q) => {
@@ -532,7 +533,7 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
     const submit = () => {
         if (!name) return;
         if (item) {
-            setProjects(prev => prev.filter(Boolean).map(p => p.id === item.id ? { ...p, name, desc, status, launch, team: Number(team), next, teamMembers: selectedMembers } : p));
+            setProjects(prev => prev.filter(Boolean).map(p => p.id === item.id ? { ...p, name, desc, status, launch, team: Number(team), next, teamMembers: selectedMembers, department_id: departmentId || null } : p));
       // Sync tagged members and project snapshot to Supabase
       (async () => {
             try {
@@ -560,7 +561,7 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
             } catch (err) { console.error('sync error:', err); }
           })();
         } else {
-            setProjects(prev => [...prev, { id: newId(), name, desc, progress: 0, status, start: new Date().toISOString().split('T')[0], launch, team: Number(team), next, teamMembers: selectedMembers }]);
+            setProjects(prev => [...prev, { id: newId(), name, desc, progress: 0, status, start: new Date().toISOString().split('T')[0], launch, team: Number(team), next, teamMembers: selectedMembers, department_id: departmentId || null }]);
       // Sync new project members
       const newProjId = projects.length > 0 ? Math.max(...projects.filter(Boolean).map(p => p.id)) + 1 : 1;
       (async () => {
@@ -603,6 +604,7 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
                         <option value="Planning">Planning</option><option value="In Progress">In Progress</option><option value="Launch Ready">Launch Ready</option><option value="Completed">Completed</option>
                     </select>
                 </Field>
+                <Field label="Department"><select className={inputCls} value={departmentId} onChange={e => setDepartmentId(e.target.value)}><option value="">No Department</option>{departments && departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select></Field>
                 <Field label="Team Size"><input className={inputCls} type="number" min="1" value={team} onChange={e => setTeam(e.target.value)} /></Field>
             </div>
             <Field label="Team Members">
@@ -1805,10 +1807,8 @@ const handleClockIn = async () => {
   }, [supaUser, currentClockLog]);
 
     useEffect(() => {
-    if (activeModule === 'departments') {
-      fetchDepartments();
-    }
-  }, [activeModule, supaUser]);
+    if (supaUser) fetchDepartments();
+  }, [supaUser]);
 
   const wp = localStorage.getItem('nuop_weeklyPlan');
         const th = localStorage.getItem('nuop_taskHistory');
@@ -1921,7 +1921,7 @@ const handleClockIn = async () => {
 
         const { data: cloudProjects } = await supabase.from('projects').select('*').eq('owner_id', supaUser.id);
         if (cloudProjects) {
-          const mapped = cloudProjects.filter(Boolean).map(p => ({ id: p.local_id, name: p.name, desc: p.description, progress: p.progress, status: p.status, start: p.start_date, launch: p.launch_date, team: p.team_size, next: p.next_step, teamMembers: p.team_members || [] }));
+          const mapped = cloudProjects.filter(Boolean).map(p => ({ id: p.local_id, name: p.name, desc: p.description, progress: p.progress, status: p.status, start: p.start_date, launch: p.launch_date, team: p.team_size, next: p.next_step, teamMembers: p.team_members || [], department_id: p.department_id || null }));
           if (localStorage.getItem("nuoperandi_reset") === "true") { await supabase.from("projects").delete().eq("owner_id", supaUser.id); await supabase.from("weekly_tasks").delete().eq("owner_id", supaUser.id); await supabase.from("time_blocks").delete().eq("owner_id", supaUser.id); await supabase.from("daily_tasks").delete().eq("owner_id", supaUser.id); localStorage.removeItem("nuoperandi_reset"); Object.keys(localStorage).filter(k => k.startsWith("nuoperandi_") || k.startsWith("nuop_")).forEach(k => localStorage.removeItem(k)); setProjects([]); cloudDataLoaded = true; return; }
       setProjects(mapped);     }
 
@@ -1971,7 +1971,8 @@ const handleClockIn = async () => {
             launch_date: p.launch || null,
             team_size: typeof p.team === 'number' ? p.team : 0,
             team_members: Array.from(new Set([...(p.teamMembers || []), ...(teamMap[p.id] ? Array.from(teamMap[p.id]) : [])])),
-            next_step: p.next || ''
+            next_step: p.next || '',
+            department_id: p.department_id || null
           }));
           if (rows.length > 0) { await supabase.from('projects').upsert(rows, { onConflict: 'owner_id,local_id' });  }
         } catch(err) { console.log('Project sync error:', err); }
@@ -5046,8 +5047,8 @@ const handleClockIn = async () => {
             {modal === 'addMenu' && <AddMenu onClose={() => setModal(null)} activeModule={activeModule} setModal={setModal} />}
             {modal === 'addIncome' && <IncomeForm setIncomeStreams={setIncomeStreams} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'editIncome' && <IncomeForm item={editItem} setIncomeStreams={setIncomeStreams} onClose={() => { setModal(null); setEditItem(null); }} />}
-            {modal === 'addProject' && <ProjectForm setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }}  supaUser={supaUser} weeklyPlan={weeklyPlan} quickTasks={quickTasks}/>}
-            {modal === 'editProject' && <ProjectForm item={editItem} setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }}  supaUser={supaUser} weeklyPlan={weeklyPlan} quickTasks={quickTasks}/>}
+            {modal === 'addProject' && <ProjectForm departments={departments} setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }}  supaUser={supaUser} weeklyPlan={weeklyPlan} quickTasks={quickTasks}/>}
+            {modal === 'editProject' && <ProjectForm departments={departments} item={editItem} setProjects={setProjects} getProjectProgress={getProjectProgress} onClose={() => { setModal(null); setEditItem(null); }}  supaUser={supaUser} weeklyPlan={weeklyPlan} quickTasks={quickTasks}/>}
             {acceptingTask && <AcceptTaskModal task={acceptingTask} onChooseDaily={acceptToDaily} onChooseWeekly={acceptToWeekly} onCancel={() => setAcceptingTask(null)}             />}
       {modal === 'addGoal' && <GoalForm setWeeklyPlan={setWeeklyPlan} activeProjects={activeProjects} team={teamMembers} supaUser={supaUser} onClose={() => { setModal(null); setEditItem(null); }} />}
       {modal === 'requestMeeting' && <MeetingForm setMeetings={setMeetings} supaUser={supaUser} onClose={() => { setModal(null); }} />}
