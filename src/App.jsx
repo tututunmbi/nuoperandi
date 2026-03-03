@@ -335,7 +335,7 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
                         <option value="Active">Active</option><option value="Passive">Passive</option>
                     </select>
                 </Field>
-                <Field label="Monthly Amount ( ₦)"><input className={inputCls} value={monthly} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setMonthly(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setMonthly(parts.join('.')); }} placeholder="e.g. 1,000,000" type="text" inputMode="numeric" /></Field>
+                <Field label="Monthly Amount ( â¦)"><input className={inputCls} value={monthly} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setMonthly(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setMonthly(parts.join('.')); }} placeholder="e.g. 1,000,000" type="text" inputMode="numeric" /></Field>
             </div>
             <div className="grid grid-cols-2 gap-3">
                 <Field label="Next Payment Due"><input className={inputCls} type="date" value={nextPayment} onChange={e => setNextPayment(e.target.value)} /></Field>
@@ -404,12 +404,12 @@ const AcceptTaskModal = ({ task, onChooseDaily, onChooseWeekly, onCancel }) => {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <button onClick={() => onChooseDaily(task)} className={"flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition hover:shadow-md " + (task.task_type === "quick" ? "border-blue-400 bg-violet-50" : "border-gray-200 hover:border-blue-300")}>
-              <span className="text-2xl">📋</span>
+              <span className="text-2xl">ð</span>
               <span className="text-sm font-medium text-gray-900">Daily Tasks</span>
               <span className="text-xs text-gray-500">Add to today's plan</span>
             </button>
             <button onClick={() => onChooseWeekly(task)} className={"flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition hover:shadow-md " + (task.task_type === "weekly" ? "border-blue-400 bg-violet-50" : "border-gray-200 hover:border-blue-300")}>
-              <span className="text-2xl">📅</span>
+              <span className="text-2xl">ð</span>
               <span className="text-sm font-medium text-gray-900">Weekly Plan</span>
               <span className="text-xs text-gray-500">Add to this week</span>
             </button>
@@ -473,7 +473,7 @@ const DelegateLaunchpad = ({ supabase, supaUser, userProfile, onDelegate, I }) =
   return (
     <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-purple-50 via-blue-50 to-indigo-50 border border-purple-100">
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-lg">🚀</span>
+        <span className="text-lg">ð</span>
         <h3 className="text-sm font-semibold text-purple-900">Delegate Launchpad</h3>
         {sent && <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-600 animate-pulse">Launched!</span>}
       </div>
@@ -503,7 +503,7 @@ const DelegateLaunchpad = ({ supabase, supaUser, userProfile, onDelegate, I }) =
         {taskType === "weekly" && <input type="date" value={deadline} onChange={e => setDeadline(e.target.value)} className="ml-auto text-xs border border-gray-200 rounded-lg px-2 py-1" />}
       </div>
       <button onClick={launch} disabled={!taskText.trim() || !selectedUser || sending} className={"w-full py-2.5 rounded-xl text-sm font-semibold transition " + (taskText.trim() && selectedUser && !sending ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-md" : "bg-gray-200 text-gray-400 cursor-not-allowed")}>
-        {sent ? "' Launched!" : sending ? "Launching..." : "🚀 Launch Task"}
+        {sent ? "' Launched!" : sending ? "Launching..." : "ð Launch Task"}
       </button>
     </div>
   );
@@ -612,7 +612,7 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
                             {selectedMembers.filter(Boolean).map(u => (
                                 <span key={u} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
                                     @{u}
-                                    <button type="button" onClick={() => removeMember(u)} className="ml-0.5 hover:text-purple-900">×</button>
+                                    <button type="button" onClick={() => removeMember(u)} className="ml-0.5 hover:text-purple-900">Ã</button>
                                 </span>
                             ))}
                         </div>
@@ -920,7 +920,7 @@ const MeetingForm = ({ onClose, setMeetings, supaUser }) => {
               {attendees.map(a => (
                 <span key={a.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-violet-100 text-violet-700 text-xs">
                   {a.full_name || a.username}
-                  <button onClick={() => removeAttendee(a.id)} className="hover:text-red-500">×</button>
+                  <button onClick={() => removeAttendee(a.id)} className="hover:text-red-500">Ã</button>
                 </span>
               ))}
             </div>
@@ -1484,7 +1484,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
         <Modal title={item ? 'Edit Expense' : 'Add Expense'} onClose={onClose}>
             <Field label="Expense Name"><input className={inputCls} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Staff Salaries, Office Rent" /></Field>
             <div className="grid grid-cols-2 gap-3">
-                <Field label="Amount ( ₦)"><input className={inputCls} value={amount} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setAmount(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setAmount(parts.join('.')); }} placeholder="e.g. 200,000" type="text" inputMode="numeric" /></Field>
+                <Field label="Amount ( â¦)"><input className={inputCls} value={amount} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setAmount(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setAmount(parts.join('.')); }} placeholder="e.g. 200,000" type="text" inputMode="numeric" /></Field>
                 <Field label="Frequency">
                     <select className={inputCls} value={frequency} onChange={e => setFrequency(e.target.value)}>
                         <option value="Monthly">Monthly</option><option value="Weekly">Weekly</option><option value="Quarterly">Quarterly</option><option value="Annual">Annual</option><option value="One-time">One-time</option>
@@ -1634,6 +1634,10 @@ const NuOperandi = () => {
   const [todayClockLogs, setTodayClockLogs] = useState([]);
   const [currentClockLog, setCurrentClockLog] = useState(null);
   const [clockElapsed, setClockElapsed] = useState('');
+  const [departments, setDepartments] = useState([]);
+  const [departmentMembers, setDepartmentMembers] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const [deptFormData, setDeptFormData] = useState({name:'', description:'', color:'#7C3AED', head_username:''});
   useEffect(() => {
     if (!clockInTime) { setClockElapsed(''); return; }
     const cit = Number(clockInTime);
@@ -1655,7 +1659,76 @@ const NuOperandi = () => {
     }
   };
 
-  const handleClockIn = async () => {
+  
+  const fetchDepartments = async () => {
+    if (!supaUser) return;
+    const { data } = await supabase.from('departments').select('*').order('created_at', { ascending: false });
+    if (data) setDepartments(data);
+  };
+
+  const fetchDepartmentMembers = async (deptId) => {
+    if (!supaUser) return;
+    const { data } = await supabase.from('department_members').select('*').eq('department_id', deptId);
+    if (data) setDepartmentMembers(data);
+  };
+
+  const createDepartment = async (formData) => {
+    if (!supaUser) return;
+    const { data, error } = await supabase.from('departments').insert({
+      owner_id: supaUser.id,
+      name: formData.name,
+      description: formData.description || '',
+      color: formData.color || '#7C3AED',
+      head_username: formData.head_username || ''
+    }).select().single();
+    if (data && !error) {
+      fetchDepartments();
+      setSelectedDepartment(data);
+      setModal(null);
+    }
+  };
+
+  const updateDepartment = async (id, formData) => {
+    if (!supaUser) return;
+    const { error } = await supabase.from('departments').update({
+      name: formData.name,
+      description: formData.description || '',
+      color: formData.color || '#7C3AED',
+      head_username: formData.head_username || ''
+    }).eq('id', id);
+    if (!error) {
+      fetchDepartments();
+      setModal(null);
+    }
+  };
+
+  const deleteDepartment = async (id) => {
+    if (!supaUser) return;
+    await supabase.from('department_members').delete().eq('department_id', id);
+    const { error } = await supabase.from('departments').delete().eq('id', id);
+    if (!error) {
+      fetchDepartments();
+      setSelectedDepartment(null);
+    }
+  };
+
+  const addDeptMember = async (deptId, username, role) => {
+    if (!supaUser) return;
+    const { error } = await supabase.from('department_members').insert({
+      department_id: deptId,
+      username: username,
+      role: role || 'member'
+    });
+    if (!error) fetchDepartmentMembers(deptId);
+  };
+
+  const removeDeptMember = async (memberId, deptId) => {
+    if (!supaUser) return;
+    const { error } = await supabase.from('department_members').delete().eq('id', memberId);
+    if (!error) fetchDepartmentMembers(deptId);
+  };
+
+const handleClockIn = async () => {
     if (!supaUser) return;
     const now = new Date();
     const today = now.toISOString().split('T')[0];
@@ -1730,6 +1803,12 @@ const NuOperandi = () => {
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => { document.removeEventListener('visibilitychange', handleVisChange); window.removeEventListener('beforeunload', handleBeforeUnload); };
   }, [supaUser, currentClockLog]);
+
+    useEffect(() => {
+    if (activeModule === 'departments') {
+      fetchDepartments();
+    }
+  }, [activeModule, supaUser]);
 
   const wp = localStorage.getItem('nuop_weeklyPlan');
         const th = localStorage.getItem('nuop_taskHistory');
@@ -2717,6 +2796,7 @@ const NuOperandi = () => {
           {[
             {id:'command', icon:I.command(activeModule==='command'?'#7C3AED':'#6B7280'), label:'Command Centre'},
             {id:'income', icon:I.dollar(activeModule==='income'?'#7C3AED':'#6B7280'), label:'Income & Projects'},
+            {id:'departments', icon:I.bar(activeModule==='departments'?'#7C3AED':'#6B7280'), label:'Departments'},
             {id:'planner', icon:I.calendar(activeModule==='planner'?'#7C3AED':'#6B7280'), label:'Planner'},
             {id:'history', icon:I.history(activeModule==='history'?'#7C3AED':'#6B7280'), label:'History'},
             {id:'boardroom', icon:I.bar(activeModule==='boardroom'?'#7C3AED':'#6B7280'), label:'Boardroom'}
@@ -2950,10 +3030,10 @@ const NuOperandi = () => {
         <div className="space-y-6 max-w-6xl">
             {showBriefing && (
               <div className="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl p-5 text-white relative overflow-hidden">
-                <button onClick={() => setShowBriefing(false)} className="absolute top-3 right-3 text-white/60 hover:text-white text-lg">×</button>
+                <button onClick={() => setShowBriefing(false)} className="absolute top-3 right-3 text-white/60 hover:text-white text-lg">Ã</button>
                 <div className="relative z-10">
                   <p className="text-violet-200 text-xs font-medium uppercase tracking-wider mb-1">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
-                  <h2 className="text-xl font-bold mb-4">Good morning{userProfile && userProfile.full_name ? ', ' + userProfile.full_name.split(' ')[0] : ''} ☕</h2>
+                  <h2 className="text-xl font-bold mb-4">Good morning{userProfile && userProfile.full_name ? ', ' + userProfile.full_name.split(' ')[0] : ''} â</h2>
                   <div className="grid grid-cols-4 gap-3">
                     <div className="bg-white/15 backdrop-blur rounded-xl p-3 text-center">
                       <p className="text-2xl font-bold">{pendingTasks.length}</p>
@@ -3302,7 +3382,7 @@ const NuOperandi = () => {
                 <div className="w-1 h-8 rounded-full bg-blue-400"></div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-blue-700 truncate">{m.title}</p>
-                  <p className="text-xs text-gray-400">{m.startTime} - {m.endTime}{m.attendees && m.attendees.length > 0 ? ' · ' + m.attendees.map(a => a.full_name || a.username).join(', ') : ''}</p>
+                  <p className="text-xs text-gray-400">{m.startTime} - {m.endTime}{m.attendees && m.attendees.length > 0 ? ' Â· ' + m.attendees.map(a => a.full_name || a.username).join(', ') : ''}</p>
                 </div>
               </div>
             ))}
@@ -3395,7 +3475,7 @@ const NuOperandi = () => {
             return map;
         }, [expenses]);
 
-        const catIcons = { 'Salary': '💰', 'Rent': '🏠', 'Operations': '&₦️', 'Marketing': '📣', 'Software': '💻', 'Transport': '🚗', 'Utilities': '&₦', 'Tax': '📋', 'Other': '📌' };
+        const catIcons = { 'Salary': 'ð°', 'Rent': 'ð ', 'Operations': '&â¦ï¸', 'Marketing': 'ð£', 'Software': 'ð»', 'Transport': 'ð', 'Utilities': '&â¦', 'Tax': 'ð', 'Other': 'ð' };
 
         return (
         <div className="space-y-8 max-w-6xl">
@@ -3557,7 +3637,7 @@ const NuOperandi = () => {
                                 <div key={e.id} className={'bg-white rounded-xl border px-5 py-4 card-shadow card-shadow-hover transition-all ' + (daysUntilDue !== null && daysUntilDue < 0 ? 'border-red-200' : daysUntilDue !== null && daysUntilDue <= 3 ? 'border-amber-200' : 'border-gray-100')}>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                                            <span className="text-lg flex-shrink-0" role="img">{catIcons[e.category] || '📌'}</span>
+                                            <span className="text-lg flex-shrink-0" role="img">{catIcons[e.category] || 'ð'}</span>
                                             <div className="min-w-0">
                                                 <p className="text-sm font-medium text-gray-900">{e.name}</p>
                                                 <div className="flex gap-2 mt-0.5 flex-wrap">
@@ -3690,7 +3770,105 @@ const NuOperandi = () => {
         );
     };
 
-    const BoardroomModule = () => {
+    const DepartmentsModule = () => {
+    const colors = ['#7C3AED','#2563EB','#059669','#DC2626','#D97706','#EC4899','#8B5CF6','#0891B2'];
+    const [addMemberName, setAddMemberName] = useState('');
+    const [addMemberRole, setAddMemberRole] = useState('member');
+    
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Departments</h2>
+            <p className="text-sm text-gray-500">Manage your organization\'s departments and teams</p>
+          </div>
+          <button onClick={() => { setDeptFormData({name:'', description:'', color:'#7C3AED', head_username:''}); setModal('createDepartment'); }} className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 text-sm font-medium">
+            {I.plus('#FFFFFF')} New Department
+          </button>
+        </div>
+
+        {selectedDepartment ? (
+          <div>
+            <button onClick={() => { setSelectedDepartment(null); setDepartmentMembers([]); }} className="flex items-center gap-1 text-sm text-violet-600 mb-4 hover:underline">
+              {I.arrowRight('#7C3AED')} Back to all departments
+            </button>
+            <div className="bg-white rounded-xl border border-violet-100/60 p-6 card-shadow mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 rounded-full" style={{backgroundColor: selectedDepartment.color || '#7C3AED'}}></div>
+                  <h3 className="text-xl font-bold text-gray-900">{selectedDepartment.name}</h3>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => { setDeptFormData({name: selectedDepartment.name, description: selectedDepartment.description || '', color: selectedDepartment.color || '#7C3AED', head_username: selectedDepartment.head_username || ''}); setModal('editDepartment'); }} className="px-3 py-1.5 text-xs font-medium text-violet-600 border border-violet-200 rounded-lg hover:bg-violet-50">Edit</button>
+                  <button onClick={() => { if(confirm('Delete this department?')) deleteDepartment(selectedDepartment.id); }} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50">Delete</button>
+                </div>
+              </div>
+              {selectedDepartment.description && <p className="text-sm text-gray-500 mb-3">{selectedDepartment.description}</p>}
+              {selectedDepartment.head_username && <p className="text-xs text-gray-400">Head: <span className="font-medium text-gray-600">{selectedDepartment.head_username}</span></p>}
+            </div>
+
+            <div className="bg-white rounded-xl border border-violet-100/60 p-6 card-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-lg font-semibold text-gray-900">Members ({departmentMembers.length})</h4>
+              </div>
+              <div className="flex gap-2 mb-4">
+                <input value={addMemberName} onChange={e => setAddMemberName(e.target.value)} placeholder="Username" className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm" />
+                <select value={addMemberRole} onChange={e => setAddMemberRole(e.target.value)} className="px-3 py-2 border border-gray-200 rounded-lg text-sm">
+                  <option value="member">Member</option>
+                  <option value="lead">Lead</option>
+                  <option value="manager">Manager</option>
+                </select>
+                <button onClick={() => { if(addMemberName.trim()) { addDeptMember(selectedDepartment.id, addMemberName.trim(), addMemberRole); setAddMemberName(''); } }} className="px-4 py-2 bg-violet-600 text-white rounded-lg text-sm font-medium hover:bg-violet-700">Add</button>
+              </div>
+              {departmentMembers.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-4">No members yet. Add team members above.</p>
+              ) : (
+                <div className="space-y-2">
+                  {departmentMembers.map((m, i) => (
+                    <div key={m.id || i} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-sm font-medium text-violet-700">{(m.username || '?')[0].toUpperCase()}</div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">{m.username}</p>
+                          <p className="text-xs text-gray-400">{m.role}</p>
+                        </div>
+                      </div>
+                      <button onClick={() => removeDeptMember(m.id, selectedDepartment.id)} className="text-xs text-red-500 hover:text-red-700">Remove</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div>
+            {departments.length === 0 ? (
+              <div className="bg-white rounded-xl border border-violet-100/60 p-12 card-shadow text-center">
+                <div className="mb-3">{I.bar('#D1D5DB')}</div>
+                <h3 className="text-lg font-semibold text-gray-400 mb-1">No departments yet</h3>
+                <p className="text-sm text-gray-400">Create your first department to organize your team</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {departments.map(dept => (
+                  <div key={dept.id} onClick={() => { setSelectedDepartment(dept); fetchDepartmentMembers(dept.id); }} className="bg-white rounded-xl border border-violet-100/60 p-5 card-shadow cursor-pointer hover:border-violet-300 transition-colors">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-3 h-3 rounded-full" style={{backgroundColor: dept.color || '#7C3AED'}}></div>
+                      <h3 className="text-base font-semibold text-gray-900">{dept.name}</h3>
+                    </div>
+                    {dept.description && <p className="text-sm text-gray-500 mb-2 line-clamp-2">{dept.description}</p>}
+                    {dept.head_username && <p className="text-xs text-gray-400">Head: {dept.head_username}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const BoardroomModule = () => {
     const [reminderMsg, setReminderMsg] = useState(null);
 
     const taskHistory = JSON.parse(localStorage.getItem('nuop_taskHistory') || '[]');
@@ -3922,7 +4100,7 @@ const NuOperandi = () => {
             <div className="flex items-center gap-4">
               <div className="relative">
                 {employeeOfMonth.avatar_url ? <img src={employeeOfMonth.avatar_url} className="w-20 h-20 rounded-full object-cover border-4 border-amber-300 shadow-lg" /> : <div className="w-20 h-20 rounded-full bg-amber-200 flex items-center justify-center text-2xl font-bold text-amber-700 border-4 border-amber-300">{employeeOfMonth.initials}</div>}
-                <span className="absolute -top-2 -right-2 text-2xl">👑</span>
+                <span className="absolute -top-2 -right-2 text-2xl">ð</span>
               </div>
               <div>
                 <p className="text-xs text-amber-600 font-semibold uppercase tracking-wider mb-1">Employee of the Month</p>
@@ -4002,7 +4180,7 @@ const NuOperandi = () => {
                       {m.avatar_url ? <img src={m.avatar_url} className="w-8 h-8 rounded-full object-cover" /> : <div className="w-8 h-8 rounded-full bg-violet-50 flex items-center justify-center text-violet-700 font-semibold text-sm">{m.name.charAt(0).toUpperCase()}</div>}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{m.name}</p>
-                        <p className="text-xs text-gray-400">{m.assigned} assigned · {m.completed} completed</p>
+                        <p className="text-xs text-gray-400">{m.assigned} assigned Â· {m.completed} completed</p>
                       </div>
                       <span className="text-sm font-bold text-gray-700">{m.completionRate}%</span>
                     </div>
@@ -4853,6 +5031,7 @@ const NuOperandi = () => {
                     {activeModule === 'income' && <ModuleBoundary name='income'><IncomeModule /></ModuleBoundary>}
                     {activeModule === 'planner' && <ModuleBoundary name='planner'><PlannerModule /></ModuleBoundary>}
                     {activeModule === 'history' && <ModuleBoundary name='history'><HistoryModule /></ModuleBoundary>}
+              {activeModule === 'departments' && <ModuleBoundary name='departments'><DepartmentsModule /></ModuleBoundary>}
               {activeModule === 'boardroom' && <ModuleBoundary name='boardroom'><BoardroomModule /></ModuleBoundary>}
               {activeProjectId && <ModuleBoundary name='project'><ProjectDashboard /></ModuleBoundary>}
                 </main>
@@ -4887,6 +5066,35 @@ const NuOperandi = () => {
             {modal === 'addLearning' && <LearningForm setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal && modal.startsWith('editLearning_') && <LearningForm item={editItem} idx={parseInt(modal.split('_')[1])} setLearning={setLearning} onClose={() => { setModal(null); setEditItem(null); }} />}
             {modal === 'settings' && <ProfileEditModal userProfile={userProfile} setUserProfile={setUserProfile} supaUser={supaUser} onClose={() => { setModal(null); }} />}
+            {(modal === 'createDepartment' || modal === 'editDepartment') && <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setModal(null)}>
+              <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+                <h3 className="text-lg font-bold text-white mb-4">{modal === 'createDepartment' ? 'New Department' : 'Edit Department'}</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">Department Name</label>
+                    <input type="text" value={deptFormData.name} onChange={e => setDeptFormData({...deptFormData, name: e.target.value})} className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 text-sm" placeholder="e.g. Engineering" />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">Description</label>
+                    <textarea value={deptFormData.description} onChange={e => setDeptFormData({...deptFormData, description: e.target.value})} className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 text-sm" rows={3} placeholder="What does this department do?" />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">Department Head (username)</label>
+                    <input type="text" value={deptFormData.head_username} onChange={e => setDeptFormData({...deptFormData, head_username: e.target.value})} className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 text-sm" placeholder="e.g. john_doe" />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">Color</label>
+                    <div className="flex gap-2">
+                      {['#7C3AED','#3B82F6','#10B981','#F59E0B','#EF4444','#EC4899','#8B5CF6','#06B6D4'].map(c => <button key={c} onClick={() => setDeptFormData({...deptFormData, color: c})} className={'w-8 h-8 rounded-full border-2 ' + (deptFormData.color === c ? 'border-white scale-110' : 'border-transparent')} style={{backgroundColor: c}} />)}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-3 mt-6">
+                  <button onClick={() => setModal(null)} className="flex-1 py-2 bg-gray-700 text-gray-300 rounded-lg text-sm hover:bg-gray-600">Cancel</button>
+                  <button onClick={() => { if (!deptFormData.name.trim()) return; if (modal === 'createDepartment') createDepartment(deptFormData); else updateDepartment(selectedDepartment.id, deptFormData); }} className="flex-1 py-2 bg-violet-600 text-white rounded-lg text-sm hover:bg-violet-500">{modal === 'createDepartment' ? 'Create' : 'Update'}</button>
+                </div>
+              </div>
+            </div>}
             {notificationsOpen && <NotificationsPanel notifications={notifications} onMarkRead={markNotifRead} onClose={() => setNotificationsOpen(false)} delegatedToMe={delegatedToMe} onAcceptTask={setAcceptingTask} quickTasks={quickTasks} weeklyPlan={weeklyPlan} setActiveModule={setActiveModule} setPlannerTab={setPlannerTab} />}
         </div>
     );
