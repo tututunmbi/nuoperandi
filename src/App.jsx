@@ -335,7 +335,7 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
                         <option value="Active">Active</option><option value="Passive">Passive</option>
                     </select>
                 </Field>
-                <Field label="Monthly Amount ( â¦)"><input className={inputCls} value={monthly} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setMonthly(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setMonthly(parts.join('.')); }} placeholder="e.g. 1,000,000" type="text" inputMode="numeric" /></Field>
+                <Field label="Monthly Amount ( ₦)"><input className={inputCls} value={monthly} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setMonthly(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setMonthly(parts.join('.')); }} placeholder="e.g. 1,000,000" type="text" inputMode="numeric" /></Field>
             </div>
             <div className="grid grid-cols-2 gap-3">
                 <Field label="Next Payment Due"><input className={inputCls} type="date" value={nextPayment} onChange={e => setNextPayment(e.target.value)} /></Field>
@@ -404,12 +404,12 @@ const AcceptTaskModal = ({ task, onChooseDaily, onChooseWeekly, onCancel }) => {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <button onClick={() => onChooseDaily(task)} className={"flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition hover:shadow-md " + (task.task_type === "quick" ? "border-blue-400 bg-violet-50" : "border-gray-200 hover:border-blue-300")}>
-              <span className="text-2xl">ð</span>
+              <span className="text-2xl">📋</span>
               <span className="text-sm font-medium text-gray-900">Daily Tasks</span>
               <span className="text-xs text-gray-500">Add to today's plan</span>
             </button>
             <button onClick={() => onChooseWeekly(task)} className={"flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition hover:shadow-md " + (task.task_type === "weekly" ? "border-blue-400 bg-violet-50" : "border-gray-200 hover:border-blue-300")}>
-              <span className="text-2xl">ð</span>
+              <span className="text-2xl">📅</span>
               <span className="text-sm font-medium text-gray-900">Weekly Plan</span>
               <span className="text-xs text-gray-500">Add to this week</span>
             </button>
@@ -473,7 +473,7 @@ const DelegateLaunchpad = ({ supabase, supaUser, userProfile, onDelegate, I }) =
   return (
     <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-purple-50 via-blue-50 to-indigo-50 border border-purple-100">
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-lg">ð</span>
+        <span className="text-lg">🚀</span>
         <h3 className="text-sm font-semibold text-purple-900">Delegate Launchpad</h3>
         {sent && <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-600 animate-pulse">Launched!</span>}
       </div>
@@ -503,7 +503,7 @@ const DelegateLaunchpad = ({ supabase, supaUser, userProfile, onDelegate, I }) =
         {taskType === "weekly" && <input type="date" value={deadline} onChange={e => setDeadline(e.target.value)} className="ml-auto text-xs border border-gray-200 rounded-lg px-2 py-1" />}
       </div>
       <button onClick={launch} disabled={!taskText.trim() || !selectedUser || sending} className={"w-full py-2.5 rounded-xl text-sm font-semibold transition " + (taskText.trim() && selectedUser && !sending ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-md" : "bg-gray-200 text-gray-400 cursor-not-allowed")}>
-        {sent ? "' Launched!" : sending ? "Launching..." : "ð Launch Task"}
+        {sent ? "' Launched!" : sending ? "Launching..." : "🚀 Launch Task"}
       </button>
     </div>
   );
@@ -612,7 +612,7 @@ const ProjectForm = ({ item, onClose, setProjects, getProjectProgress, supaUser,
                             {selectedMembers.filter(Boolean).map(u => (
                                 <span key={u} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
                                     @{u}
-                                    <button type="button" onClick={() => removeMember(u)} className="ml-0.5 hover:text-purple-900">Ã</button>
+                                    <button type="button" onClick={() => removeMember(u)} className="ml-0.5 hover:text-purple-900">×</button>
                                 </span>
                             ))}
                         </div>
@@ -920,7 +920,7 @@ const MeetingForm = ({ onClose, setMeetings, supaUser }) => {
               {attendees.map(a => (
                 <span key={a.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-violet-100 text-violet-700 text-xs">
                   {a.full_name || a.username}
-                  <button onClick={() => removeAttendee(a.id)} className="hover:text-red-500">Ã</button>
+                  <button onClick={() => removeAttendee(a.id)} className="hover:text-red-500">×</button>
                 </span>
               ))}
             </div>
@@ -1484,7 +1484,7 @@ const ExpenseForm = ({ item, onClose, setExpenses, incomeStreams, supaUser, user
         <Modal title={item ? 'Edit Expense' : 'Add Expense'} onClose={onClose}>
             <Field label="Expense Name"><input className={inputCls} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Staff Salaries, Office Rent" /></Field>
             <div className="grid grid-cols-2 gap-3">
-                <Field label="Amount ( â¦)"><input className={inputCls} value={amount} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setAmount(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setAmount(parts.join('.')); }} placeholder="e.g. 200,000" type="text" inputMode="numeric" /></Field>
+                <Field label="Amount ( ₦)"><input className={inputCls} value={amount} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setAmount(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setAmount(parts.join('.')); }} placeholder="e.g. 200,000" type="text" inputMode="numeric" /></Field>
                 <Field label="Frequency">
                     <select className={inputCls} value={frequency} onChange={e => setFrequency(e.target.value)}>
                         <option value="Monthly">Monthly</option><option value="Weekly">Weekly</option><option value="Quarterly">Quarterly</option><option value="Annual">Annual</option><option value="One-time">One-time</option>
@@ -2866,10 +2866,10 @@ const NuOperandi = () => {
         <div className="space-y-6 max-w-6xl">
             {showBriefing && (
               <div className="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl p-5 text-white relative overflow-hidden">
-                <button onClick={() => setShowBriefing(false)} className="absolute top-3 right-3 text-white/60 hover:text-white text-lg">Ã</button>
+                <button onClick={() => setShowBriefing(false)} className="absolute top-3 right-3 text-white/60 hover:text-white text-lg">×</button>
                 <div className="relative z-10">
                   <p className="text-violet-200 text-xs font-medium uppercase tracking-wider mb-1">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
-                  <h2 className="text-xl font-bold mb-4">Good morning{userProfile && userProfile.full_name ? ', ' + userProfile.full_name.split(' ')[0] : ''} â</h2>
+                  <h2 className="text-xl font-bold mb-4">Good morning{userProfile && userProfile.full_name ? ', ' + userProfile.full_name.split(' ')[0] : ''} ☕</h2>
                   <div className="grid grid-cols-4 gap-3">
                     <div className="bg-white/15 backdrop-blur rounded-xl p-3 text-center">
                       <p className="text-2xl font-bold">{pendingTasks.length}</p>
@@ -3218,7 +3218,7 @@ const NuOperandi = () => {
                 <div className="w-1 h-8 rounded-full bg-blue-400"></div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-blue-700 truncate">{m.title}</p>
-                  <p className="text-xs text-gray-400">{m.startTime} - {m.endTime}{m.attendees && m.attendees.length > 0 ? ' Â· ' + m.attendees.map(a => a.full_name || a.username).join(', ') : ''}</p>
+                  <p className="text-xs text-gray-400">{m.startTime} - {m.endTime}{m.attendees && m.attendees.length > 0 ? ' · ' + m.attendees.map(a => a.full_name || a.username).join(', ') : ''}</p>
                 </div>
               </div>
             ))}
@@ -3311,7 +3311,7 @@ const NuOperandi = () => {
             return map;
         }, [expenses]);
 
-        const catIcons = { 'Salary': 'ð°', 'Rent': 'ð ', 'Operations': '&â¦ï¸', 'Marketing': 'ð£', 'Software': 'ð»', 'Transport': 'ð', 'Utilities': '&â¦', 'Tax': 'ð', 'Other': 'ð' };
+        const catIcons = { 'Salary': '💰', 'Rent': '🏠', 'Operations': '&₦️', 'Marketing': '📣', 'Software': '💻', 'Transport': '🚗', 'Utilities': '&₦', 'Tax': '📋', 'Other': '📌' };
 
         return (
         <div className="space-y-8 max-w-6xl">
@@ -3473,7 +3473,7 @@ const NuOperandi = () => {
                                 <div key={e.id} className={'bg-white rounded-xl border px-5 py-4 card-shadow card-shadow-hover transition-all ' + (daysUntilDue !== null && daysUntilDue < 0 ? 'border-red-200' : daysUntilDue !== null && daysUntilDue <= 3 ? 'border-amber-200' : 'border-gray-100')}>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                                            <span className="text-lg flex-shrink-0" role="img">{catIcons[e.category] || 'ð'}</span>
+                                            <span className="text-lg flex-shrink-0" role="img">{catIcons[e.category] || '📌'}</span>
                                             <div className="min-w-0">
                                                 <p className="text-sm font-medium text-gray-900">{e.name}</p>
                                                 <div className="flex gap-2 mt-0.5 flex-wrap">
@@ -3813,7 +3813,7 @@ const NuOperandi = () => {
             <div className="flex items-center gap-4">
               <div className="relative">
                 {employeeOfMonth.avatar_url ? <img src={employeeOfMonth.avatar_url} className="w-20 h-20 rounded-full object-cover border-4 border-amber-300 shadow-lg" /> : <div className="w-20 h-20 rounded-full bg-amber-200 flex items-center justify-center text-2xl font-bold text-amber-700 border-4 border-amber-300">{employeeOfMonth.initials}</div>}
-                <span className="absolute -top-2 -right-2 text-2xl">ð</span>
+                <span className="absolute -top-2 -right-2 text-2xl">👑</span>
               </div>
               <div>
                 <p className="text-xs text-amber-600 font-semibold uppercase tracking-wider mb-1">Employee of the Month</p>
@@ -3859,7 +3859,7 @@ const NuOperandi = () => {
                       {m.avatar_url ? <img src={m.avatar_url} className="w-8 h-8 rounded-full object-cover" /> : <div className="w-8 h-8 rounded-full bg-violet-50 flex items-center justify-center text-violet-700 font-semibold text-sm">{m.name.charAt(0).toUpperCase()}</div>}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{m.name}</p>
-                        <p className="text-xs text-gray-400">{m.assigned} assigned Â· {m.completed} completed</p>
+                        <p className="text-xs text-gray-400">{m.assigned} assigned · {m.completed} completed</p>
                       </div>
                       <span className="text-sm font-bold text-gray-700">{m.completionRate}%</span>
                     </div>
