@@ -1035,7 +1035,9 @@ const AuthFlow = ({ onAuth }) => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [resetSent, setResetSent] = useState(false);
-    const [usernameStatus, setUsernameStatus] = useState('');
+    const [usernameStatus, setUsernameStatus] = useState('')
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');;
     const autoInitials = name.trim() ? name.trim().split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2) : '';
 
     const checkUsername = async (u) => {
@@ -1087,7 +1089,65 @@ const AuthFlow = ({ onAuth }) => {
       else { setResetSent(true); setError(''); }
     } catch(e) { setError('Something went wrong. Please try again.'); }
     setLoading(false);
-  };
+  }
+
+  const handleResetPassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      setError('Please fill in both password fields.');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const { error: updateErr } = await supabase.auth.updateUser({ password: newPassword });
+      if (updateErr) throw updateErr;
+      setNewPassword('');
+      setConfirmPassword('');
+      setMode('login');
+      setError('');
+      alert('Password updated successfully! Please log in with your new password.');
+    } catch (err) {
+      setError(err.message || 'Failed to update password.');
+    } finally {
+      setLoading(false);
+    }
+  };;
+  
+  if (mode === 'resetPassword') {
+    return (
+      <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-white to-gray-50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl w-full max-w-md card-shadow p-8 text-center">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">Set New Password</h2>
+            <p className="text-gray-500 mt-2">Enter your new password below</p>
+          </div>
+          {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">{error}</div>}
+          <div className="space-y-4 text-left">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+              <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Enter new password (min 6 characters)" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+              <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Confirm new password" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" />
+            </div>
+          </div>
+          <button onClick={handleResetPassword} disabled={loading} className="w-full mt-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all disabled:opacity-50">
+            {loading ? 'Updating...' : 'Update Password'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
         <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-white to-gray-50 z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl w-full max-w-md card-shadow p-8 text-center">
@@ -1943,7 +2003,9 @@ const NuOperandi = () => {
         initAuth();
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
         // Auto-refresh session to prevent blank screen on token expiry
-        if (event === 'TOKEN_REFRESHED') {
+        if (event === 'PASSWORD_RECOVERY') {
+          setMode('resetPassword');
+        } else if (event === 'TOKEN_REFRESHED') {
           console.log('NuOperandi: Session token refreshed');
         }
         if (event === 'SIGNED_OUT') {
