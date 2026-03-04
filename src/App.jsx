@@ -1876,7 +1876,7 @@ const handleClockIn = async () => {
         const { data: cloudExpenses } = await supabase.from('expenses').select('*');
         if (cloudExpenses) {
           const mapped = cloudExpenses.filter(Boolean).map(e => ({ id: e.local_id, name: e.name, amount: e.amount, category: e.category, frequency: e.frequency, linkedStreamId: e.linked_stream_id, note: e.note, dueDate: e.due_date, entries: (e.extra_data && e.extra_data.entries) || [], project_id: (e.extra_data && e.extra_data.project_id) || e.project_id || null }));
-          setExpenses(mapped);
+          setExpenses(dedupByKey(mapped,'id'));
         }
 
         const { data: cloudTasks } = await supabase.from('daily_tasks').select('*');
@@ -1885,25 +1885,25 @@ const handleClockIn = async () => {
           setQuickTasks(dedupByKey(mapped,'id'));
           const comp = {};
           cloudTasks.forEach(tk => { if (tk.completed) comp[tk.local_id] = true; });
-          setCompletedTasks(comp);
+          setCompletedTasks(dedupByKey(comp,'id'));
         }
 
         const { data: cloudBlocks } = await supabase.from('time_blocks').select('*');
         if (cloudBlocks) {
           const mapped = cloudBlocks.filter(Boolean).map(b => ({ id: b.local_id, task: b.task_text, time: b.start_time, end: b.end_time, cat: b.category }));
-          setTimeBlocks(mapped);
+          setTimeBlocks(dedupByKey(mapped,'id'));
         }
 
         const { data: cloudIdeas } = await supabase.from('ideas').select('*');
         if (cloudIdeas) {
           const mapped = cloudIdeas.filter(Boolean).map(i => ({ id: i.local_id, text: i.text_content }));
-          setIdeas(mapped);
+          setIdeas(dedupByKey(mapped,'id'));
         }
 
         const { data: cloudTeam } = await supabase.from('team_members').select('*');
         if (cloudTeam) {
           const mapped = cloudTeam.filter(Boolean).map(m => ({ id: m.local_id, name: m.name, initials: m.initials, status: m.status }));
-          setTeamMembers(mapped);
+          setTeamMembers(dedupByKey(mapped,'id'));
         }
 
 
@@ -1911,14 +1911,14 @@ const handleClockIn = async () => {
         const { data: cloudHistory } = await supabase.from('task_history').select('*');
         if (cloudHistory) {
           const mapped = cloudHistory.filter(Boolean).map(h => ({ date: h.date, tasks: h.tasks }));
-          setTaskHistory(mapped);
+          setTaskHistory(dedupByKey(mapped,'id'));
         }
 
         const { data: cloudProjects } = await supabase.from('projects').select('*').eq('owner_id', supaUser.id);
         if (cloudProjects) {
           const mapped = cloudProjects.filter(Boolean).map(p => ({ id: p.local_id, name: p.name, desc: p.description, progress: p.progress, status: p.status, start: p.start_date, launch: p.launch_date, team: p.team_size, next: p.next_step, teamMembers: p.team_members || [], department_id: p.department_id || null }));
           if (localStorage.getItem("nuoperandi_reset") === "true") { await supabase.from("projects").delete().eq("owner_id", supaUser.id); await supabase.from("weekly_tasks").delete().eq("owner_id", supaUser.id); await supabase.from("time_blocks").delete().eq("owner_id", supaUser.id); await supabase.from("daily_tasks").delete().eq("owner_id", supaUser.id); localStorage.removeItem("nuoperandi_reset"); Object.keys(localStorage).filter(k => k.startsWith("nuoperandi_") || k.startsWith("nuop_")).forEach(k => localStorage.removeItem(k)); setProjects([]); cloudDataLoaded = true; return; }
-      setProjects(mapped);     }
+      setProjects(dedupByKey(mapped,'id'));     }
 
         const { data: cloudWeekly } = await supabase.from('weekly_tasks').select('*');
         if (cloudWeekly) {
