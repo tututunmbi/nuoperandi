@@ -3016,7 +3016,7 @@ const handleClockIn = async () => {
     const pendingDelegated = (delegatedToMe || []).filter(d => d.status !== 'completed' && d.status !== 'done').map(d => ({ id: d.id || ('del-' + Math.random()), task: d.task_text || d.task || 'Delegated task', sourceType: 'delegated', delegatedFrom: d.delegator_name || 'Team', priority: d.priority || 'medium', due: d.deadline || '' }));
     const pendingWeekly = (weeklyPlan || []).filter(w => !w.completed && w.deadline && w.deadline <= today).map(w => ({ id: w.id || ('wk-' + Math.random()), task: w.task_text || w.task || w.name || 'Weekly task', sourceType: 'weekly', projectId: w.project_local_id || w.projectId, priority: w.priority || 'medium', due: w.deadline || '' }));
     const pendingMeetings = (meetings || []).filter(m => m.date === today && m.status !== 'cancelled').map(m => ({ id: m.id || ('mt-' + Math.random()), task: m.title + ' (' + m.startTime + (m.endTime ? '-' + m.endTime : '') + ')', sourceType: 'meeting', due: m.date, priority: 'high' }));
-    const pendingTasks = dedupByKey([...pendingDaily, ...pendingDelegated, ...pendingWeekly, ...pendingMeetings].sort((a, b) => { const p = { high: 0, medium: 1, low: 2 }; return (p[a.priority] || 1) - (p[b.priority] || 1); });
+    const pendingTasks = [...pendingDaily, ...pendingDelegated, ...pendingWeekly, ...pendingMeetings].sort((a, b) => { const p = { high: 0, medium: 1, low: 2 }; return (p[a.priority] || 1) - (p[b.priority] || 1); });
         const todayDone = quickTasks.length - pendingTasks.length;
         const weeklyDoneCC = (() => { let d = 0, t = 0; weeklyPlan.forEach(w => { if (w.subtasks && w.subtasks.length > 0) { t += w.subtasks.length; d += w.subtasks.filter(s => s.done).length; } else { t += 1; if (completedWeekly[w.id]) d += 1; } }); return { done: d, total: t }; })();
         const upcomingBlocks = timeBlocks.filter(b => !completedTimeBlocks[b.id]);
@@ -3073,7 +3073,8 @@ const handleClockIn = async () => {
               {/* Mini Bar Chart */}
               <div className="flex items-end gap-1.5 h-24 mt-2">
                 {[...Array(6)].filter(Boolean).map((_, i) => {
-                  const months = ['Jul','Aug','Sep','Oct','Nov','Dec'], 'id');
+                  const months = ['Jul','Aug','Sep','Oct','Nov','Dec'];
+    pendingTasks = dedupByKey(pendingTasks, 'id');
                   const vals = [netMonthly*0.7, netMonthly*0.4, netMonthly*1.1, netMonthly*0.9, netMonthly*0.6, netMonthly];
                   const maxVal = Math.max(...vals.filter(Boolean).map(Math.abs), 1);
                   const h = Math.abs(vals[i]) / maxVal * 80;
