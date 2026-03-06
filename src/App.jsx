@@ -298,6 +298,11 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
     const [status, setStatus] = useState(item ? item.status : 'On Track');
     const [nextPayment, setNextPayment] = useState(item ? (item.nextPayment || '') : '');
     const [paymentCycle, setPaymentCycle] = useState(item ? (item.paymentCycle || 'Monthly') : 'Monthly');
+        const [stage, setStage] = useState(item ? (item.stage || 'Active') : 'Active');
+    const [goalRevenue, setGoalRevenue] = useState(item ? String(item.goalRevenue || '') : '');
+    const [actualRevenue, setActualRevenue] = useState(item ? String(item.actualRevenue || '') : '');
+    const [goalClients, setGoalClients] = useState(item ? String(item.goalClients || '') : '');
+    const [currentClients, setCurrentClients] = useState(item ? String(item.currentClients || '') : '');
     const [payments, setPayments] = useState(item && item.payments ? item.payments : []);
     const addPaymentMilestone = () => {
         setPayments(prev => [...prev, { id: Date.now(), label: '', amount: '', dueDate: '', paid: false, paidDate: null }]);
@@ -314,7 +319,7 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
     const submit = () => {
         if (!name || !monthly) return;
         const val = Number(monthly.replace(/[^0-9.]/g, ''));
-        const data = { name, role, company, type, monthly: val, status, nextPayment, paymentCycle, payments: payments.filter(Boolean).map(p => ({ ...p, amount: Number(String(p.amount).replace(/[^0-9.]/g, '')) || 0 })) };
+        const data = { name, role, company, type, monthly: val, status, stage, goalRevenue: Number(goalRevenue) || null, actualRevenue: Number(actualRevenue) || null, goalClients: Number(goalClients) || null, currentClients: Number(currentClients) || null, nextPayment, paymentCycle, payments: payments.filter(Boolean).map(p => ({ ...p, amount: Number(String(p.amount).replace(/[^0-9.]/g, '')) || 0 })) };
         if (item) {
             setIncomeStreams(prev => prev.filter(Boolean).map(s => s.id === item.id ? { ...s, ...data } : s));
         } else {
@@ -350,6 +355,30 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
                     <option value="On Track">On Track</option><option value="Growing">Growing</option><option value="At Risk">At Risk</option>
                 </select>
             </Field>
+            {/* Goal Setting */}
+            <div className="mt-4 border-t border-gray-100 pt-4">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Goal Tracking</span>
+              <div className="grid grid-cols-2 gap-3 mt-2">
+                <Field label="Stage">
+                  <select value={stage} onChange={e => setStage(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-200 focus:border-violet-400">
+                    <option>Pre-Revenue</option><option>Active</option><option>Scaling</option><option>Paused</option>
+                  </select>
+                </Field>
+                <div></div>
+                <Field label={<span>Revenue Goal (₦)</span>}>
+                  <input type="number" value={goalRevenue} onChange={e => setGoalRevenue(e.target.value)} placeholder="e.g. 500000" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-200 focus:border-violet-400" />
+                </Field>
+                <Field label={<span>Actual Revenue (₦)</span>}>
+                  <input type="number" value={actualRevenue} onChange={e => setActualRevenue(e.target.value)} placeholder="e.g. 320000" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-200 focus:border-violet-400" />
+                </Field>
+                <Field label="Client Goal">
+                  <input type="number" value={goalClients} onChange={e => setGoalClients(e.target.value)} placeholder="e.g. 10" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-200 focus:border-violet-400" />
+                </Field>
+                <Field label="Current Clients">
+                  <input type="number" value={currentClients} onChange={e => setCurrentClients(e.target.value)} placeholder="e.g. 6" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-200 focus:border-violet-400" />
+                </Field>
+              </div>
+            </div>
             {/* Payment Milestones */}
             <div className="mt-4 border-t border-gray-100 pt-4">
               <div className="flex items-center justify-between mb-2">
@@ -2008,7 +2037,7 @@ const handleClockIn = async () => {
           local_id: s.id, owner_id: supaUser.id, name: s.name,
           type: s.type || 'Active', monthly: s.monthly || 0,
           status: s.status || 'active', note: s.note || '',
-          extra_data: { nextPayment: s.nextPayment || '', paymentCycle: s.paymentCycle || '', payments: s.payments || [], role: s.role || '', company: s.company || '' }
+          extra_data: { nextPayment: s.nextPayment || '', paymentCycle: s.paymentCycle || '', payments: s.payments || [], role: s.role || '', company: s.company || '', stage: s.stage || 'Active', goalRevenue: s.goalRevenue || null, actualRevenue: s.actualRevenue || null, goalClients: s.goalClients || null, currentClients: s.currentClients || null }
         }));
         if (rows.length > 0) await supabase.from('income_streams').insert(rows);
       } catch(err) { console.log('Income sync error:', err); }
@@ -2718,6 +2747,7 @@ const handleClockIn = async () => {
 
     const catColors = { amber: 'bg-amber-50 border-amber-200 text-amber-800', blue: 'bg-violet-50 border-violet-200 text-blue-800', purple: 'bg-purple-50 border-purple-200 text-purple-800', green: 'bg-emerald-50 border-emerald-200 text-emerald-800' };
     const catDot = { amber: 'bg-amber-400', blue: 'bg-blue-400', purple: 'bg-purple-400', green: 'bg-emerald-400' };
+    const stageColors = { 'Pre-Revenue': 'bg-amber-50 text-amber-700', 'Active': 'bg-emerald-50 text-emerald-700', 'Scaling': 'bg-blue-50 text-blue-700', 'Paused': 'bg-gray-100 text-gray-500' };
     const statusColors = { 'On Track': 'bg-emerald-50 text-emerald-700', 'Growing': 'bg-violet-50 text-violet-700', 'At Risk': 'bg-red-50 text-red-700', 'In Progress': 'bg-violet-50 text-violet-700', 'Planning': 'bg-amber-50 text-amber-700', 'Launch Ready': 'bg-emerald-50 text-emerald-700', 'Completed': 'bg-gray-100 text-gray-600' };
     const prioColor = { high: 'bg-red-100 text-red-600', medium: 'bg-amber-100 text-amber-600', low: 'bg-emerald-100 text-emerald-600' };
     const prioLabel = { high: 'High', medium: 'Med', low: 'Low' };
@@ -3480,7 +3510,27 @@ const handleClockIn = async () => {
                 <MetricCard label="Monthly Income" value={fmtNaira(totalMonthly)} sub={incomeStreams.length + ' streams'} trend={1} icon={I.trending("#10B981")} />
                 <MetricCard label="Monthly Expenses" value={fmtNaira(totalExpenses)} sub={expenses.length + ' items'} trend={-1} icon={I.receipt("#EF4444")} />
                 <MetricCard label="Net Income" value={fmtNaira(netMonthly)} sub={netMonthly >= 0 ? 'Healthy' : 'Deficit'} trend={netMonthly >= 0 ? 1 : -1} icon={I.wallet(netMonthly >= 0 ? "#10B981" : "#EF4444")} />
-                <MetricCard label="Annual Projected" value={fmtNaira(totalMonthly * 12)} sub={fmtNaira(netMonthly * 12) + ' net/yr'} trend={netMonthly >= 0 ? 1 : -1} icon={I.bar("#8B5CF6")} />
+                <MetricCard label="Goal Progress" value={(() => {
+                      const withGoals = incomeStreams.filter(s => s.goalRevenue > 0 || s.goalClients > 0);
+                      if (withGoals.length === 0) return 'No goals';
+                      const avgPct = Math.round(withGoals.reduce((sum, s) => {
+                        let pct = 0, count = 0;
+                        if (s.goalRevenue > 0) { pct += ((s.actualRevenue || 0) / s.goalRevenue) * 100; count++; }
+                        if (s.goalClients > 0) { pct += ((s.currentClients || 0) / s.goalClients) * 100; count++; }
+                        return sum + (count > 0 ? pct / count : 0);
+                      }, 0) / withGoals.length);
+                      return Math.min(100, avgPct) + '%';
+                    })()} sub={(() => {
+                      const withGoals = incomeStreams.filter(s => s.goalRevenue > 0 || s.goalClients > 0);
+                      const onTrack = withGoals.filter(s => {
+                        let pct = 0, count = 0;
+                        if (s.goalRevenue > 0) { pct += ((s.actualRevenue || 0) / s.goalRevenue) * 100; count++; }
+                        if (s.goalClients > 0) { pct += ((s.currentClients || 0) / s.goalClients) * 100; count++; }
+                        return count > 0 && (pct / count) >= 50;
+                      });
+                      return onTrack.length + ' of ' + withGoals.length + ' on track';
+                    })()} />
+                    <MetricCard label="Annual Projected" value={fmtNaira(totalMonthly * 12)} sub={fmtNaira(netMonthly * 12) + ' net/yr'} trend={netMonthly >= 0 ? 1 : -1} icon={I.bar("#8B5CF6")} />
                 <MetricCard label="Next Payment" value={nextPaymentDue ? new Date(nextPaymentDue.nextPayment).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '--'} sub={nextPaymentDue ? nextPaymentDue.name : 'No dates set'} trend={0} icon={I.calendar("#3B82F6")} />
             </div>
 
@@ -3540,6 +3590,7 @@ const handleClockIn = async () => {
                                             <div className="flex gap-2 mt-1 flex-wrap">
                                                 <span className={'text-xs px-2 py-0.5 rounded-full ' + (s.type === 'Active' ? 'bg-violet-50 text-violet-700' : 'bg-gray-100 text-gray-500')}>{s.type}</span>
                                                 <span className={'text-xs px-2 py-0.5 rounded-full ' + (statusColors[s.status] || 'bg-gray-100 text-gray-600')}>{s.status}</span>
+                                            {s.stage && s.stage !== 'Active' && <span className={"px-2 py-0.5 rounded-full text-xs font-medium " + (stageColors[s.stage] || 'bg-gray-100 text-gray-500')}>{s.stage}</span>}
                                                 {s.paymentCycle && <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">{s.paymentCycle}</span>}
                                                 {s.nextPayment && <span className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">Due {new Date(s.nextPayment).toLocaleDateString('en-US', {month:'short', day:'numeric'})}</span>}
                                             </div>
@@ -3554,6 +3605,61 @@ const handleClockIn = async () => {
                                         <button onClick={e => { e.stopPropagation(); setEditItem(s); setModal('editIncome'); }} className="p-1.5 rounded-lg hover:bg-violet-50 transition">{I.edit("#9CA3AF")}</button>
                                     </div>
                                 </div>
+                            {/* Goal Progress Bar */}
+                            {s.goalRevenue && s.goalRevenue > 0 && (() => {
+                              const pct = Math.min(100, Math.round(((s.actualRevenue || 0) / s.goalRevenue) * 100));
+                              const color = pct >= 66 ? 'bg-emerald-400' : pct >= 33 ? 'bg-amber-400' : 'bg-red-400';
+                              return (
+                                <div className="mt-3">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <span className="text-xs text-gray-500">Revenue Goal</span>
+                                    <span className="text-xs font-semibold text-gray-700">{pct}%</span>
+                                  </div>
+                                  <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                    <div className={color + " h-full rounded-full transition-all"} style={{width: pct + '%'}}></div>
+                                  </div>
+                                </div>
+                              );
+                            })()}
+                            {/* Expanded Goal Tracker */}
+                            {expandedIncome === s.id && (s.goalRevenue || s.goalClients) && (
+                              <div className="mt-4 pt-4 border-t border-gray-100 bg-gray-50/50 rounded-lg p-4 -mx-1">
+                                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Goal Tracker</span>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
+                                  {s.goalRevenue > 0 && (() => {
+                                    const pct = Math.min(100, Math.round(((s.actualRevenue || 0) / s.goalRevenue) * 100));
+                                    const remaining = Math.max(0, s.goalRevenue - (s.actualRevenue || 0));
+                                    const color = pct >= 66 ? 'bg-emerald-400' : pct >= 33 ? 'bg-amber-400' : 'bg-red-400';
+                                    return (
+                                      <div>
+                                        <p className="text-xs font-medium text-gray-600 mb-1">Revenue</p>
+                                        <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden mb-1">
+                                          <div className={color + " h-full rounded-full transition-all"} style={{width: pct + '%'}}></div>
+                                        </div>
+                                        <p className="text-sm font-semibold text-gray-800">{fmtNaira(s.actualRevenue || 0)} / {fmtNaira(s.goalRevenue)} <span className="text-xs font-normal text-gray-500">({pct}%)</span></p>
+                                        <p className="text-xs text-gray-500 mt-0.5">{fmtNaira(remaining)} remaining</p>
+                                      </div>
+                                    );
+                                  })()}
+                                  {s.goalClients > 0 && (() => {
+                                    const pct = Math.min(100, Math.round(((s.currentClients || 0) / s.goalClients) * 100));
+                                    const remaining = Math.max(0, s.goalClients - (s.currentClients || 0));
+                                    const color = pct >= 66 ? 'bg-emerald-400' : pct >= 33 ? 'bg-amber-400' : 'bg-red-400';
+                                    return (
+                                      <div>
+                                        <p className="text-xs font-medium text-gray-600 mb-1">Clients</p>
+                                        <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden mb-1">
+                                          <div className={color + " h-full rounded-full transition-all"} style={{width: pct + '%'}}></div>
+                                        </div>
+                                        <p className="text-sm font-semibold text-gray-800">{s.currentClients || 0} / {s.goalClients} <span className="text-xs font-normal text-gray-500">({pct}%)</span></p>
+                                        <p className="text-xs text-gray-500 mt-0.5">{remaining} more needed</p>
+                                      </div>
+                                    );
+                                  })()}
+                                </div>
+                                {!s.goalRevenue && !s.goalClients && <p className="text-xs text-gray-400 mt-2 italic">Set a revenue or client target to track your progress</p>}
+                              </div>
+                            )}
                             {s.payments && s.payments.length > 0 && (
                                 <div className="mt-3 pt-3 border-t border-gray-100">
                                     <div className="flex items-center justify-between mb-2">
