@@ -303,6 +303,7 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
     const [actualRevenue, setActualRevenue] = useState(item ? String(item.actualRevenue || '') : '');
     const [goalClients, setGoalClients] = useState(item ? String(item.goalClients || '') : '');
     const [currentClients, setCurrentClients] = useState(item ? String(item.currentClients || '') : '');
+    const [logo, setLogo] = useState(item ? (item.logo || '') : '');
     const [payments, setPayments] = useState(item && item.payments ? item.payments : []);
     const addPaymentMilestone = () => {
         setPayments(prev => [...prev, { id: Date.now(), label: '', amount: '', dueDate: '', paid: false, paidDate: null }]);
@@ -319,7 +320,7 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
     const submit = () => {
         if (!name || !monthly) return;
         const val = Number(monthly.replace(/[^0-9.]/g, ''));
-        const data = { name, role, company, type, monthly: val, status, stage, goalRevenue: Number(goalRevenue) || null, actualRevenue: Number(actualRevenue) || null, goalClients: Number(goalClients) || null, currentClients: Number(currentClients) || null, nextPayment, paymentCycle, payments: payments.filter(Boolean).map(p => ({ ...p, amount: Number(String(p.amount).replace(/[^0-9.]/g, '')) || 0 })) };
+        const data = { name, role, company, type, monthly: val, status, stage, logo, goalRevenue: Number(goalRevenue) || null, actualRevenue: Number(actualRevenue) || null, goalClients: Number(goalClients) || null, currentClients: Number(currentClients) || null, nextPayment, paymentCycle, payments: payments.filter(Boolean).map(p => ({ ...p, amount: Number(String(p.amount).replace(/[^0-9.]/g, '')) || 0 })) };
         if (item) {
             setIncomeStreams(prev => prev.filter(Boolean).map(s => s.id === item.id ? { ...s, ...data } : s));
         } else {
@@ -355,6 +356,20 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
                     <option value="On Track">On Track</option><option value="Growing">Growing</option><option value="At Risk">At Risk</option>
                 </select>
             </Field>
+            {/* Logo / Image */}
+            <div className="mt-4 border-t border-gray-100 pt-4">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Logo / Featured Image</span>
+              <div className="mt-2 flex items-center gap-3">
+                {logo && <img src={logo} className="w-12 h-12 rounded-lg object-cover border border-gray-200" alt="" />}
+                <div className="flex-1">
+                  <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-lg text-xs font-medium transition">
+                    <span>{logo ? 'Change Image' : 'Upload Image'}</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files[0]; if (f) { const canvas = document.createElement('canvas'); const img = new Image(); img.onload = () => { const max = 128; let w = img.width, h = img.height; if (w > max || h > max) { if (w > h) { h = Math.round(h * max / w); w = max; } else { w = Math.round(w * max / h); h = max; } } canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h); setLogo(canvas.toDataURL('image/jpeg', 0.7)); }; img.src = URL.createObjectURL(f); }}} />
+                  </label>
+                  {logo && <button type="button" onClick={() => setLogo('')} className="text-xs text-red-500 ml-2 hover:underline">Remove</button>}
+                </div>
+              </div>
+            </div>
             {/* Goal Setting */}
             <div className="mt-4 border-t border-gray-100 pt-4">
               <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Goal Tracking</span>
@@ -399,7 +414,7 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
                     <input className="w-28 bg-white border border-gray-200 rounded px-2 py-1 text-xs focus:border-blue-400 outline-none" placeholder="Amount" value={pm.amount} onChange={e => updateMilestone(pm.id, 'amount', e.target.value)}/>
                     <input type="date" className="flex-1 bg-white border border-gray-200 rounded px-2 py-1 text-xs focus:border-blue-400 outline-none" value={pm.dueDate || ''} onChange={e => updateMilestone(pm.id, 'dueDate', e.target.value)}/>
                   </div>
-                  {pm.paid && pm.paidDate && <p className="text-xs text-green-600 ml-7 mt-1">{"Paid on " + pm.paidDate}</p>}
+                  {pm.paid && <div className="flex items-center gap-2 ml-7 mt-1"><span className="text-xs text-green-600">Paid on</span><input type="date" value={pm.paidDate || ''} onChange={e => setPayments(prev => prev.filter(Boolean).map(p => p.id === pm.id ? { ...p, paidDate: e.target.value } : p))} className="text-xs text-green-700 bg-transparent border-b border-green-300 focus:outline-none focus:border-green-500 px-1 py-0" /></div>}
                 </div>
               ))}
             </div>
@@ -2037,7 +2052,7 @@ const handleClockIn = async () => {
           local_id: s.id, owner_id: supaUser.id, name: s.name,
           type: s.type || 'Active', monthly: s.monthly || 0,
           status: s.status || 'active', note: s.note || '',
-          extra_data: { nextPayment: s.nextPayment || '', paymentCycle: s.paymentCycle || '', payments: s.payments || [], role: s.role || '', company: s.company || '', stage: s.stage || 'Active', goalRevenue: s.goalRevenue || null, actualRevenue: s.actualRevenue || null, goalClients: s.goalClients || null, currentClients: s.currentClients || null }
+          extra_data: { nextPayment: s.nextPayment || '', paymentCycle: s.paymentCycle || '', payments: s.payments || [], role: s.role || '', company: s.company || '', stage: s.stage || 'Active', logo: s.logo || '', goalRevenue: s.goalRevenue || null, actualRevenue: s.actualRevenue || null, goalClients: s.goalClients || null, currentClients: s.currentClients || null }
         }));
         if (rows.length > 0) await supabase.from('income_streams').insert(rows);
       } catch(err) { console.log('Income sync error:', err); }
@@ -4444,7 +4459,8 @@ const handleClockIn = async () => {
             <div key={p.id} className="bg-white rounded-xl border border-violet-100/60 card-shadow overflow-hidden">
               <div className="px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => setExpandedProject(expandedProject === p.id ? null : p.id)}>
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className={"w-2.5 h-2.5 rounded-full flex-shrink-0 " + (p.status === 'Planning' ? 'bg-yellow-400' : p.status === 'In Progress' ? 'bg-violet-500' : 'bg-green-500')} />
+                  {s.logo && <img src={s.logo} className="w-8 h-8 rounded-lg object-cover border border-gray-100 mr-1 flex-shrink-0" alt="" />}
+                                        <div className={"w-2.5 h-2.5 rounded-full flex-shrink-0 " + (p.status === 'Planning' ? 'bg-yellow-400' : p.status === 'In Progress' ? 'bg-violet-500' : 'bg-green-500')} />
                   <div className="min-w-0">
                     <h3 className="text-sm font-semibold text-gray-900 truncate">{p.name}</h3>
                     <div className="flex items-center gap-2 mt-0.5">
