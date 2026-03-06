@@ -1904,7 +1904,7 @@ const handleClockIn = async () => {
   useEffect(() => {
     if (!supaUser) return;
     /* Dedup helper to prevent cloud sync duplicates */
-    const dedupByKey = (arr, key) => { const s = new Set(); return arr.filter(i => { const k = i[key]; if (s.has(k)) return false; s.add(k); return true; }); };
+    const dedupByKey = (arr, key) => { if (!Array.isArray(arr)) return []; const s = new Set(); return arr.filter(i => { const k = i[key]; if (s.has(k)) return false; s.add(k); return true; }); };
     const loadFromCloud = async () => {
       try {
         // Check if user has local data already
@@ -1913,19 +1913,19 @@ const handleClockIn = async () => {
         // Load cloud data and merge with local.
         const { data: cloudIncome } = await supabase.from('income_streams').select('*').eq('owner_id', supaUser.id);
         if (cloudIncome) {
-          const mapped = cloudIncome.filter(Boolean).map(s => ({ id: s.local_id, name: s.name, type: s.type, monthly: s.monthly, status: s.status, note: s.note, ...(s.extra_data || {}) }));
+          const mapped = (Array.isArray(cloudIncome) ? cloudIncome : []).filter(Boolean).map(s => ({ id: s.local_id, name: s.name, type: s.type, monthly: s.monthly, status: s.status, note: s.note, ...(s.extra_data || {}) }));
           setIncomeStreams(dedupByKey(mapped, 'id'));
         }
 
         const { data: cloudExpenses } = await supabase.from('expenses').select('*');
         if (cloudExpenses) {
-          const mapped = cloudExpenses.filter(Boolean).map(e => ({ id: e.local_id, name: e.name, amount: e.amount, category: e.category, frequency: e.frequency, linkedStreamId: e.linked_stream_id, note: e.note, dueDate: e.due_date, entries: (e.extra_data && e.extra_data.entries) || [], project_id: (e.extra_data && e.extra_data.project_id) || e.project_id || null }));
+          const mapped = (Array.isArray(cloudExpenses) ? cloudExpenses : []).filter(Boolean).map(e => ({ id: e.local_id, name: e.name, amount: e.amount, category: e.category, frequency: e.frequency, linkedStreamId: e.linked_stream_id, note: e.note, dueDate: e.due_date, entries: (e.extra_data && e.extra_data.entries) || [], project_id: (e.extra_data && e.extra_data.project_id) || e.project_id || null }));
           setExpenses(dedupByKey(mapped,'id'));
         }
 
         const { data: cloudTasks } = await supabase.from('daily_tasks').select('*');
         if (cloudTasks) {
-          const mapped = cloudTasks.filter(Boolean).map(tk => ({ id: tk.local_id, task: tk.task_text, priority: tk.priority, due: tk.due, projectId: tk.project_id, weeklySourceId: tk.weekly_source_id }));
+          const mapped = (Array.isArray(cloudTasks) ? cloudTasks : []).filter(Boolean).map(tk => ({ id: tk.local_id, task: tk.task_text, priority: tk.priority, due: tk.due, projectId: tk.project_id, weeklySourceId: tk.weekly_source_id }));
           setQuickTasks(dedupByKey(mapped,'id'));
           const comp = {};
           cloudTasks.forEach(tk => { if (tk.completed) comp[tk.local_id] = true; });
@@ -1934,19 +1934,19 @@ const handleClockIn = async () => {
 
         const { data: cloudBlocks } = await supabase.from('time_blocks').select('*');
         if (cloudBlocks) {
-          const mapped = cloudBlocks.filter(Boolean).map(b => ({ id: b.local_id, task: b.task_text, time: b.start_time, end: b.end_time, cat: b.category }));
+          const mapped = (Array.isArray(cloudBlocks) ? cloudBlocks : []).filter(Boolean).map(b => ({ id: b.local_id, task: b.task_text, time: b.start_time, end: b.end_time, cat: b.category }));
           setTimeBlocks(dedupByKey(mapped,'id'));
         }
 
         const { data: cloudIdeas } = await supabase.from('ideas').select('*');
         if (cloudIdeas) {
-          const mapped = cloudIdeas.filter(Boolean).map(i => ({ id: i.local_id, text: i.text_content }));
+          const mapped = (Array.isArray(cloudIdeas) ? cloudIdeas : []).filter(Boolean).map(i => ({ id: i.local_id, text: i.text_content }));
           setIdeas(dedupByKey(mapped,'id'));
         }
 
         const { data: cloudTeam } = await supabase.from('team_members').select('*');
         if (cloudTeam) {
-          const mapped = cloudTeam.filter(Boolean).map(m => ({ id: m.local_id, name: m.name, initials: m.initials, status: m.status }));
+          const mapped = (Array.isArray(cloudTeam) ? cloudTeam : []).filter(Boolean).map(m => ({ id: m.local_id, name: m.name, initials: m.initials, status: m.status }));
           setTeamMembers(dedupByKey(mapped,'id'));
         }
 
@@ -1954,19 +1954,19 @@ const handleClockIn = async () => {
 
         const { data: cloudHistory } = await supabase.from('task_history').select('*');
         if (cloudHistory) {
-          const mapped = cloudHistory.filter(Boolean).map(h => ({ date: h.date, tasks: h.tasks }));
+          const mapped = (Array.isArray(cloudHistory) ? cloudHistory : []).filter(Boolean).map(h => ({ date: h.date, tasks: h.tasks }));
           setTaskHistory(dedupByKey(mapped,'id'));
         }
 
         const { data: cloudProjects } = await supabase.from('projects').select('*').eq('owner_id', supaUser.id);
         if (cloudProjects) {
-          const mapped = cloudProjects.filter(Boolean).map(p => ({ id: p.local_id, name: p.name, desc: p.description, progress: p.progress, status: p.status, start: p.start_date, launch: p.launch_date, team: p.team_size, next: p.next_step, teamMembers: p.team_members || [], department_id: p.department_id || null }));
+          const mapped = (Array.isArray(cloudProjects) ? cloudProjects : []).filter(Boolean).map(p => ({ id: p.local_id, name: p.name, desc: p.description, progress: p.progress, status: p.status, start: p.start_date, launch: p.launch_date, team: p.team_size, next: p.next_step, teamMembers: p.team_members || [], department_id: p.department_id || null }));
           if (localStorage.getItem("nuoperandi_reset") === "true") { await supabase.from("projects").delete().eq("owner_id", supaUser.id); await supabase.from("weekly_tasks").delete().eq("owner_id", supaUser.id); await supabase.from("time_blocks").delete().eq("owner_id", supaUser.id); await supabase.from("daily_tasks").delete().eq("owner_id", supaUser.id); localStorage.removeItem("nuoperandi_reset"); Object.keys(localStorage).filter(k => k.startsWith("nuoperandi_") || k.startsWith("nuop_")).forEach(k => localStorage.removeItem(k)); setProjects([]); cloudDataLoaded = true; return; }
       setProjects(dedupByKey(mapped,'id'));     }
 
         const { data: cloudWeekly } = await supabase.from('weekly_tasks').select('*');
         if (cloudWeekly) {
-          const mapped = cloudWeekly.filter(Boolean).map(tk => ({ id: tk.local_id, task: tk.task_text, projectId: tk.project_local_id, subtasks: tk.subtasks || [], deadline: tk.deadline, delegatedTo: tk.delegated_to, thisWeek: !!tk.this_week }));
+          const mapped = (Array.isArray(cloudWeekly) ? cloudWeekly : []).filter(Boolean).map(tk => ({ id: tk.local_id, task: tk.task_text, projectId: tk.project_local_id, subtasks: tk.subtasks || [], deadline: tk.deadline, delegatedTo: tk.delegated_to, thisWeek: !!tk.this_week }));
           setWeeklyPlan(dedupByKey(mapped,'id'));
           const comp = {};
           cloudWeekly.forEach(tk => { if (tk.completed) comp[tk.local_id] = true; });
@@ -1979,7 +1979,7 @@ const handleClockIn = async () => {
         }
 
       cloudDataLoaded = true;
-      } catch(err) { console.log('Cloud load error:', err); }
+      } catch(err) { console.log('Cloud load error:', err); } finally { cloudDataLoaded = true; }
     };
     loadFromCloud();
   }, [supaUser]);
