@@ -1914,40 +1914,40 @@ const handleClockIn = async () => {
         const { data: cloudIncome } = await supabase.from('income_streams').select('*').eq('owner_id', supaUser.id);
         if (cloudIncome) {
           const mapped = (Array.isArray(cloudIncome) ? cloudIncome : []).filter(Boolean).map(s => ({ id: s.local_id, name: s.name, type: s.type, monthly: s.monthly, status: s.status, note: s.note, ...(s.extra_data || {}) }));
-          setIncomeStreams(dedupByKey(mapped, 'id'));
+          setIncomeStreams(prev => dedupByKey([...prev, ...mapped], 'id'));
         }
 
         const { data: cloudExpenses } = await supabase.from('expenses').select('*');
         if (cloudExpenses) {
           const mapped = (Array.isArray(cloudExpenses) ? cloudExpenses : []).filter(Boolean).map(e => ({ id: e.local_id, name: e.name, amount: e.amount, category: e.category, frequency: e.frequency, linkedStreamId: e.linked_stream_id, note: e.note, dueDate: e.due_date, entries: (e.extra_data && e.extra_data.entries) || [], project_id: (e.extra_data && e.extra_data.project_id) || e.project_id || null }));
-          setExpenses(dedupByKey(mapped,'id'));
+          setExpenses(prev => dedupByKey([...prev, ...mapped],'id'));
         }
 
         const { data: cloudTasks } = await supabase.from('daily_tasks').select('*');
         if (cloudTasks) {
           const mapped = (Array.isArray(cloudTasks) ? cloudTasks : []).filter(Boolean).map(tk => ({ id: tk.local_id, task: tk.task_text, priority: tk.priority, due: tk.due, projectId: tk.project_id, weeklySourceId: tk.weekly_source_id }));
-          setQuickTasks(dedupByKey(mapped,'id'));
+          setQuickTasks(prev => dedupByKey([...prev, ...mapped],'id'));
           const comp = {};
           cloudTasks.forEach(tk => { if (tk.completed) comp[tk.local_id] = true; });
-          setCompletedTasks(dedupByKey(comp,'id'));
+          setCompletedTasks(prev => dedupByKey([...prev, ...comp],'id'));
         }
 
         const { data: cloudBlocks } = await supabase.from('time_blocks').select('*');
         if (cloudBlocks) {
           const mapped = (Array.isArray(cloudBlocks) ? cloudBlocks : []).filter(Boolean).map(b => ({ id: b.local_id, task: b.task_text, time: b.start_time, end: b.end_time, cat: b.category }));
-          setTimeBlocks(dedupByKey(mapped,'id'));
+          setTimeBlocks(prev => dedupByKey([...prev, ...mapped],'id'));
         }
 
         const { data: cloudIdeas } = await supabase.from('ideas').select('*');
         if (cloudIdeas) {
           const mapped = (Array.isArray(cloudIdeas) ? cloudIdeas : []).filter(Boolean).map(i => ({ id: i.local_id, text: i.text_content }));
-          setIdeas(dedupByKey(mapped,'id'));
+          setIdeas(prev => dedupByKey([...prev, ...mapped],'id'));
         }
 
         const { data: cloudTeam } = await supabase.from('team_members').select('*');
         if (cloudTeam) {
           const mapped = (Array.isArray(cloudTeam) ? cloudTeam : []).filter(Boolean).map(m => ({ id: m.local_id, name: m.name, initials: m.initials, status: m.status }));
-          setTeamMembers(dedupByKey(mapped,'id'));
+          setTeamMembers(prev => dedupByKey([...prev, ...mapped],'id'));
         }
 
 
@@ -1955,7 +1955,7 @@ const handleClockIn = async () => {
         const { data: cloudHistory } = await supabase.from('task_history').select('*');
         if (cloudHistory) {
           const mapped = (Array.isArray(cloudHistory) ? cloudHistory : []).filter(Boolean).map(h => ({ date: h.date, tasks: h.tasks }));
-          setTaskHistory(dedupByKey(mapped,'id'));
+          setTaskHistory(prev => dedupByKey([...prev, ...mapped],'id'));
         }
 
         const { data: cloudProjects } = await supabase.from('projects').select('*').eq('owner_id', supaUser.id);
