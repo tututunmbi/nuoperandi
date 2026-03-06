@@ -340,7 +340,7 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
                         <option value="Active">Active</option><option value="Passive">Passive</option>
                     </select>
                 </Field>
-                <Field label="Monthly Amount ( â¦)"><input className={inputCls} value={monthly} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setMonthly(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setMonthly(parts.join('.')); }} placeholder="e.g. 1,000,000" type="text" inputMode="numeric" /></Field>
+                <Field label="Est. Monthly (â¦)"><input className={inputCls} value={monthly} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); if (!raw) { setMonthly(''); return; } const parts = raw.split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setMonthly(parts.join('.')); }} placeholder="e.g. 1,000,000" type="text" inputMode="numeric" /></Field>
             </div>
             <div className="grid grid-cols-2 gap-3">
                 <Field label="Next Payment Due"><input className={inputCls} type="date" value={nextPayment} onChange={e => setNextPayment(e.target.value)} /></Field>
@@ -369,7 +369,7 @@ const IncomeForm = ({ item, onClose, setIncomeStreams }) => {
                   <input type="number" value={goalRevenue} onChange={e => setGoalRevenue(e.target.value)} placeholder="e.g. 500000" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-200 focus:border-violet-400" />
                 </Field>
                 <Field label={<span>Actual Revenue (₦)</span>}>
-                  <input type="number" value={actualRevenue} onChange={e => setActualRevenue(e.target.value)} placeholder="e.g. 320000" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-200 focus:border-violet-400" />
+                  <input type="number" value={actualRevenue} onChange={e => { setActualRevenue(e.target.value); const v = Number(e.target.value); if (v > 0) { const parts = String(v).split('.'); parts[0] = Number(parts[0]).toLocaleString('en-US'); setMonthly(parts.join('.')); } }} placeholder="e.g. 320000" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-200 focus:border-violet-400" />
                 </Field>
                 <Field label="Client Goal">
                   <input type="number" value={goalClients} onChange={e => setGoalClients(e.target.value)} placeholder="e.g. 10" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-200 focus:border-violet-400" />
